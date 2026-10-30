@@ -8,6 +8,8 @@
 
 [查看在线页面](https://deepseek-compaction-threshold.pages.dev/)
 
+在线页面会通过 Cloudflare Pages 自动部署 `main` 分支的更新。
+
 不存在适用于所有人的唯一阈值。合适的阈值取决于工作需要保留多少上下文，
 以及使用者对额外费用和压缩等待时间的接受程度。
 

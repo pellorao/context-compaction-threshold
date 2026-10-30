@@ -10,6 +10,8 @@ HTML chart.
 
 [View the live report](https://deepseek-compaction-threshold.pages.dev/)
 
+The live report deploys automatically from `main` through Cloudflare Pages.
+
 The chart has no universal winner. The useful threshold depends on how much
 working context a user needs and how much compaction cost and delay they are
 willing to accept.

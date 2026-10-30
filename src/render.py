@@ -110,7 +110,11 @@ code, .formula { font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mo
 .caveats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin:0; padding:0; list-style:none; }
 .caveats li { padding:15px 16px; border-radius:14px; background:var(--surface-2); color:var(--muted); font-size:14px; }
 .caveats strong { color:var(--ink); }
-footer { margin-top:28px; color:var(--muted); font-size:12px; text-align:center; }
+footer { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:28px; color:var(--muted); font-size:12px; }
+.github-link { display:inline-flex; color:var(--muted); transition:color .15s ease; }
+.github-link:hover,.github-link:focus-visible { color:var(--ink); }
+.github-link:focus-visible { outline:2px solid var(--blue); outline-offset:3px; border-radius:4px; }
+.github-link svg { display:block; width:18px; height:18px; }
 @media (max-width:820px) {
   .page { width:min(100% - 24px,1180px); padding-top:28px; }
   h1 { font-size:32px; }
@@ -253,7 +257,14 @@ T* ≈ R + √( 2Δ · (BR + ρG) / α )</div>
     </ul>
   </section>
 
-  <footer>© 2026 Tranzvision</footer>
+  <footer>
+    <span>© 2026 Tranzvision</span>
+    <a class="github-link" href="https://github.com/pellorao/deepseek-compaction-threshold" aria-label="在 GitHub 查看项目" title="在 GitHub 查看项目">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="currentColor" d="M12 .7a11.3 11.3 0 0 0-3.57 22.02c.57.1.78-.25.78-.55v-2.16c-3.17.69-3.84-1.35-3.84-1.35-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.73-1.53-2.53-.29-5.2-1.27-5.2-5.63 0-1.24.44-2.26 1.17-3.06-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.13 1.17a10.9 10.9 0 0 1 5.7 0c2.17-1.48 3.12-1.17 3.12-1.17.62 1.57.23 2.73.11 3.02.73.8 1.17 1.82 1.17 3.06 0 4.37-2.67 5.34-5.21 5.62.41.35.77 1.05.77 2.12v3.14c0 .3.2.66.79.55A11.3 11.3 0 0 0 12 .7Z"/>
+      </svg>
+    </a>
+  </footer>
 </main>
 <script>
 const D=__DATA__;

@@ -8,6 +8,8 @@ and latency model from measured compactions, expands the observed request
 workload with a block bootstrap, and publishes the result as a standalone
 HTML chart.
 
+[View the live report](https://deepseek-compaction-threshold.pages.dev/)
+
 The chart has no universal winner. The useful threshold depends on how much
 working context a user needs and how much compaction cost and delay they are
 willing to accept.

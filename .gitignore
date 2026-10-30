@@ -2,5 +2,6 @@ __pycache__/
 *.py[cod]
 .smoke/
 .tmp/
+.wrangler/
 .browser-profile/
 .DS_Store

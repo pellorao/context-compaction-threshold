@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+.smoke/
+.tmp/
+.browser-profile/
+.DS_Store

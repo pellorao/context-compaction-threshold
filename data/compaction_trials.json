@@ -1,0 +1,74 @@
+[
+  {
+    "name": "real-ui-128k",
+    "source": "session-derived",
+    "input_tokens": 179038,
+    "cached_tokens": 13312,
+    "output_tokens": 3945,
+    "seconds": 29.181
+  },
+  {
+    "name": "real-metrics-256k",
+    "source": "session-derived",
+    "input_tokens": 208476,
+    "cached_tokens": 13312,
+    "output_tokens": 2341,
+    "seconds": 19.442
+  },
+  {
+    "name": "real-qwen-128k",
+    "source": "session-derived",
+    "input_tokens": 162136,
+    "cached_tokens": 13312,
+    "output_tokens": 2331,
+    "seconds": 15.853
+  },
+  {
+    "name": "real-ui-256k",
+    "source": "session-derived",
+    "input_tokens": 376165,
+    "cached_tokens": 13312,
+    "output_tokens": 3684,
+    "seconds": 30.436
+  },
+  {
+    "name": "real-qwen-256k",
+    "source": "session-derived",
+    "input_tokens": 302746,
+    "cached_tokens": 13312,
+    "output_tokens": 3859,
+    "seconds": 29.809
+  },
+  {
+    "name": "real-metrics-160k",
+    "source": "session-derived",
+    "input_tokens": 184449,
+    "cached_tokens": 13312,
+    "output_tokens": 3551,
+    "seconds": 25.885
+  },
+  {
+    "name": "native-medium",
+    "source": "native",
+    "input_tokens": 134778,
+    "cached_tokens": 3456,
+    "output_tokens": 4645,
+    "seconds": 30.589
+  },
+  {
+    "name": "native-large",
+    "source": "native",
+    "input_tokens": 220443,
+    "cached_tokens": 3712,
+    "output_tokens": 1899,
+    "seconds": 12.818
+  },
+  {
+    "name": "native-large-2",
+    "source": "native",
+    "input_tokens": 336680,
+    "cached_tokens": 3712,
+    "output_tokens": 8263,
+    "seconds": 54.439
+  }
+]

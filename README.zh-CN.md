@@ -85,6 +85,9 @@ artifacts/curves.csv
 artifacts/threshold-chart.html
 ```
 
+Cloudflare Pages 发布 `artifacts/`，并将 `threshold-chart.html` 复制为
+生产根路径的 `index.html`。
+
 ## 目录结构
 
 ```text

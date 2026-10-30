@@ -91,6 +91,9 @@ artifacts/curves.csv
 artifacts/threshold-chart.html
 ```
 
+Cloudflare Pages publishes `artifacts/` and copies `threshold-chart.html` to
+`index.html` for the production root.
+
 ## Repository layout
 
 ```text

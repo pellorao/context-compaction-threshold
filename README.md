@@ -1,134 +1,78 @@
 English | [简体中文](README.zh-CN.md)
 
-# DeepSeek Best Compaction Threshold
+# Context Compaction Threshold
 
-An empirical calculator for the trade-off between DeepSeek token cost and
-context-compaction time. It replays real DeepSeek Codex sessions, fits a cost
-and latency model from measured compactions, expands the observed request
-workload with a block bootstrap, and publishes the result as a standalone
-HTML chart.
+An empirical calculator for the trade-off between token cost and
+context-compaction time. It replays real agent sessions, fits a cost and
+latency model from measured compactions, expands the observed workload with a
+block bootstrap, and publishes a static site: a landing page where you pick a
+model, and one chart page per model (DeepSeek Flash on Codex, Claude Opus 5.5
+and Claude Sonnet 5.5 on Claude Code). Pages are in English and Simplified
+Chinese.
 
 [View the live report](https://deepseek-compaction-threshold.pages.dev/)
 
-The live report deploys automatically from `main` through Cloudflare Pages.
-
 The chart has no universal winner. The useful threshold depends on how much
-working context a user needs and how much compaction cost and delay they are
-willing to accept.
+working context you need and how much compaction cost and delay you accept.
+For Claude Code the page also tells you which `autoCompactWindow` value to set.
 
-## What is measured
-
-- Only Codex sessions using `deepseek-flash` are included.
-- Requests are deduplicated by response ID.
-- Explicit smoke/probe/test sessions are excluded.
-- Calibration sessions can be excluded with repeated `--exclude-thread`
-  arguments.
-- The latest post-compaction tail of an active analysis thread can be included
-  with `--active-thread`.
-- The current calibration file contains nine real compactions: six from real
-  session context shortened by semantic trimming and three native compactions.
-
-## Method
-
-For every request, the cost model is:
-
-```text
-Q(x, c, y) = p_m * ((1-c) + alpha*c) * x + p_o * y
-alpha = p_c / p_m
-rho = p_o / p_m
-```
-
-The compaction-time model is:
-
-```text
-t_c = a*(C-K) + G/v
-```
-
-where `C` is compaction input, `K` is the reusable cached prefix, `G` is
-summary output, `a` is prefill time per uncached token, and `v` is effective
-summary-generation speed. The public page exposes `v` as the
-“server output speed” slider while keeping cost unchanged.
-
-The threshold curve is computed in three stages:
-
-1. Replay each real session exactly to obtain the observed staircase curve.
-2. Circular-block-bootstrap each session's real request transitions, using
-   blocks of eight requests. A fixed seed creates 100 workloads.
-3. Replay every threshold on every resampled workload and average the results.
-
-There is no final-curve smoothing step. The smooth line is a Monte Carlo
-expectation over request-growth patterns actually present in the sessions.
+The fixed rules (threshold step, axis limits, prices and their sources, what
+counts as a session or request, how compactions are found, bootstrap
+parameters) and the per-model data statistics are in
+[docs/methodology.md](docs/methodology.md).
 
 ## Quick start
 
-The project has no third-party Python dependencies.
+No third-party Python dependencies.
 
 ```bash
-python3 src/generate.py
+python3 src/generate.py --profile claude-opus-5-5 --workers 30   # analyze, then rebuild the site
+python3 src/generate.py --render-only                           # rebuild the site from existing results
+python3 -m unittest discover -s tests -p 'test_*.py'            # tests
 ```
 
-To reproduce a report for a specific active session:
+`--profile` defaults to `deepseek-flash` (Codex sessions in `~/.codex/sessions`).
+`--harness codex|claude-code` overrides the profile's harness. If the sandbox
+forbids multiprocessing sockets, add `--workers 1`. See `--help` for the rest.
 
-```bash
-python3 src/generate.py \
-  --active-thread <active-thread-id> \
-  --exclude-thread <calibration-thread-1> \
-  --exclude-thread <calibration-thread-2>
-```
+## Configuration
 
-Restricted sandboxes may block Python multiprocessing sockets. In that case
-run outside the sandbox or use the slower sequential mode:
+- `config/models.json`: model profiles (model facts: prices, context window,
+  threshold range, model-name filter) and harnesses (how logs are collected
+  and how the trigger is set). To add a model, copy a profile and change its
+  prices, window and labels; the threshold step stays 2000.
+- `config/pages.json`: all page text, in a shared layer, a harness layer and a
+  profile layer, each in English and Chinese. One template in `src/render.py`
+  renders every page.
 
-```bash
-python3 src/generate.py --workers 1
-```
-
-Outputs:
+## Output and deployment
 
 ```text
-artifacts/result.json
+artifacts/threshold-chart.html   Landing page (also written as index.html)
+artifacts/<profile>.html         One chart page per model
+artifacts/result.json            DeepSeek Flash results (published, kept as is)
 artifacts/curves.csv
-artifacts/threshold-chart.html
+artifacts/<profile>/result.json  Results of the Claude profiles
+artifacts/<profile>/curves.csv
 ```
 
 Cloudflare Pages publishes `artifacts/` and copies `threshold-chart.html` to
-`index.html` for the production root.
+`index.html` for the production root; no dashboard change is needed.
 
 ## Repository layout
 
 ```text
-data/compaction_trials.json   Sanitized measured compaction samples
-src/analysis.py               Session loading, fitting, replay, and bootstrap
-src/render.py                 Self-contained HTML renderer
-src/generate.py               Command-line entry point
-artifacts/                    Generated report and machine-readable results
-tests/                         Standard-library unit tests
-```
-
-Run the tests with:
-
-```bash
-python3 -m unittest discover -s tests -p 'test_*.py'
+config/       models.json, pages.json
+data/         Sanitized DeepSeek compaction samples
+docs/         Methodology and statistics
+src/          analysis, harnesses, profile loader, renderer, entry point
+tests/        Standard-library unit tests
+artifacts/    Generated site and machine-readable results
 ```
 
 ## Privacy
 
-Raw Codex JSONL files are read from `~/.codex/sessions` but are never copied
-into this repository. Generated JSON contains aggregate counts, fitted
-coefficients, curves, and sanitized calibration samples. It does not include
-session IDs, local paths, working directories, prompts, tool output, or
-message content.
-
-Review generated artifacts before publishing a report built from a different
-machine.
-
-## Caveats
-
-- The result is conditional on this workload distribution and DeepSeek pricing.
-- The block bootstrap expands observed patterns; it cannot invent genuinely
-  new workload behavior.
-- The compaction sample is small. The shaded range represents observed cache
-  prefix and summary-length variation, not a formal confidence interval.
-- Re-run the analysis when sessions, prices, or server throughput materially
-  change.
-
+Raw session logs (`~/.codex/sessions`, `~/.claude/projects`) are read but never
+copied. Generated files hold aggregate counts, fitted coefficients, curves and
+sanitized compaction samples: no session IDs, paths, prompts or message
+content. Review generated files before publishing results from another machine.

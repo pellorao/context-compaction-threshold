@@ -67,7 +67,8 @@ or packages. Python 3.8 or newer is enough.
 
 `compactions.json` holds one row per measured compaction: `name`, `source`,
 `input_tokens`, `cached_tokens`, `output_tokens` and `seconds`, numbers only. For
-Codex the samples were measured by hand. For Claude Code every analysis run
+Codex the file keeps 9 hand-timed samples and every analysis run adds the
+compactions read from the logs (`log-auto`). For Claude Code every analysis run
 rewrites them from the transcripts (`transcript-auto` or `transcript-manual`),
 and the fit reads them back. Claude Sonnet 5.5 has too few compactions of its
 own and borrows the Opus ones when it is fitted; the borrowed rows are not

@@ -4,6 +4,7 @@ import json
 import sys
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 
@@ -18,7 +19,10 @@ from analysis import (  # noqa: E402
     _replay_session,
     borrow_compactions,
     build_result,
+    curve,
+    fill_unknown_seconds,
     fit_model,
+    fit_request_time,
     load_compactions,
     save_compactions,
 )
@@ -31,16 +35,15 @@ class AnalysisTest(unittest.TestCase):
         compactions = load_compactions(ROOT / profile.compactions_path)
         model = fit_model(compactions, profile)
         self.assertGreater(model.time_r2, 0.95)
-        self.assertAlmostEqual(model.output_speed, 167.5, delta=0.5)
+        self.assertAlmostEqual(model.output_speed, 154.5, delta=0.5)
 
         session = Session(
             requests=[
-                Request(20_000, 13_000, 500),
-                Request(90_000, 80_000, 700),
-                Request(180_000, 170_000, 900),
-                Request(280_000, 270_000, 600),
+                Request(20_000, 13_000, 500, 3.0),
+                Request(90_000, 80_000, 700, 4.0),
+                Request(180_000, 170_000, 900, 5.0),
+                Request(280_000, 270_000, 600, 4.0),
             ],
-            task_seconds=120,
         )
         result = build_result(
             [session],
@@ -61,8 +64,7 @@ class AnalysisTest(unittest.TestCase):
         profile = load_profile("deepseek-flash")
         compactions = load_compactions(ROOT / profile.compactions_path)
         session = Session(
-            requests=[Request(20_000, 13_000, 500), Request(280_000, 270_000, 600)],
-            task_seconds=60,
+            requests=[Request(20_000, 13_000, 500, 3.0), Request(280_000, 270_000, 600, 4.0)],
         )
         mix = {"uncached_input": 1_000, "cache_write_5m": 0, "cache_write_1h": 0,
                "cache_read": 3_000, "output": 1_000}
@@ -113,6 +115,24 @@ class AnalysisTest(unittest.TestCase):
         self.assertTrue(all(t.source.startswith("borrowed-") for t in borrowed))
         self.assertAlmostEqual(borrowed[0].seconds, 50.0 * scale)
 
+    def test_borrow_scale_is_the_median_ratio_so_one_outlier_barely_moves_it(self) -> None:
+        profile = load_profile("claude-sonnet-5-5")
+        donor = [
+            CompactionSample("a", 200_000, 198_000, 4_000, 50.0, "transcript-auto"),
+            CompactionSample("b", 260_000, 258_000, 6_000, 60.0, "transcript-auto"),
+            CompactionSample("c", 270_000, 267_000, 8_000, 70.0, "transcript-auto"),
+        ]
+        model = fit_model(donor, profile)
+
+        def own(factor: float) -> CompactionSample:
+            predicted = (
+                model.seconds_per_uncached * 250_000 + model.seconds_per_output * 5_000
+            )
+            return CompactionSample("x", 250_000, 248_000, 5_000, predicted * factor, "transcript-auto")
+
+        _, scale = borrow_compactions([own(1.2), own(1.2), own(1.2), own(6.0)], donor, profile)
+        self.assertAlmostEqual(scale, 1.2)
+
     def test_replay_prices_cache_writes_and_compaction_tail(self) -> None:
         profile = load_profile("claude-opus-5-5").with_measured(50_000, 30_000)
         compactions = [
@@ -125,10 +145,9 @@ class AnalysisTest(unittest.TestCase):
         self.assertEqual(model.central_cached_prefix, 2_000)
         session = Session(
             requests=[
-                Request(100_000, 100_000, 0),
-                Request(300_000, 300_000, 0),
+                Request(100_000, 100_000, 0, 10.0),
+                Request(300_000, 300_000, 0, 10.0),
             ],
-            task_seconds=100,
             uncached_multiplier=2.0,
         )
         result = _replay_session(
@@ -140,6 +159,7 @@ class AnalysisTest(unittest.TestCase):
         )
         self.assertEqual(result["compactions"], 1)
         self.assertGreater(result["compaction_seconds"], 0)
+        self.assertEqual(result["request_seconds"], 20.0)
         # compaction: 300k context, 2k uncached written at 2x, rest read
         # 100k first request is all cache read; post-compaction request has
         # 30k written at 2x and 20k read.
@@ -153,6 +173,145 @@ class AnalysisTest(unittest.TestCase):
             out * 20_000,  # only the summary output remains
         )
 
+    def test_time_share_is_compaction_seconds_over_all_request_seconds(self) -> None:
+        profile = load_profile("deepseek-flash")
+        model = fit_model(load_compactions(ROOT / profile.compactions_path), profile)
+        # 100 requests of 5 s each; the context passes any low threshold once.
+        requests = [Request(20_000 + 1_000 * i, 19_000 + 1_000 * i, 100, 5.0) for i in range(100)]
+        rows = curve(
+            [Session(requests)], model, profile, cached_prefix=model.central_cached_prefix
+        )
+        low = rows[0]
+        self.assertEqual(low["request_seconds"], 500.0)
+        self.assertGreater(low["compactions"], 0)
+        self.assertAlmostEqual(
+            low["time_share"],
+            low["compaction_seconds"] / (500.0 + low["compaction_seconds"]),
+        )
+        # Never compacting: no compaction seconds, share zero.
+        self.assertEqual(rows[-1]["compactions"], 0)
+        self.assertEqual(rows[-1]["time_share"], 0.0)
+
+    def test_unknown_request_durations_get_the_median_of_the_known_ones(self) -> None:
+        sessions = [
+            Session([Request(1, 1, 1, 2.0), Request(1, 1, 1, 0.0)]),
+            Session([Request(1, 1, 1, 6.0), Request(1, 1, 1, -3.0), Request(1, 1, 1, 10.0)]),
+        ]
+        self.assertEqual(fill_unknown_seconds(sessions), 2)
+        self.assertEqual(
+            [[r.seconds for r in s.requests] for s in sessions],
+            [[2.0, 6.0], [6.0, 6.0, 10.0]],
+        )
+
+    def test_summary_size_is_constant_on_codex_and_linear_on_claude_code(self) -> None:
+        codex = load_profile("deepseek-flash")
+        samples = load_compactions(ROOT / codex.compactions_path)
+        model = fit_model(samples, codex)
+        self.assertEqual(model.summary_per_input, 0.0)
+        self.assertAlmostEqual(
+            model.summary_intercept,
+            sum(item.output_tokens for item in samples) / len(samples),
+        )
+        claude = load_profile("claude-opus-5-5")
+        model = fit_model(load_compactions(ROOT / claude.compactions_path), claude)
+        self.assertGreater(model.summary_per_input, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RequestTimeTest(unittest.TestCase):
+    def test_slope_fit_recovers_context_and_output_effects(self) -> None:
+        # seconds = 1 + 4e-6 * context + 0.01 * output, exactly.
+        requests = [
+            Request(c, c, o, 1 + 4e-6 * c + 0.01 * o)
+            for c, o in [(10_000, 100), (50_000, 900), (120_000, 200), (300_000, 700), (80_000, 50)]
+        ]
+        fit = fit_request_time([Session(requests)])
+        self.assertAlmostEqual(fit.seconds_per_input, 4e-6, places=11)
+        self.assertAlmostEqual(fit.seconds_per_output, 0.01, places=8)
+        self.assertAlmostEqual(fit.intercept, 1.0, places=6)
+        self.assertAlmostEqual(fit.r2, 1.0, places=9)
+
+    def test_fit_uses_the_observed_context_not_the_chained_one(self) -> None:
+        chained = [Request(c + 500_000, c + 500_000, c % 700, 1 + 4e-6 * c, c) for c in (10_000, 90_000, 200_000, 60_000)]
+        self.assertAlmostEqual(
+            fit_request_time([Session(chained)]).seconds_per_input, 4e-6, places=11
+        )
+
+    def test_replayed_request_seconds_follow_the_context_shift(self) -> None:
+        profile = load_profile("deepseek-flash")
+        model = fit_model(load_compactions(ROOT / profile.compactions_path), profile)
+        # Observed contexts 20K..119K; a 5 s request each.
+        requests = [Request(20_000 + 1_000 * i, 19_000 + 1_000 * i, 100, 5.0) for i in range(100)]
+        slopes = (1e-5, 0.0, 2e-5)
+        rows = curve(
+            [Session(requests)], model, profile,
+            cached_prefix=model.central_cached_prefix, slopes=slopes,
+        )
+        # Never compacting: the replayed context is the observed one, no shift.
+        never = rows[-1]
+        self.assertEqual(never["context_shift_tokens"], 0)
+        self.assertEqual(never["request_seconds"], 500.0)
+        # A low trigger compacts to a smaller context: requests get faster,
+        # linearly in the slope, and the share uses the adjusted seconds.
+        low = rows[0]
+        self.assertLess(low["context_shift_tokens"], 0)
+        self.assertAlmostEqual(
+            low["request_seconds"], 500.0 + 1e-5 * low["context_shift_tokens"]
+        )
+        self.assertEqual(low["request_seconds_slope_lo"], 500.0)
+        self.assertAlmostEqual(
+            low["request_seconds_slope_hi"], 500.0 + 2e-5 * low["context_shift_tokens"]
+        )
+        self.assertAlmostEqual(
+            low["time_share"],
+            low["compaction_seconds"] / (low["request_seconds"] + low["compaction_seconds"]),
+        )
+
+    def test_result_stores_slope_interval_and_per_row_request_seconds(self) -> None:
+        profile = replace(load_profile("deepseek-flash"), request_slope=None)
+        compactions = load_compactions(ROOT / profile.compactions_path)
+        sessions = [
+            Session([Request(20_000 + 3_000 * i, 18_000 + 3_000 * i, 100 + 7 * (i % 5), 2.0 + 3e-6 * (20_000 + 3_000 * i) + 0.01 * (100 + 7 * (i % 5))) for i in range(40)])
+            for _ in range(3)
+        ]
+        result = build_result(
+            sessions, {}, compactions, profile,
+            BootstrapConfig(replicates=6, block_requests=4, seed=3, workers=1),
+            {"uncached_input": 1_000, "cache_write_5m": 0, "cache_write_1h": 0,
+             "cache_read": 999_000, "output": 0},
+        )
+        fit = result["fitted_model"]
+        self.assertAlmostEqual(fit["request_seconds_per_context_token"], 3e-6, places=9)
+        self.assertLessEqual(
+            fit["request_seconds_per_context_token_low"],
+            fit["request_seconds_per_context_token_high"],
+        )
+        row = result["curves"]["central"][0]
+        for key in ("request_seconds", "request_seconds_slope_lo", "request_seconds_slope_hi"):
+            self.assertIn(key, row)
+
+    def test_measured_slope_replaces_the_fitted_one(self) -> None:
+        profile = load_profile("deepseek-flash")
+        self.assertEqual(profile.request_slope, (0.96e-5, 0.31e-5, 1.18e-5))
+        compactions = load_compactions(ROOT / profile.compactions_path)
+        sessions = [Session([Request(20_000 + 3_000 * i, 18_000 + 3_000 * i, 100, 2.0 + 3e-6 * (20_000 + 3_000 * i)) for i in range(40)])]
+        result = build_result(
+            sessions, {}, compactions, profile,
+            BootstrapConfig(replicates=4, block_requests=4, seed=3, workers=1),
+            {"uncached_input": 1_000, "cache_write_5m": 0, "cache_write_1h": 0,
+             "cache_read": 999_000, "output": 0},
+        )
+        fit = result["fitted_model"]
+        self.assertEqual(fit["request_slope_source"], "controlled")
+        self.assertEqual(fit["request_seconds_per_context_token"], 0.96e-5)
+        self.assertEqual(fit["request_seconds_per_context_token_low"], 0.31e-5)
+        self.assertEqual(fit["request_seconds_per_context_token_high"], 1.18e-5)
+        self.assertAlmostEqual(fit["request_seconds_per_context_token_log_fit"], 3e-6, places=9)
+        row = result["curves"]["central"][0]
+        self.assertAlmostEqual(
+            row["request_seconds"] - row["request_seconds_slope_lo"],
+            (0.96e-5 - 0.31e-5) * row["context_shift_tokens"],
+        )

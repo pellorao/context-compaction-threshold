@@ -4,7 +4,7 @@
     "source": "transcript-auto",
     "input_tokens": 270045,
     "cached_tokens": 266033,
-    "output_tokens": 9852,
+    "output_tokens": 9853,
     "seconds": 59.823
   },
   {
@@ -12,7 +12,7 @@
     "source": "transcript-auto",
     "input_tokens": 271666,
     "cached_tokens": 259444,
-    "output_tokens": 9439,
+    "output_tokens": 9440,
     "seconds": 55.041
   },
   {
@@ -20,7 +20,7 @@
     "source": "transcript-auto",
     "input_tokens": 267370,
     "cached_tokens": 265736,
-    "output_tokens": 9174,
+    "output_tokens": 9175,
     "seconds": 55.415
   },
   {
@@ -28,7 +28,7 @@
     "source": "transcript-auto",
     "input_tokens": 268940,
     "cached_tokens": 264531,
-    "output_tokens": 11197,
+    "output_tokens": 11198,
     "seconds": 67.136
   },
   {
@@ -36,7 +36,7 @@
     "source": "transcript-auto",
     "input_tokens": 266639,
     "cached_tokens": 264488,
-    "output_tokens": 9617,
+    "output_tokens": 9618,
     "seconds": 60.92
   },
   {
@@ -44,7 +44,7 @@
     "source": "transcript-auto",
     "input_tokens": 267287,
     "cached_tokens": 266562,
-    "output_tokens": 8477,
+    "output_tokens": 8478,
     "seconds": 53.099
   },
   {
@@ -52,7 +52,7 @@
     "source": "transcript-auto",
     "input_tokens": 267979,
     "cached_tokens": 267058,
-    "output_tokens": 9543,
+    "output_tokens": 9544,
     "seconds": 59.802
   },
   {
@@ -60,7 +60,7 @@
     "source": "transcript-auto",
     "input_tokens": 267164,
     "cached_tokens": 266790,
-    "output_tokens": 10725,
+    "output_tokens": 10727,
     "seconds": 64.446
   },
   {
@@ -68,7 +68,7 @@
     "source": "transcript-auto",
     "input_tokens": 267515,
     "cached_tokens": 265361,
-    "output_tokens": 13260,
+    "output_tokens": 13261,
     "seconds": 72.539
   },
   {
@@ -76,7 +76,7 @@
     "source": "transcript-auto",
     "input_tokens": 266892,
     "cached_tokens": 265871,
-    "output_tokens": 9858,
+    "output_tokens": 9859,
     "seconds": 62.557
   },
   {
@@ -84,7 +84,7 @@
     "source": "transcript-auto",
     "input_tokens": 268031,
     "cached_tokens": 266870,
-    "output_tokens": 8610,
+    "output_tokens": 8612,
     "seconds": 49.84
   },
   {
@@ -92,7 +92,7 @@
     "source": "transcript-auto",
     "input_tokens": 267181,
     "cached_tokens": 266930,
-    "output_tokens": 8648,
+    "output_tokens": 8649,
     "seconds": 50.113
   },
   {
@@ -100,7 +100,7 @@
     "source": "transcript-auto",
     "input_tokens": 267459,
     "cached_tokens": 266687,
-    "output_tokens": 10047,
+    "output_tokens": 10048,
     "seconds": 56.432
   },
   {
@@ -108,7 +108,7 @@
     "source": "transcript-auto",
     "input_tokens": 267771,
     "cached_tokens": 265729,
-    "output_tokens": 9387,
+    "output_tokens": 9389,
     "seconds": 56.274
   },
   {
@@ -116,7 +116,7 @@
     "source": "transcript-auto",
     "input_tokens": 268055,
     "cached_tokens": 266747,
-    "output_tokens": 8367,
+    "output_tokens": 8368,
     "seconds": 54.487
   },
   {
@@ -124,7 +124,7 @@
     "source": "transcript-auto",
     "input_tokens": 268972,
     "cached_tokens": 264143,
-    "output_tokens": 10389,
+    "output_tokens": 10391,
     "seconds": 62.127
   },
   {
@@ -132,7 +132,7 @@
     "source": "transcript-auto",
     "input_tokens": 268020,
     "cached_tokens": 266736,
-    "output_tokens": 7397,
+    "output_tokens": 7398,
     "seconds": 46.719
   },
   {
@@ -140,7 +140,7 @@
     "source": "transcript-auto",
     "input_tokens": 268449,
     "cached_tokens": 265341,
-    "output_tokens": 8824,
+    "output_tokens": 8826,
     "seconds": 54.765
   },
   {
@@ -148,7 +148,7 @@
     "source": "transcript-auto",
     "input_tokens": 267190,
     "cached_tokens": 266926,
-    "output_tokens": 10883,
+    "output_tokens": 10884,
     "seconds": 63.523
   },
   {
@@ -156,7 +156,7 @@
     "source": "transcript-auto",
     "input_tokens": 267283,
     "cached_tokens": 263383,
-    "output_tokens": 11033,
+    "output_tokens": 11034,
     "seconds": 67.714
   },
   {
@@ -164,7 +164,7 @@
     "source": "transcript-auto",
     "input_tokens": 269040,
     "cached_tokens": 266382,
-    "output_tokens": 10231,
+    "output_tokens": 10233,
     "seconds": 60.8
   },
   {
@@ -172,7 +172,7 @@
     "source": "transcript-auto",
     "input_tokens": 262157,
     "cached_tokens": 261784,
-    "output_tokens": 9067,
+    "output_tokens": 9068,
     "seconds": 58.028
   },
   {
@@ -180,7 +180,7 @@
     "source": "transcript-auto",
     "input_tokens": 266954,
     "cached_tokens": 266676,
-    "output_tokens": 10826,
+    "output_tokens": 10827,
     "seconds": 68.623
   },
   {
@@ -188,7 +188,7 @@
     "source": "transcript-auto",
     "input_tokens": 238728,
     "cached_tokens": 238596,
-    "output_tokens": 9560,
+    "output_tokens": 9561,
     "seconds": 59.655
   },
   {
@@ -196,7 +196,7 @@
     "source": "transcript-auto",
     "input_tokens": 211661,
     "cached_tokens": 211400,
-    "output_tokens": 7661,
+    "output_tokens": 7662,
     "seconds": 47.945
   },
   {
@@ -204,7 +204,7 @@
     "source": "transcript-auto",
     "input_tokens": 268533,
     "cached_tokens": 265246,
-    "output_tokens": 10008,
+    "output_tokens": 10009,
     "seconds": 61.315
   },
   {
@@ -212,7 +212,7 @@
     "source": "transcript-auto",
     "input_tokens": 267102,
     "cached_tokens": 266883,
-    "output_tokens": 7987,
+    "output_tokens": 7988,
     "seconds": 49.834
   },
   {
@@ -228,7 +228,7 @@
     "source": "transcript-auto",
     "input_tokens": 269243,
     "cached_tokens": 267478,
-    "output_tokens": 8245,
+    "output_tokens": 8246,
     "seconds": 80.336
   },
   {
@@ -236,7 +236,7 @@
     "source": "transcript-auto",
     "input_tokens": 267287,
     "cached_tokens": 267082,
-    "output_tokens": 6230,
+    "output_tokens": 6231,
     "seconds": 37.086
   },
   {
@@ -244,7 +244,7 @@
     "source": "transcript-auto",
     "input_tokens": 267194,
     "cached_tokens": 266188,
-    "output_tokens": 7862,
+    "output_tokens": 7863,
     "seconds": 49.035
   },
   {
@@ -252,7 +252,7 @@
     "source": "transcript-auto",
     "input_tokens": 266982,
     "cached_tokens": 266829,
-    "output_tokens": 8585,
+    "output_tokens": 8586,
     "seconds": 52.952
   },
   {
@@ -260,7 +260,7 @@
     "source": "transcript-auto",
     "input_tokens": 270281,
     "cached_tokens": 268591,
-    "output_tokens": 9725,
+    "output_tokens": 9726,
     "seconds": 62.179
   },
   {
@@ -268,7 +268,7 @@
     "source": "transcript-auto",
     "input_tokens": 267401,
     "cached_tokens": 266166,
-    "output_tokens": 9575,
+    "output_tokens": 9576,
     "seconds": 86.066
   },
   {
@@ -276,7 +276,7 @@
     "source": "transcript-manual",
     "input_tokens": 223572,
     "cached_tokens": 223504,
-    "output_tokens": 10457,
+    "output_tokens": 10458,
     "seconds": 67.324
   },
   {
@@ -284,7 +284,7 @@
     "source": "transcript-auto",
     "input_tokens": 267468,
     "cached_tokens": 266617,
-    "output_tokens": 8521,
+    "output_tokens": 8522,
     "seconds": 76.315
   },
   {
@@ -292,7 +292,7 @@
     "source": "transcript-auto",
     "input_tokens": 270073,
     "cached_tokens": 267826,
-    "output_tokens": 9090,
+    "output_tokens": 9091,
     "seconds": 77.908
   },
   {
@@ -300,7 +300,7 @@
     "source": "transcript-auto",
     "input_tokens": 267765,
     "cached_tokens": 266792,
-    "output_tokens": 8159,
+    "output_tokens": 8160,
     "seconds": 78.612
   },
   {
@@ -308,7 +308,7 @@
     "source": "transcript-auto",
     "input_tokens": 267378,
     "cached_tokens": 266272,
-    "output_tokens": 8672,
+    "output_tokens": 8673,
     "seconds": 54.715
   },
   {
@@ -316,7 +316,7 @@
     "source": "transcript-auto",
     "input_tokens": 270681,
     "cached_tokens": 269420,
-    "output_tokens": 7613,
+    "output_tokens": 7614,
     "seconds": 55.088
   },
   {
@@ -324,19 +324,27 @@
     "source": "transcript-auto",
     "input_tokens": 266103,
     "cached_tokens": 265891,
-    "output_tokens": 7532,
+    "output_tokens": 7533,
     "seconds": 61.215
   },
   {
     "name": "compaction-042",
-    "source": "transcript-auto",
-    "input_tokens": 271727,
-    "cached_tokens": 267132,
-    "output_tokens": 8240,
-    "seconds": 58.232
+    "source": "transcript-manual",
+    "input_tokens": 266663,
+    "cached_tokens": 266359,
+    "output_tokens": 9250,
+    "seconds": 72.645
   },
   {
     "name": "compaction-043",
+    "source": "transcript-auto",
+    "input_tokens": 271727,
+    "cached_tokens": 267132,
+    "output_tokens": 8241,
+    "seconds": 58.232
+  },
+  {
+    "name": "compaction-044",
     "source": "transcript-auto",
     "input_tokens": 267289,
     "cached_tokens": 221997,
@@ -344,15 +352,15 @@
     "seconds": 56.232
   },
   {
-    "name": "compaction-044",
+    "name": "compaction-045",
     "source": "transcript-auto",
     "input_tokens": 267322,
     "cached_tokens": 267123,
-    "output_tokens": 8709,
+    "output_tokens": 8711,
     "seconds": 49.838
   },
   {
-    "name": "compaction-045",
+    "name": "compaction-046",
     "source": "transcript-auto",
     "input_tokens": 267026,
     "cached_tokens": 266822,
@@ -360,7 +368,7 @@
     "seconds": 56.074
   },
   {
-    "name": "compaction-046",
+    "name": "compaction-047",
     "source": "transcript-auto",
     "input_tokens": 268020,
     "cached_tokens": 265772,
@@ -368,7 +376,7 @@
     "seconds": 75.236
   },
   {
-    "name": "compaction-047",
+    "name": "compaction-048",
     "source": "transcript-auto",
     "input_tokens": 267315,
     "cached_tokens": 265959,
@@ -376,31 +384,31 @@
     "seconds": 63.456
   },
   {
-    "name": "compaction-048",
+    "name": "compaction-049",
     "source": "transcript-auto",
     "input_tokens": 266988,
     "cached_tokens": 264901,
-    "output_tokens": 10714,
+    "output_tokens": 10716,
     "seconds": 66.268
-  },
-  {
-    "name": "compaction-049",
-    "source": "transcript-auto",
-    "input_tokens": 267411,
-    "cached_tokens": 263850,
-    "output_tokens": 7625,
-    "seconds": 55.617
   },
   {
     "name": "compaction-050",
     "source": "transcript-auto",
-    "input_tokens": 271800,
-    "cached_tokens": 269069,
-    "output_tokens": 7628,
-    "seconds": 52.171
+    "input_tokens": 267411,
+    "cached_tokens": 263850,
+    "output_tokens": 7626,
+    "seconds": 55.617
   },
   {
     "name": "compaction-051",
+    "source": "transcript-auto",
+    "input_tokens": 271800,
+    "cached_tokens": 269069,
+    "output_tokens": 7629,
+    "seconds": 52.171
+  },
+  {
+    "name": "compaction-052",
     "source": "transcript-auto",
     "input_tokens": 269419,
     "cached_tokens": 261883,
@@ -408,7 +416,7 @@
     "seconds": 56.459
   },
   {
-    "name": "compaction-052",
+    "name": "compaction-053",
     "source": "transcript-auto",
     "input_tokens": 268269,
     "cached_tokens": 266998,
@@ -416,7 +424,7 @@
     "seconds": 54.725
   },
   {
-    "name": "compaction-053",
+    "name": "compaction-054",
     "source": "transcript-manual",
     "input_tokens": 125532,
     "cached_tokens": 125436,
@@ -424,7 +432,7 @@
     "seconds": 41.772
   },
   {
-    "name": "compaction-054",
+    "name": "compaction-055",
     "source": "transcript-auto",
     "input_tokens": 267589,
     "cached_tokens": 266025,
@@ -432,39 +440,39 @@
     "seconds": 48.034
   },
   {
-    "name": "compaction-055",
+    "name": "compaction-056",
     "source": "transcript-auto",
     "input_tokens": 228434,
     "cached_tokens": 228291,
-    "output_tokens": 7924,
+    "output_tokens": 7925,
     "seconds": 54.24
-  },
-  {
-    "name": "compaction-056",
-    "source": "transcript-auto",
-    "input_tokens": 266916,
-    "cached_tokens": 265665,
-    "output_tokens": 8134,
-    "seconds": 53.149
   },
   {
     "name": "compaction-057",
     "source": "transcript-auto",
-    "input_tokens": 269176,
-    "cached_tokens": 268307,
-    "output_tokens": 7495,
-    "seconds": 51.219
+    "input_tokens": 266916,
+    "cached_tokens": 265665,
+    "output_tokens": 8135,
+    "seconds": 53.149
   },
   {
     "name": "compaction-058",
     "source": "transcript-auto",
-    "input_tokens": 267439,
-    "cached_tokens": 262886,
-    "output_tokens": 8153,
-    "seconds": 53.572
+    "input_tokens": 269176,
+    "cached_tokens": 268307,
+    "output_tokens": 7496,
+    "seconds": 51.219
   },
   {
     "name": "compaction-059",
+    "source": "transcript-auto",
+    "input_tokens": 267439,
+    "cached_tokens": 262886,
+    "output_tokens": 8154,
+    "seconds": 53.572
+  },
+  {
+    "name": "compaction-060",
     "source": "transcript-auto",
     "input_tokens": 267621,
     "cached_tokens": 267144,
@@ -472,39 +480,39 @@
     "seconds": 51.819
   },
   {
-    "name": "compaction-060",
+    "name": "compaction-061",
     "source": "transcript-auto",
     "input_tokens": 203695,
     "cached_tokens": 203592,
-    "output_tokens": 6629,
+    "output_tokens": 6630,
     "seconds": 50.496
   },
   {
-    "name": "compaction-061",
+    "name": "compaction-062",
     "source": "transcript-manual",
     "input_tokens": 179136,
     "cached_tokens": 178799,
-    "output_tokens": 6997,
+    "output_tokens": 6998,
     "seconds": 43.884
-  },
-  {
-    "name": "compaction-062",
-    "source": "transcript-auto",
-    "input_tokens": 267245,
-    "cached_tokens": 266657,
-    "output_tokens": 14591,
-    "seconds": 102.872
   },
   {
     "name": "compaction-063",
     "source": "transcript-auto",
-    "input_tokens": 267495,
-    "cached_tokens": 266139,
-    "output_tokens": 11922,
-    "seconds": 90.12
+    "input_tokens": 267245,
+    "cached_tokens": 266657,
+    "output_tokens": 14593,
+    "seconds": 102.872
   },
   {
     "name": "compaction-064",
+    "source": "transcript-auto",
+    "input_tokens": 267495,
+    "cached_tokens": 266139,
+    "output_tokens": 11924,
+    "seconds": 90.12
+  },
+  {
+    "name": "compaction-065",
     "source": "transcript-auto",
     "input_tokens": 267198,
     "cached_tokens": 266600,
@@ -512,7 +520,7 @@
     "seconds": 97.01
   },
   {
-    "name": "compaction-065",
+    "name": "compaction-066",
     "source": "transcript-auto",
     "input_tokens": 267522,
     "cached_tokens": 266532,
@@ -520,7 +528,7 @@
     "seconds": 68.18
   },
   {
-    "name": "compaction-066",
+    "name": "compaction-067",
     "source": "transcript-auto",
     "input_tokens": 270342,
     "cached_tokens": 269293,
@@ -528,7 +536,7 @@
     "seconds": 62.106
   },
   {
-    "name": "compaction-067",
+    "name": "compaction-068",
     "source": "transcript-auto",
     "input_tokens": 270647,
     "cached_tokens": 259689,
@@ -536,7 +544,7 @@
     "seconds": 51.428
   },
   {
-    "name": "compaction-068",
+    "name": "compaction-069",
     "source": "transcript-auto",
     "input_tokens": 277582,
     "cached_tokens": 269887,
@@ -544,7 +552,7 @@
     "seconds": 48.25
   },
   {
-    "name": "compaction-069",
+    "name": "compaction-070",
     "source": "transcript-auto",
     "input_tokens": 276813,
     "cached_tokens": 263958,
@@ -552,7 +560,7 @@
     "seconds": 60.842
   },
   {
-    "name": "compaction-070",
+    "name": "compaction-071",
     "source": "transcript-auto",
     "input_tokens": 267460,
     "cached_tokens": 266551,
@@ -560,39 +568,39 @@
     "seconds": 64.492
   },
   {
-    "name": "compaction-071",
+    "name": "compaction-072",
     "source": "transcript-auto",
     "input_tokens": 268459,
     "cached_tokens": 266713,
-    "output_tokens": 7148,
+    "output_tokens": 7149,
     "seconds": 60.069
-  },
-  {
-    "name": "compaction-072",
-    "source": "transcript-auto",
-    "input_tokens": 267141,
-    "cached_tokens": 265188,
-    "output_tokens": 7486,
-    "seconds": 50.864
   },
   {
     "name": "compaction-073",
     "source": "transcript-auto",
-    "input_tokens": 267257,
-    "cached_tokens": 265115,
-    "output_tokens": 12533,
-    "seconds": 98.848
+    "input_tokens": 267141,
+    "cached_tokens": 265188,
+    "output_tokens": 7487,
+    "seconds": 50.864
   },
   {
     "name": "compaction-074",
     "source": "transcript-auto",
-    "input_tokens": 266883,
-    "cached_tokens": 263212,
-    "output_tokens": 11046,
-    "seconds": 83.643
+    "input_tokens": 267257,
+    "cached_tokens": 265115,
+    "output_tokens": 12535,
+    "seconds": 98.848
   },
   {
     "name": "compaction-075",
+    "source": "transcript-auto",
+    "input_tokens": 266883,
+    "cached_tokens": 263212,
+    "output_tokens": 11047,
+    "seconds": 83.643
+  },
+  {
+    "name": "compaction-076",
     "source": "transcript-auto",
     "input_tokens": 270115,
     "cached_tokens": 266787,
@@ -600,47 +608,47 @@
     "seconds": 63.52
   },
   {
-    "name": "compaction-076",
+    "name": "compaction-077",
     "source": "transcript-auto",
     "input_tokens": 267545,
     "cached_tokens": 266721,
-    "output_tokens": 8897,
+    "output_tokens": 8898,
     "seconds": 71.394
-  },
-  {
-    "name": "compaction-077",
-    "source": "transcript-auto",
-    "input_tokens": 266788,
-    "cached_tokens": 262715,
-    "output_tokens": 8211,
-    "seconds": 58.326
   },
   {
     "name": "compaction-078",
     "source": "transcript-auto",
-    "input_tokens": 268400,
-    "cached_tokens": 266381,
-    "output_tokens": 8362,
-    "seconds": 72.786
+    "input_tokens": 266788,
+    "cached_tokens": 262715,
+    "output_tokens": 8212,
+    "seconds": 58.326
   },
   {
     "name": "compaction-079",
     "source": "transcript-auto",
-    "input_tokens": 266678,
-    "cached_tokens": 264103,
-    "output_tokens": 7009,
-    "seconds": 56.074
+    "input_tokens": 268400,
+    "cached_tokens": 266381,
+    "output_tokens": 8363,
+    "seconds": 72.786
   },
   {
     "name": "compaction-080",
     "source": "transcript-auto",
-    "input_tokens": 267327,
-    "cached_tokens": 265638,
-    "output_tokens": 9460,
-    "seconds": 74.357
+    "input_tokens": 266678,
+    "cached_tokens": 264103,
+    "output_tokens": 7010,
+    "seconds": 56.074
   },
   {
     "name": "compaction-081",
+    "source": "transcript-auto",
+    "input_tokens": 267327,
+    "cached_tokens": 265638,
+    "output_tokens": 9461,
+    "seconds": 74.357
+  },
+  {
+    "name": "compaction-082",
     "source": "transcript-auto",
     "input_tokens": 260291,
     "cached_tokens": 259654,
@@ -648,7 +656,7 @@
     "seconds": 62.533
   },
   {
-    "name": "compaction-082",
+    "name": "compaction-083",
     "source": "transcript-auto",
     "input_tokens": 271397,
     "cached_tokens": 265701,
@@ -656,7 +664,7 @@
     "seconds": 52.744
   },
   {
-    "name": "compaction-083",
+    "name": "compaction-084",
     "source": "transcript-auto",
     "input_tokens": 268543,
     "cached_tokens": 267681,
@@ -664,23 +672,23 @@
     "seconds": 46.852
   },
   {
-    "name": "compaction-084",
+    "name": "compaction-085",
     "source": "transcript-auto",
     "input_tokens": 268416,
     "cached_tokens": 266919,
-    "output_tokens": 14721,
+    "output_tokens": 14722,
     "seconds": 118.231
   },
   {
-    "name": "compaction-085",
+    "name": "compaction-086",
     "source": "transcript-auto",
     "input_tokens": 266901,
     "cached_tokens": 263717,
-    "output_tokens": 9452,
+    "output_tokens": 9453,
     "seconds": 85.582
   },
   {
-    "name": "compaction-086",
+    "name": "compaction-087",
     "source": "transcript-auto",
     "input_tokens": 270545,
     "cached_tokens": 265477,
@@ -688,47 +696,47 @@
     "seconds": 58.213
   },
   {
-    "name": "compaction-087",
+    "name": "compaction-088",
     "source": "transcript-auto",
     "input_tokens": 267593,
     "cached_tokens": 265980,
-    "output_tokens": 10641,
+    "output_tokens": 10643,
     "seconds": 68.917
-  },
-  {
-    "name": "compaction-088",
-    "source": "transcript-auto",
-    "input_tokens": 284280,
-    "cached_tokens": 235473,
-    "output_tokens": 10214,
-    "seconds": 71.269
   },
   {
     "name": "compaction-089",
     "source": "transcript-auto",
-    "input_tokens": 268889,
-    "cached_tokens": 265162,
-    "output_tokens": 8658,
-    "seconds": 55.91
+    "input_tokens": 284280,
+    "cached_tokens": 235473,
+    "output_tokens": 10216,
+    "seconds": 71.269
   },
   {
     "name": "compaction-090",
     "source": "transcript-auto",
-    "input_tokens": 276747,
-    "cached_tokens": 254871,
-    "output_tokens": 10524,
-    "seconds": 74.139
+    "input_tokens": 268889,
+    "cached_tokens": 265162,
+    "output_tokens": 8659,
+    "seconds": 55.91
   },
   {
     "name": "compaction-091",
     "source": "transcript-auto",
-    "input_tokens": 269690,
-    "cached_tokens": 266794,
-    "output_tokens": 6325,
-    "seconds": 41.392
+    "input_tokens": 276747,
+    "cached_tokens": 254871,
+    "output_tokens": 10526,
+    "seconds": 74.139
   },
   {
     "name": "compaction-092",
+    "source": "transcript-auto",
+    "input_tokens": 269690,
+    "cached_tokens": 266794,
+    "output_tokens": 6326,
+    "seconds": 41.392
+  },
+  {
+    "name": "compaction-093",
     "source": "transcript-auto",
     "input_tokens": 267346,
     "cached_tokens": 265021,
@@ -736,79 +744,79 @@
     "seconds": 70.138
   },
   {
-    "name": "compaction-093",
+    "name": "compaction-094",
     "source": "transcript-auto",
     "input_tokens": 272944,
     "cached_tokens": 269679,
-    "output_tokens": 7066,
+    "output_tokens": 7067,
     "seconds": 46.905
-  },
-  {
-    "name": "compaction-094",
-    "source": "transcript-auto",
-    "input_tokens": 267898,
-    "cached_tokens": 266030,
-    "output_tokens": 5985,
-    "seconds": 43.979
   },
   {
     "name": "compaction-095",
     "source": "transcript-auto",
-    "input_tokens": 267899,
-    "cached_tokens": 266985,
-    "output_tokens": 9812,
-    "seconds": 91.951
+    "input_tokens": 267898,
+    "cached_tokens": 266030,
+    "output_tokens": 5986,
+    "seconds": 43.979
   },
   {
     "name": "compaction-096",
     "source": "transcript-auto",
-    "input_tokens": 268475,
-    "cached_tokens": 259292,
-    "output_tokens": 13537,
-    "seconds": 94.213
+    "input_tokens": 267899,
+    "cached_tokens": 266985,
+    "output_tokens": 9813,
+    "seconds": 91.951
   },
   {
     "name": "compaction-097",
     "source": "transcript-auto",
-    "input_tokens": 272646,
-    "cached_tokens": 271407,
-    "output_tokens": 11109,
-    "seconds": 71.688
+    "input_tokens": 268475,
+    "cached_tokens": 259292,
+    "output_tokens": 13539,
+    "seconds": 94.213
   },
   {
     "name": "compaction-098",
     "source": "transcript-auto",
-    "input_tokens": 268968,
-    "cached_tokens": 268244,
-    "output_tokens": 8820,
-    "seconds": 59.494
+    "input_tokens": 272646,
+    "cached_tokens": 271407,
+    "output_tokens": 11111,
+    "seconds": 71.688
   },
   {
     "name": "compaction-099",
     "source": "transcript-auto",
-    "input_tokens": 267018,
-    "cached_tokens": 265728,
-    "output_tokens": 9694,
-    "seconds": 64.483
+    "input_tokens": 268968,
+    "cached_tokens": 268244,
+    "output_tokens": 8822,
+    "seconds": 59.494
   },
   {
     "name": "compaction-100",
     "source": "transcript-auto",
-    "input_tokens": 271836,
-    "cached_tokens": 270196,
-    "output_tokens": 11261,
-    "seconds": 72.234
+    "input_tokens": 267018,
+    "cached_tokens": 265728,
+    "output_tokens": 9696,
+    "seconds": 64.483
   },
   {
     "name": "compaction-101",
     "source": "transcript-auto",
-    "input_tokens": 271767,
-    "cached_tokens": 267380,
-    "output_tokens": 5595,
-    "seconds": 47.322
+    "input_tokens": 271836,
+    "cached_tokens": 270196,
+    "output_tokens": 11263,
+    "seconds": 72.234
   },
   {
     "name": "compaction-102",
+    "source": "transcript-auto",
+    "input_tokens": 271767,
+    "cached_tokens": 267380,
+    "output_tokens": 5596,
+    "seconds": 47.322
+  },
+  {
+    "name": "compaction-103",
     "source": "transcript-auto",
     "input_tokens": 266997,
     "cached_tokens": 266311,
@@ -816,7 +824,7 @@
     "seconds": 46.307
   },
   {
-    "name": "compaction-103",
+    "name": "compaction-104",
     "source": "transcript-auto",
     "input_tokens": 267205,
     "cached_tokens": 266516,
@@ -824,7 +832,7 @@
     "seconds": 44.328
   },
   {
-    "name": "compaction-104",
+    "name": "compaction-105",
     "source": "transcript-auto",
     "input_tokens": 268510,
     "cached_tokens": 266379,
@@ -832,15 +840,15 @@
     "seconds": 61.84
   },
   {
-    "name": "compaction-105",
+    "name": "compaction-106",
     "source": "transcript-auto",
     "input_tokens": 267076,
     "cached_tokens": 266052,
-    "output_tokens": 6183,
+    "output_tokens": 6184,
     "seconds": 46.951
   },
   {
-    "name": "compaction-106",
+    "name": "compaction-107",
     "source": "transcript-auto",
     "input_tokens": 269153,
     "cached_tokens": 266762,
@@ -848,39 +856,39 @@
     "seconds": 35.482
   },
   {
-    "name": "compaction-107",
+    "name": "compaction-108",
     "source": "transcript-auto",
     "input_tokens": 266651,
     "cached_tokens": 263913,
-    "output_tokens": 7937,
+    "output_tokens": 7938,
     "seconds": 69.118
-  },
-  {
-    "name": "compaction-108",
-    "source": "transcript-auto",
-    "input_tokens": 267967,
-    "cached_tokens": 263481,
-    "output_tokens": 6650,
-    "seconds": 48.031
   },
   {
     "name": "compaction-109",
     "source": "transcript-auto",
-    "input_tokens": 266949,
-    "cached_tokens": 265526,
-    "output_tokens": 8359,
-    "seconds": 59.416
+    "input_tokens": 267967,
+    "cached_tokens": 263481,
+    "output_tokens": 6651,
+    "seconds": 48.031
   },
   {
     "name": "compaction-110",
     "source": "transcript-auto",
-    "input_tokens": 265978,
-    "cached_tokens": 259951,
-    "output_tokens": 4746,
-    "seconds": 41.731
+    "input_tokens": 266949,
+    "cached_tokens": 265526,
+    "output_tokens": 8360,
+    "seconds": 59.416
   },
   {
     "name": "compaction-111",
+    "source": "transcript-auto",
+    "input_tokens": 265978,
+    "cached_tokens": 259951,
+    "output_tokens": 4745,
+    "seconds": 41.731
+  },
+  {
+    "name": "compaction-112",
     "source": "transcript-auto",
     "input_tokens": 266844,
     "cached_tokens": 265550,
@@ -888,15 +896,15 @@
     "seconds": 44.428
   },
   {
-    "name": "compaction-112",
+    "name": "compaction-113",
     "source": "transcript-auto",
     "input_tokens": 270610,
     "cached_tokens": 262021,
-    "output_tokens": 6563,
+    "output_tokens": 6564,
     "seconds": 56.695
   },
   {
-    "name": "compaction-113",
+    "name": "compaction-114",
     "source": "transcript-auto",
     "input_tokens": 270502,
     "cached_tokens": 269532,
@@ -904,15 +912,15 @@
     "seconds": 46.065
   },
   {
-    "name": "compaction-114",
+    "name": "compaction-115",
     "source": "transcript-auto",
     "input_tokens": 274481,
     "cached_tokens": 265236,
-    "output_tokens": 10801,
+    "output_tokens": 10802,
     "seconds": 88.819
   },
   {
-    "name": "compaction-115",
+    "name": "compaction-116",
     "source": "transcript-auto",
     "input_tokens": 275734,
     "cached_tokens": 266923,
@@ -920,7 +928,7 @@
     "seconds": 50.386
   },
   {
-    "name": "compaction-116",
+    "name": "compaction-117",
     "source": "transcript-auto",
     "input_tokens": 268916,
     "cached_tokens": 266224,
@@ -928,15 +936,15 @@
     "seconds": 65.929
   },
   {
-    "name": "compaction-117",
+    "name": "compaction-118",
     "source": "transcript-auto",
     "input_tokens": 272848,
     "cached_tokens": 266717,
-    "output_tokens": 7104,
+    "output_tokens": 7105,
     "seconds": 49.511
   },
   {
-    "name": "compaction-118",
+    "name": "compaction-119",
     "source": "transcript-auto",
     "input_tokens": 267085,
     "cached_tokens": 266165,
@@ -944,15 +952,15 @@
     "seconds": 68.75
   },
   {
-    "name": "compaction-119",
+    "name": "compaction-120",
     "source": "transcript-auto",
     "input_tokens": 269827,
     "cached_tokens": 264313,
-    "output_tokens": 10570,
+    "output_tokens": 10572,
     "seconds": 75.232
   },
   {
-    "name": "compaction-120",
+    "name": "compaction-121",
     "source": "transcript-auto",
     "input_tokens": 271056,
     "cached_tokens": 263015,
@@ -960,15 +968,15 @@
     "seconds": 64.595
   },
   {
-    "name": "compaction-121",
+    "name": "compaction-122",
     "source": "transcript-auto",
     "input_tokens": 267110,
     "cached_tokens": 266671,
-    "output_tokens": 6659,
+    "output_tokens": 6660,
     "seconds": 48.229
   },
   {
-    "name": "compaction-122",
+    "name": "compaction-123",
     "source": "transcript-auto",
     "input_tokens": 267899,
     "cached_tokens": 266214,
@@ -976,7 +984,7 @@
     "seconds": 37.189
   },
   {
-    "name": "compaction-123",
+    "name": "compaction-124",
     "source": "transcript-auto",
     "input_tokens": 267320,
     "cached_tokens": 266966,
@@ -984,7 +992,7 @@
     "seconds": 53.168
   },
   {
-    "name": "compaction-124",
+    "name": "compaction-125",
     "source": "transcript-auto",
     "input_tokens": 270229,
     "cached_tokens": 267108,
@@ -992,7 +1000,7 @@
     "seconds": 38.53
   },
   {
-    "name": "compaction-125",
+    "name": "compaction-126",
     "source": "transcript-auto",
     "input_tokens": 268455,
     "cached_tokens": 267651,
@@ -1000,7 +1008,7 @@
     "seconds": 55.378
   },
   {
-    "name": "compaction-126",
+    "name": "compaction-127",
     "source": "transcript-auto",
     "input_tokens": 266755,
     "cached_tokens": 264335,
@@ -1008,23 +1016,23 @@
     "seconds": 53.38
   },
   {
-    "name": "compaction-127",
+    "name": "compaction-128",
     "source": "transcript-auto",
     "input_tokens": 267920,
     "cached_tokens": 265766,
-    "output_tokens": 9874,
+    "output_tokens": 9876,
     "seconds": 67.495
   },
   {
-    "name": "compaction-128",
+    "name": "compaction-129",
     "source": "transcript-auto",
     "input_tokens": 275693,
     "cached_tokens": 262039,
-    "output_tokens": 8467,
+    "output_tokens": 8468,
     "seconds": 68.148
   },
   {
-    "name": "compaction-129",
+    "name": "compaction-130",
     "source": "transcript-auto",
     "input_tokens": 267578,
     "cached_tokens": 266589,
@@ -1032,7 +1040,7 @@
     "seconds": 50.324
   },
   {
-    "name": "compaction-130",
+    "name": "compaction-131",
     "source": "transcript-auto",
     "input_tokens": 267816,
     "cached_tokens": 266195,
@@ -1040,7 +1048,7 @@
     "seconds": 56.066
   },
   {
-    "name": "compaction-131",
+    "name": "compaction-132",
     "source": "transcript-auto",
     "input_tokens": 266811,
     "cached_tokens": 262078,
@@ -1048,55 +1056,55 @@
     "seconds": 56.643
   },
   {
-    "name": "compaction-132",
+    "name": "compaction-133",
     "source": "transcript-auto",
     "input_tokens": 268031,
     "cached_tokens": 261178,
-    "output_tokens": 8911,
+    "output_tokens": 8912,
     "seconds": 62.793
-  },
-  {
-    "name": "compaction-133",
-    "source": "transcript-auto",
-    "input_tokens": 268613,
-    "cached_tokens": 265112,
-    "output_tokens": 9728,
-    "seconds": 66.083
   },
   {
     "name": "compaction-134",
     "source": "transcript-auto",
-    "input_tokens": 267207,
-    "cached_tokens": 266304,
-    "output_tokens": 6857,
-    "seconds": 57.357
+    "input_tokens": 268613,
+    "cached_tokens": 265112,
+    "output_tokens": 9730,
+    "seconds": 66.083
   },
   {
     "name": "compaction-135",
     "source": "transcript-auto",
-    "input_tokens": 271870,
-    "cached_tokens": 266016,
-    "output_tokens": 9587,
-    "seconds": 68.776
+    "input_tokens": 267207,
+    "cached_tokens": 266304,
+    "output_tokens": 6858,
+    "seconds": 57.357
   },
   {
     "name": "compaction-136",
     "source": "transcript-auto",
-    "input_tokens": 267010,
-    "cached_tokens": 265260,
-    "output_tokens": 9084,
-    "seconds": 67.759
+    "input_tokens": 271870,
+    "cached_tokens": 266016,
+    "output_tokens": 9588,
+    "seconds": 68.776
   },
   {
     "name": "compaction-137",
     "source": "transcript-auto",
-    "input_tokens": 267206,
-    "cached_tokens": 266123,
-    "output_tokens": 7621,
-    "seconds": 54.024
+    "input_tokens": 267010,
+    "cached_tokens": 265260,
+    "output_tokens": 9086,
+    "seconds": 67.759
   },
   {
     "name": "compaction-138",
+    "source": "transcript-auto",
+    "input_tokens": 267206,
+    "cached_tokens": 266123,
+    "output_tokens": 7622,
+    "seconds": 54.024
+  },
+  {
+    "name": "compaction-139",
     "source": "transcript-auto",
     "input_tokens": 270970,
     "cached_tokens": 268823,
@@ -1104,7 +1112,7 @@
     "seconds": 79.698
   },
   {
-    "name": "compaction-139",
+    "name": "compaction-140",
     "source": "transcript-auto",
     "input_tokens": 266829,
     "cached_tokens": 265301,
@@ -1112,15 +1120,15 @@
     "seconds": 61.457
   },
   {
-    "name": "compaction-140",
+    "name": "compaction-141",
     "source": "transcript-auto",
     "input_tokens": 267095,
     "cached_tokens": 264795,
-    "output_tokens": 6912,
+    "output_tokens": 6913,
     "seconds": 51.353
   },
   {
-    "name": "compaction-141",
+    "name": "compaction-142",
     "source": "transcript-auto",
     "input_tokens": 278681,
     "cached_tokens": 273739,
@@ -1128,7 +1136,7 @@
     "seconds": 41.512
   },
   {
-    "name": "compaction-142",
+    "name": "compaction-143",
     "source": "transcript-auto",
     "input_tokens": 275240,
     "cached_tokens": 273385,
@@ -1136,23 +1144,23 @@
     "seconds": 34.11
   },
   {
-    "name": "compaction-143",
+    "name": "compaction-144",
     "source": "transcript-auto",
     "input_tokens": 298141,
     "cached_tokens": 286634,
-    "output_tokens": 6977,
+    "output_tokens": 6978,
     "seconds": 47.873
   },
   {
-    "name": "compaction-144",
+    "name": "compaction-145",
     "source": "transcript-auto",
     "input_tokens": 267491,
     "cached_tokens": 266893,
-    "output_tokens": 5439,
+    "output_tokens": 5440,
     "seconds": 40.632
   },
   {
-    "name": "compaction-145",
+    "name": "compaction-146",
     "source": "transcript-auto",
     "input_tokens": 268119,
     "cached_tokens": 266563,
@@ -1160,7 +1168,7 @@
     "seconds": 42.923
   },
   {
-    "name": "compaction-146",
+    "name": "compaction-147",
     "source": "transcript-auto",
     "input_tokens": 267710,
     "cached_tokens": 263943,
@@ -1168,7 +1176,7 @@
     "seconds": 68.942
   },
   {
-    "name": "compaction-147",
+    "name": "compaction-148",
     "source": "transcript-auto",
     "input_tokens": 275609,
     "cached_tokens": 266476,
@@ -1176,127 +1184,127 @@
     "seconds": 29.023
   },
   {
-    "name": "compaction-148",
+    "name": "compaction-149",
     "source": "transcript-auto",
     "input_tokens": 269757,
     "cached_tokens": 266527,
-    "output_tokens": 7187,
+    "output_tokens": 7188,
     "seconds": 48.09
-  },
-  {
-    "name": "compaction-149",
-    "source": "transcript-auto",
-    "input_tokens": 267441,
-    "cached_tokens": 264635,
-    "output_tokens": 10396,
-    "seconds": 86.593
   },
   {
     "name": "compaction-150",
     "source": "transcript-auto",
-    "input_tokens": 268763,
-    "cached_tokens": 266462,
-    "output_tokens": 8419,
-    "seconds": 71.715
+    "input_tokens": 267441,
+    "cached_tokens": 264635,
+    "output_tokens": 10397,
+    "seconds": 86.593
   },
   {
     "name": "compaction-151",
     "source": "transcript-auto",
-    "input_tokens": 269777,
-    "cached_tokens": 266843,
-    "output_tokens": 10076,
-    "seconds": 87.195
+    "input_tokens": 268763,
+    "cached_tokens": 266462,
+    "output_tokens": 8420,
+    "seconds": 71.715
   },
   {
     "name": "compaction-152",
     "source": "transcript-auto",
-    "input_tokens": 267965,
-    "cached_tokens": 262003,
-    "output_tokens": 7403,
-    "seconds": 53.452
+    "input_tokens": 269777,
+    "cached_tokens": 266843,
+    "output_tokens": 10077,
+    "seconds": 87.195
   },
   {
     "name": "compaction-153",
     "source": "transcript-auto",
-    "input_tokens": 267900,
-    "cached_tokens": 266603,
-    "output_tokens": 6543,
-    "seconds": 46.362
+    "input_tokens": 267965,
+    "cached_tokens": 262003,
+    "output_tokens": 7404,
+    "seconds": 53.452
   },
   {
     "name": "compaction-154",
     "source": "transcript-auto",
-    "input_tokens": 268278,
-    "cached_tokens": 267304,
-    "output_tokens": 9963,
-    "seconds": 67.405
+    "input_tokens": 267900,
+    "cached_tokens": 266603,
+    "output_tokens": 6544,
+    "seconds": 46.362
   },
   {
     "name": "compaction-155",
     "source": "transcript-auto",
-    "input_tokens": 270226,
-    "cached_tokens": 254581,
-    "output_tokens": 12846,
-    "seconds": 90.764
+    "input_tokens": 268278,
+    "cached_tokens": 267304,
+    "output_tokens": 9964,
+    "seconds": 67.405
   },
   {
     "name": "compaction-156",
     "source": "transcript-auto",
-    "input_tokens": 267561,
-    "cached_tokens": 261095,
-    "output_tokens": 11250,
-    "seconds": 76.859
+    "input_tokens": 270226,
+    "cached_tokens": 254581,
+    "output_tokens": 12848,
+    "seconds": 90.764
   },
   {
     "name": "compaction-157",
     "source": "transcript-auto",
-    "input_tokens": 268792,
-    "cached_tokens": 265489,
-    "output_tokens": 11530,
-    "seconds": 94.101
+    "input_tokens": 267561,
+    "cached_tokens": 261095,
+    "output_tokens": 11252,
+    "seconds": 76.859
   },
   {
     "name": "compaction-158",
     "source": "transcript-auto",
-    "input_tokens": 266033,
-    "cached_tokens": 255599,
-    "output_tokens": 9279,
-    "seconds": 63.723
+    "input_tokens": 268792,
+    "cached_tokens": 265489,
+    "output_tokens": 11532,
+    "seconds": 94.101
   },
   {
     "name": "compaction-159",
     "source": "transcript-auto",
-    "input_tokens": 274230,
-    "cached_tokens": 261571,
-    "output_tokens": 10629,
-    "seconds": 75.267
+    "input_tokens": 266033,
+    "cached_tokens": 255599,
+    "output_tokens": 9280,
+    "seconds": 63.723
   },
   {
     "name": "compaction-160",
     "source": "transcript-auto",
-    "input_tokens": 267645,
-    "cached_tokens": 266111,
-    "output_tokens": 8353,
-    "seconds": 64.76
+    "input_tokens": 274230,
+    "cached_tokens": 261571,
+    "output_tokens": 10630,
+    "seconds": 75.267
   },
   {
     "name": "compaction-161",
     "source": "transcript-auto",
-    "input_tokens": 267339,
-    "cached_tokens": 266861,
-    "output_tokens": 9975,
-    "seconds": 68.776
+    "input_tokens": 267645,
+    "cached_tokens": 266111,
+    "output_tokens": 8354,
+    "seconds": 64.76
   },
   {
     "name": "compaction-162",
     "source": "transcript-auto",
-    "input_tokens": 267298,
-    "cached_tokens": 266710,
-    "output_tokens": 8314,
-    "seconds": 60.156
+    "input_tokens": 267339,
+    "cached_tokens": 266861,
+    "output_tokens": 9977,
+    "seconds": 68.776
   },
   {
     "name": "compaction-163",
+    "source": "transcript-auto",
+    "input_tokens": 267298,
+    "cached_tokens": 266710,
+    "output_tokens": 8315,
+    "seconds": 60.156
+  },
+  {
+    "name": "compaction-164",
     "source": "transcript-auto",
     "input_tokens": 280184,
     "cached_tokens": 251511,
@@ -1304,15 +1312,15 @@
     "seconds": 83.857
   },
   {
-    "name": "compaction-164",
+    "name": "compaction-165",
     "source": "transcript-auto",
     "input_tokens": 267079,
     "cached_tokens": 266707,
-    "output_tokens": 7786,
+    "output_tokens": 7787,
     "seconds": 56.777
   },
   {
-    "name": "compaction-165",
+    "name": "compaction-166",
     "source": "transcript-auto",
     "input_tokens": 269486,
     "cached_tokens": 267041,
@@ -1320,15 +1328,15 @@
     "seconds": 40.477
   },
   {
-    "name": "compaction-166",
+    "name": "compaction-167",
     "source": "transcript-auto",
     "input_tokens": 269167,
     "cached_tokens": 262474,
-    "output_tokens": 4206,
+    "output_tokens": 4207,
     "seconds": 32.422
   },
   {
-    "name": "compaction-167",
+    "name": "compaction-168",
     "source": "transcript-auto",
     "input_tokens": 267389,
     "cached_tokens": 263627,
@@ -1336,7 +1344,7 @@
     "seconds": 49.234
   },
   {
-    "name": "compaction-168",
+    "name": "compaction-169",
     "source": "transcript-auto",
     "input_tokens": 268590,
     "cached_tokens": 267696,
@@ -1344,7 +1352,7 @@
     "seconds": 44.664
   },
   {
-    "name": "compaction-169",
+    "name": "compaction-170",
     "source": "transcript-auto",
     "input_tokens": 266938,
     "cached_tokens": 266278,
@@ -1352,39 +1360,39 @@
     "seconds": 33.226
   },
   {
-    "name": "compaction-170",
+    "name": "compaction-171",
     "source": "transcript-auto",
     "input_tokens": 267511,
     "cached_tokens": 267033,
-    "output_tokens": 5529,
+    "output_tokens": 5528,
     "seconds": 49.444
-  },
-  {
-    "name": "compaction-171",
-    "source": "transcript-auto",
-    "input_tokens": 268225,
-    "cached_tokens": 267237,
-    "output_tokens": 10226,
-    "seconds": 83.027
   },
   {
     "name": "compaction-172",
     "source": "transcript-auto",
-    "input_tokens": 267727,
-    "cached_tokens": 267193,
-    "output_tokens": 8333,
-    "seconds": 57.24
+    "input_tokens": 268225,
+    "cached_tokens": 267237,
+    "output_tokens": 10227,
+    "seconds": 83.027
   },
   {
     "name": "compaction-173",
     "source": "transcript-auto",
-    "input_tokens": 269159,
-    "cached_tokens": 266934,
-    "output_tokens": 11385,
-    "seconds": 79.175
+    "input_tokens": 267727,
+    "cached_tokens": 267193,
+    "output_tokens": 8334,
+    "seconds": 57.24
   },
   {
     "name": "compaction-174",
+    "source": "transcript-auto",
+    "input_tokens": 269159,
+    "cached_tokens": 266934,
+    "output_tokens": 11386,
+    "seconds": 79.175
+  },
+  {
+    "name": "compaction-175",
     "source": "transcript-auto",
     "input_tokens": 268709,
     "cached_tokens": 266795,
@@ -1392,31 +1400,31 @@
     "seconds": 56.01
   },
   {
-    "name": "compaction-175",
+    "name": "compaction-176",
     "source": "transcript-auto",
     "input_tokens": 267893,
     "cached_tokens": 266501,
-    "output_tokens": 11236,
+    "output_tokens": 11238,
     "seconds": 74.167
-  },
-  {
-    "name": "compaction-176",
-    "source": "transcript-auto",
-    "input_tokens": 266694,
-    "cached_tokens": 260669,
-    "output_tokens": 7674,
-    "seconds": 46.523
   },
   {
     "name": "compaction-177",
     "source": "transcript-auto",
-    "input_tokens": 272268,
-    "cached_tokens": 271186,
-    "output_tokens": 7574,
-    "seconds": 48.576
+    "input_tokens": 266694,
+    "cached_tokens": 260669,
+    "output_tokens": 7675,
+    "seconds": 46.523
   },
   {
     "name": "compaction-178",
+    "source": "transcript-auto",
+    "input_tokens": 272268,
+    "cached_tokens": 271186,
+    "output_tokens": 7575,
+    "seconds": 48.576
+  },
+  {
+    "name": "compaction-179",
     "source": "transcript-auto",
     "input_tokens": 269262,
     "cached_tokens": 266630,
@@ -1424,31 +1432,31 @@
     "seconds": 79.915
   },
   {
-    "name": "compaction-179",
+    "name": "compaction-180",
     "source": "transcript-auto",
     "input_tokens": 267357,
     "cached_tokens": 266627,
-    "output_tokens": 9464,
+    "output_tokens": 9466,
     "seconds": 67.161
-  },
-  {
-    "name": "compaction-180",
-    "source": "transcript-auto",
-    "input_tokens": 267271,
-    "cached_tokens": 263403,
-    "output_tokens": 7562,
-    "seconds": 49.825
   },
   {
     "name": "compaction-181",
     "source": "transcript-auto",
-    "input_tokens": 269243,
-    "cached_tokens": 267879,
-    "output_tokens": 7433,
-    "seconds": 46.187
+    "input_tokens": 267271,
+    "cached_tokens": 263403,
+    "output_tokens": 7563,
+    "seconds": 49.825
   },
   {
     "name": "compaction-182",
+    "source": "transcript-auto",
+    "input_tokens": 269243,
+    "cached_tokens": 267879,
+    "output_tokens": 7434,
+    "seconds": 46.187
+  },
+  {
+    "name": "compaction-183",
     "source": "transcript-auto",
     "input_tokens": 273453,
     "cached_tokens": 259429,
@@ -1456,31 +1464,31 @@
     "seconds": 59.959
   },
   {
-    "name": "compaction-183",
+    "name": "compaction-184",
     "source": "transcript-auto",
     "input_tokens": 267705,
     "cached_tokens": 266585,
-    "output_tokens": 8002,
+    "output_tokens": 8003,
     "seconds": 65.868
-  },
-  {
-    "name": "compaction-184",
-    "source": "transcript-auto",
-    "input_tokens": 269740,
-    "cached_tokens": 266444,
-    "output_tokens": 9525,
-    "seconds": 67.438
   },
   {
     "name": "compaction-185",
     "source": "transcript-auto",
-    "input_tokens": 267598,
-    "cached_tokens": 266775,
-    "output_tokens": 7520,
-    "seconds": 47.964
+    "input_tokens": 269740,
+    "cached_tokens": 266444,
+    "output_tokens": 9526,
+    "seconds": 67.438
   },
   {
     "name": "compaction-186",
+    "source": "transcript-auto",
+    "input_tokens": 267598,
+    "cached_tokens": 266775,
+    "output_tokens": 7521,
+    "seconds": 47.964
+  },
+  {
+    "name": "compaction-187",
     "source": "transcript-auto",
     "input_tokens": 267148,
     "cached_tokens": 266630,
@@ -1488,47 +1496,47 @@
     "seconds": 48.011
   },
   {
-    "name": "compaction-187",
+    "name": "compaction-188",
     "source": "transcript-auto",
     "input_tokens": 267049,
     "cached_tokens": 266226,
-    "output_tokens": 9273,
+    "output_tokens": 9274,
     "seconds": 58.584
-  },
-  {
-    "name": "compaction-188",
-    "source": "transcript-auto",
-    "input_tokens": 267142,
-    "cached_tokens": 265075,
-    "output_tokens": 8620,
-    "seconds": 56.982
   },
   {
     "name": "compaction-189",
     "source": "transcript-auto",
-    "input_tokens": 270018,
-    "cached_tokens": 264941,
-    "output_tokens": 8964,
-    "seconds": 56.993
+    "input_tokens": 267142,
+    "cached_tokens": 265075,
+    "output_tokens": 8621,
+    "seconds": 56.982
   },
   {
     "name": "compaction-190",
     "source": "transcript-auto",
-    "input_tokens": 267641,
-    "cached_tokens": 266633,
-    "output_tokens": 7087,
-    "seconds": 45.194
+    "input_tokens": 270018,
+    "cached_tokens": 264941,
+    "output_tokens": 8965,
+    "seconds": 56.993
   },
   {
     "name": "compaction-191",
     "source": "transcript-auto",
-    "input_tokens": 267306,
-    "cached_tokens": 266923,
-    "output_tokens": 8273,
-    "seconds": 57.959
+    "input_tokens": 267641,
+    "cached_tokens": 266633,
+    "output_tokens": 7088,
+    "seconds": 45.194
   },
   {
     "name": "compaction-192",
+    "source": "transcript-auto",
+    "input_tokens": 267306,
+    "cached_tokens": 266923,
+    "output_tokens": 8274,
+    "seconds": 57.959
+  },
+  {
+    "name": "compaction-193",
     "source": "transcript-auto",
     "input_tokens": 275004,
     "cached_tokens": 270741,
@@ -1536,7 +1544,7 @@
     "seconds": 46.285
   },
   {
-    "name": "compaction-193",
+    "name": "compaction-194",
     "source": "transcript-auto",
     "input_tokens": 267414,
     "cached_tokens": 266380,
@@ -1544,7 +1552,7 @@
     "seconds": 51.481
   },
   {
-    "name": "compaction-194",
+    "name": "compaction-195",
     "source": "transcript-auto",
     "input_tokens": 267522,
     "cached_tokens": 262692,
@@ -1552,7 +1560,7 @@
     "seconds": 37.33
   },
   {
-    "name": "compaction-195",
+    "name": "compaction-196",
     "source": "transcript-auto",
     "input_tokens": 267713,
     "cached_tokens": 266871,
@@ -1560,7 +1568,7 @@
     "seconds": 36.881
   },
   {
-    "name": "compaction-196",
+    "name": "compaction-197",
     "source": "transcript-auto",
     "input_tokens": 275529,
     "cached_tokens": 262460,
@@ -1568,7 +1576,7 @@
     "seconds": 56.604
   },
   {
-    "name": "compaction-197",
+    "name": "compaction-198",
     "source": "transcript-auto",
     "input_tokens": 268590,
     "cached_tokens": 267307,
@@ -1576,15 +1584,15 @@
     "seconds": 56.481
   },
   {
-    "name": "compaction-198",
+    "name": "compaction-199",
     "source": "transcript-auto",
     "input_tokens": 277919,
     "cached_tokens": 264519,
-    "output_tokens": 10198,
+    "output_tokens": 10200,
     "seconds": 74.272
   },
   {
-    "name": "compaction-199",
+    "name": "compaction-200",
     "source": "transcript-auto",
     "input_tokens": 269403,
     "cached_tokens": 265807,
@@ -1592,7 +1600,7 @@
     "seconds": 71.594
   },
   {
-    "name": "compaction-200",
+    "name": "compaction-201",
     "source": "transcript-auto",
     "input_tokens": 266185,
     "cached_tokens": 261217,
@@ -1600,7 +1608,7 @@
     "seconds": 46.444
   },
   {
-    "name": "compaction-201",
+    "name": "compaction-202",
     "source": "transcript-auto",
     "input_tokens": 268845,
     "cached_tokens": 266079,
@@ -1608,7 +1616,7 @@
     "seconds": 46.924
   },
   {
-    "name": "compaction-202",
+    "name": "compaction-203",
     "source": "transcript-auto",
     "input_tokens": 268337,
     "cached_tokens": 267245,
@@ -1616,7 +1624,7 @@
     "seconds": 44.633
   },
   {
-    "name": "compaction-203",
+    "name": "compaction-204",
     "source": "transcript-auto",
     "input_tokens": 268703,
     "cached_tokens": 262822,
@@ -1624,7 +1632,7 @@
     "seconds": 51.238
   },
   {
-    "name": "compaction-204",
+    "name": "compaction-205",
     "source": "transcript-auto",
     "input_tokens": 267214,
     "cached_tokens": 265908,
@@ -1632,7 +1640,7 @@
     "seconds": 51.99
   },
   {
-    "name": "compaction-205",
+    "name": "compaction-206",
     "source": "transcript-auto",
     "input_tokens": 270809,
     "cached_tokens": 265334,
@@ -1640,7 +1648,7 @@
     "seconds": 48.434
   },
   {
-    "name": "compaction-206",
+    "name": "compaction-207",
     "source": "transcript-auto",
     "input_tokens": 268597,
     "cached_tokens": 263399,
@@ -1648,7 +1656,7 @@
     "seconds": 49.607
   },
   {
-    "name": "compaction-207",
+    "name": "compaction-208",
     "source": "transcript-auto",
     "input_tokens": 266857,
     "cached_tokens": 265369,
@@ -1656,47 +1664,47 @@
     "seconds": 46.8
   },
   {
-    "name": "compaction-208",
+    "name": "compaction-209",
     "source": "transcript-auto",
     "input_tokens": 267062,
     "cached_tokens": 265452,
-    "output_tokens": 5434,
+    "output_tokens": 5435,
     "seconds": 46.63
-  },
-  {
-    "name": "compaction-209",
-    "source": "transcript-auto",
-    "input_tokens": 267035,
-    "cached_tokens": 265816,
-    "output_tokens": 9156,
-    "seconds": 60.549
   },
   {
     "name": "compaction-210",
     "source": "transcript-auto",
-    "input_tokens": 268738,
-    "cached_tokens": 266805,
-    "output_tokens": 4713,
-    "seconds": 31.983
+    "input_tokens": 267035,
+    "cached_tokens": 265816,
+    "output_tokens": 9158,
+    "seconds": 60.549
   },
   {
     "name": "compaction-211",
     "source": "transcript-auto",
-    "input_tokens": 269121,
-    "cached_tokens": 267713,
-    "output_tokens": 8232,
-    "seconds": 69.087
+    "input_tokens": 268738,
+    "cached_tokens": 266805,
+    "output_tokens": 4714,
+    "seconds": 31.983
   },
   {
     "name": "compaction-212",
     "source": "transcript-auto",
-    "input_tokens": 266881,
-    "cached_tokens": 264958,
-    "output_tokens": 4997,
-    "seconds": 44.434
+    "input_tokens": 269121,
+    "cached_tokens": 267713,
+    "output_tokens": 8233,
+    "seconds": 69.087
   },
   {
     "name": "compaction-213",
+    "source": "transcript-auto",
+    "input_tokens": 266881,
+    "cached_tokens": 264958,
+    "output_tokens": 4998,
+    "seconds": 44.434
+  },
+  {
+    "name": "compaction-214",
     "source": "transcript-auto",
     "input_tokens": 266785,
     "cached_tokens": 265222,
@@ -1704,7 +1712,7 @@
     "seconds": 41.797
   },
   {
-    "name": "compaction-214",
+    "name": "compaction-215",
     "source": "transcript-auto",
     "input_tokens": 271738,
     "cached_tokens": 266582,
@@ -1712,7 +1720,7 @@
     "seconds": 57.729
   },
   {
-    "name": "compaction-215",
+    "name": "compaction-216",
     "source": "transcript-auto",
     "input_tokens": 267971,
     "cached_tokens": 265791,
@@ -1720,7 +1728,7 @@
     "seconds": 35.495
   },
   {
-    "name": "compaction-216",
+    "name": "compaction-217",
     "source": "transcript-auto",
     "input_tokens": 268256,
     "cached_tokens": 263757,
@@ -1728,23 +1736,23 @@
     "seconds": 74.999
   },
   {
-    "name": "compaction-217",
+    "name": "compaction-218",
     "source": "transcript-auto",
     "input_tokens": 269629,
     "cached_tokens": 250621,
-    "output_tokens": 10004,
+    "output_tokens": 10005,
     "seconds": 81.734
   },
   {
-    "name": "compaction-218",
+    "name": "compaction-219",
     "source": "transcript-auto",
     "input_tokens": 269489,
     "cached_tokens": 255159,
-    "output_tokens": 14844,
+    "output_tokens": 14846,
     "seconds": 104.482
   },
   {
-    "name": "compaction-219",
+    "name": "compaction-220",
     "source": "transcript-auto",
     "input_tokens": 267291,
     "cached_tokens": 265947,
@@ -1752,15 +1760,15 @@
     "seconds": 91.223
   },
   {
-    "name": "compaction-220",
+    "name": "compaction-221",
     "source": "transcript-auto",
     "input_tokens": 267338,
     "cached_tokens": 266979,
-    "output_tokens": 9168,
+    "output_tokens": 9169,
     "seconds": 73.834
   },
   {
-    "name": "compaction-221",
+    "name": "compaction-222",
     "source": "transcript-auto",
     "input_tokens": 247333,
     "cached_tokens": 247320,
@@ -1768,23 +1776,23 @@
     "seconds": 72.986
   },
   {
-    "name": "compaction-222",
+    "name": "compaction-223",
     "source": "transcript-auto",
     "input_tokens": 267168,
     "cached_tokens": 266295,
-    "output_tokens": 12770,
+    "output_tokens": 12771,
     "seconds": 109.269
   },
   {
-    "name": "compaction-223",
+    "name": "compaction-224",
     "source": "transcript-auto",
     "input_tokens": 268705,
     "cached_tokens": 241904,
-    "output_tokens": 11198,
+    "output_tokens": 11199,
     "seconds": 90.836
   },
   {
-    "name": "compaction-224",
+    "name": "compaction-225",
     "source": "transcript-auto",
     "input_tokens": 267739,
     "cached_tokens": 264689,
@@ -1792,63 +1800,63 @@
     "seconds": 76.367
   },
   {
-    "name": "compaction-225",
+    "name": "compaction-226",
     "source": "transcript-auto",
     "input_tokens": 205709,
     "cached_tokens": 205696,
-    "output_tokens": 9049,
+    "output_tokens": 9050,
     "seconds": 79.766
-  },
-  {
-    "name": "compaction-226",
-    "source": "transcript-auto",
-    "input_tokens": 268419,
-    "cached_tokens": 267682,
-    "output_tokens": 9951,
-    "seconds": 67.519
   },
   {
     "name": "compaction-227",
     "source": "transcript-auto",
-    "input_tokens": 268646,
-    "cached_tokens": 266919,
-    "output_tokens": 7522,
-    "seconds": 49.872
+    "input_tokens": 268419,
+    "cached_tokens": 267682,
+    "output_tokens": 9952,
+    "seconds": 67.519
   },
   {
     "name": "compaction-228",
     "source": "transcript-auto",
-    "input_tokens": 267386,
-    "cached_tokens": 266778,
-    "output_tokens": 8630,
-    "seconds": 68.107
+    "input_tokens": 268646,
+    "cached_tokens": 266919,
+    "output_tokens": 7523,
+    "seconds": 49.872
   },
   {
     "name": "compaction-229",
     "source": "transcript-auto",
-    "input_tokens": 269912,
-    "cached_tokens": 263134,
-    "output_tokens": 10812,
-    "seconds": 88.691
+    "input_tokens": 267386,
+    "cached_tokens": 266778,
+    "output_tokens": 8631,
+    "seconds": 68.107
   },
   {
     "name": "compaction-230",
     "source": "transcript-auto",
-    "input_tokens": 267335,
-    "cached_tokens": 265854,
-    "output_tokens": 12959,
-    "seconds": 87.301
+    "input_tokens": 269912,
+    "cached_tokens": 263134,
+    "output_tokens": 10813,
+    "seconds": 88.691
   },
   {
     "name": "compaction-231",
     "source": "transcript-auto",
-    "input_tokens": 266546,
-    "cached_tokens": 264644,
-    "output_tokens": 11132,
-    "seconds": 86.227
+    "input_tokens": 267335,
+    "cached_tokens": 265854,
+    "output_tokens": 12961,
+    "seconds": 87.301
   },
   {
     "name": "compaction-232",
+    "source": "transcript-auto",
+    "input_tokens": 266546,
+    "cached_tokens": 264644,
+    "output_tokens": 11133,
+    "seconds": 86.227
+  },
+  {
+    "name": "compaction-233",
     "source": "transcript-auto",
     "input_tokens": 271307,
     "cached_tokens": 269321,
@@ -1856,7 +1864,7 @@
     "seconds": 42.129
   },
   {
-    "name": "compaction-233",
+    "name": "compaction-234",
     "source": "transcript-auto",
     "input_tokens": 267809,
     "cached_tokens": 266597,
@@ -1864,7 +1872,7 @@
     "seconds": 41.239
   },
   {
-    "name": "compaction-234",
+    "name": "compaction-235",
     "source": "transcript-auto",
     "input_tokens": 267973,
     "cached_tokens": 265334,
@@ -1872,7 +1880,7 @@
     "seconds": 36.036
   },
   {
-    "name": "compaction-235",
+    "name": "compaction-236",
     "source": "transcript-auto",
     "input_tokens": 267534,
     "cached_tokens": 266647,
@@ -1880,7 +1888,7 @@
     "seconds": 35.452
   },
   {
-    "name": "compaction-236",
+    "name": "compaction-237",
     "source": "transcript-auto",
     "input_tokens": 248627,
     "cached_tokens": 248614,
@@ -1888,7 +1896,7 @@
     "seconds": 38.697
   },
   {
-    "name": "compaction-237",
+    "name": "compaction-238",
     "source": "transcript-auto",
     "input_tokens": 271587,
     "cached_tokens": 244758,
@@ -1896,7 +1904,7 @@
     "seconds": 35.512
   },
   {
-    "name": "compaction-238",
+    "name": "compaction-239",
     "source": "transcript-auto",
     "input_tokens": 269037,
     "cached_tokens": 266002,
@@ -1904,7 +1912,7 @@
     "seconds": 37.617
   },
   {
-    "name": "compaction-239",
+    "name": "compaction-240",
     "source": "transcript-auto",
     "input_tokens": 268663,
     "cached_tokens": 264907,
@@ -1912,7 +1920,7 @@
     "seconds": 41.145
   },
   {
-    "name": "compaction-240",
+    "name": "compaction-241",
     "source": "transcript-auto",
     "input_tokens": 267356,
     "cached_tokens": 266695,
@@ -1920,7 +1928,7 @@
     "seconds": 27.883
   },
   {
-    "name": "compaction-241",
+    "name": "compaction-242",
     "source": "transcript-auto",
     "input_tokens": 269853,
     "cached_tokens": 265166,
@@ -1928,7 +1936,7 @@
     "seconds": 32.758
   },
   {
-    "name": "compaction-242",
+    "name": "compaction-243",
     "source": "transcript-auto",
     "input_tokens": 267080,
     "cached_tokens": 266067,
@@ -1936,7 +1944,7 @@
     "seconds": 37.23
   },
   {
-    "name": "compaction-243",
+    "name": "compaction-244",
     "source": "transcript-auto",
     "input_tokens": 227851,
     "cached_tokens": 227754,
@@ -1944,7 +1952,7 @@
     "seconds": 53.154
   },
   {
-    "name": "compaction-244",
+    "name": "compaction-245",
     "source": "transcript-auto",
     "input_tokens": 267938,
     "cached_tokens": 266396,
@@ -1952,7 +1960,7 @@
     "seconds": 47.635
   },
   {
-    "name": "compaction-245",
+    "name": "compaction-246",
     "source": "transcript-auto",
     "input_tokens": 266755,
     "cached_tokens": 265249,
@@ -1960,7 +1968,7 @@
     "seconds": 59.909
   },
   {
-    "name": "compaction-246",
+    "name": "compaction-247",
     "source": "transcript-auto",
     "input_tokens": 266997,
     "cached_tokens": 266845,
@@ -1968,7 +1976,7 @@
     "seconds": 49.741
   },
   {
-    "name": "compaction-247",
+    "name": "compaction-248",
     "source": "transcript-auto",
     "input_tokens": 267407,
     "cached_tokens": 267182,
@@ -1976,7 +1984,7 @@
     "seconds": 43.243
   },
   {
-    "name": "compaction-248",
+    "name": "compaction-249",
     "source": "transcript-auto",
     "input_tokens": 273093,
     "cached_tokens": 263178,
@@ -1984,7 +1992,7 @@
     "seconds": 62.259
   },
   {
-    "name": "compaction-249",
+    "name": "compaction-250",
     "source": "transcript-auto",
     "input_tokens": 272023,
     "cached_tokens": 269548,
@@ -1992,7 +2000,7 @@
     "seconds": 60.501
   },
   {
-    "name": "compaction-250",
+    "name": "compaction-251",
     "source": "transcript-auto",
     "input_tokens": 269670,
     "cached_tokens": 267963,
@@ -2000,7 +2008,7 @@
     "seconds": 51.881
   },
   {
-    "name": "compaction-251",
+    "name": "compaction-252",
     "source": "transcript-auto",
     "input_tokens": 266976,
     "cached_tokens": 266273,
@@ -2008,7 +2016,7 @@
     "seconds": 46.524
   },
   {
-    "name": "compaction-252",
+    "name": "compaction-253",
     "source": "transcript-auto",
     "input_tokens": 269771,
     "cached_tokens": 267235,
@@ -2016,67 +2024,67 @@
     "seconds": 45.007
   },
   {
-    "name": "compaction-253",
+    "name": "compaction-254",
     "source": "transcript-auto",
     "input_tokens": 270076,
     "cached_tokens": 267647,
-    "output_tokens": 7722,
+    "output_tokens": 7723,
     "seconds": 50.746
-  },
-  {
-    "name": "compaction-254",
-    "source": "transcript-auto",
-    "input_tokens": 268211,
-    "cached_tokens": 266635,
-    "output_tokens": 8486,
-    "seconds": 54.011
   },
   {
     "name": "compaction-255",
     "source": "transcript-auto",
-    "input_tokens": 267242,
-    "cached_tokens": 266534,
-    "output_tokens": 8444,
-    "seconds": 55.092
+    "input_tokens": 268211,
+    "cached_tokens": 266635,
+    "output_tokens": 8487,
+    "seconds": 54.011
   },
   {
     "name": "compaction-256",
     "source": "transcript-auto",
-    "input_tokens": 267136,
-    "cached_tokens": 265600,
-    "output_tokens": 6944,
-    "seconds": 44.17
+    "input_tokens": 267242,
+    "cached_tokens": 266534,
+    "output_tokens": 8445,
+    "seconds": 55.092
   },
   {
     "name": "compaction-257",
     "source": "transcript-auto",
-    "input_tokens": 267077,
-    "cached_tokens": 265375,
-    "output_tokens": 8057,
-    "seconds": 50.447
+    "input_tokens": 267136,
+    "cached_tokens": 265600,
+    "output_tokens": 6945,
+    "seconds": 44.17
   },
   {
     "name": "compaction-258",
     "source": "transcript-auto",
-    "input_tokens": 268189,
-    "cached_tokens": 266555,
-    "output_tokens": 7353,
-    "seconds": 47.102
+    "input_tokens": 267077,
+    "cached_tokens": 265375,
+    "output_tokens": 8058,
+    "seconds": 50.447
   },
   {
     "name": "compaction-259",
     "source": "transcript-auto",
-    "input_tokens": 272577,
-    "cached_tokens": 266209,
-    "output_tokens": 8729,
-    "seconds": 56.295
+    "input_tokens": 268189,
+    "cached_tokens": 266555,
+    "output_tokens": 7354,
+    "seconds": 47.102
   },
   {
     "name": "compaction-260",
     "source": "transcript-auto",
+    "input_tokens": 272577,
+    "cached_tokens": 266209,
+    "output_tokens": 8730,
+    "seconds": 56.295
+  },
+  {
+    "name": "compaction-261",
+    "source": "transcript-auto",
     "input_tokens": 268644,
     "cached_tokens": 267293,
-    "output_tokens": 9364,
+    "output_tokens": 9365,
     "seconds": 62.502
   }
 ]

@@ -47,6 +47,9 @@ class Profile:
     borrow_calibration: str | None
     harness: str
     harness_cfg: dict
+    # Measured request-duration slope (central, low, high; seconds per context
+    # token) that replaces the log fit and its bootstrap interval, or None.
+    request_slope: tuple[float, float, float] | None = None
 
     @property
     def compactions_path(self) -> str:
@@ -81,6 +84,10 @@ class Profile:
     def prefill_time_on_total(self) -> bool:
         return self.harness_cfg["prefill_time_on_total"]
 
+    @property
+    def summary_grows_with_input(self) -> bool:
+        return self.harness_cfg["summary_grows_with_input"]
+
     def with_measured(self, post_context: int, post_cold_uncached: int) -> "Profile":
         """Fill post-compaction values the profile leaves to the logs."""
         return replace(
@@ -110,14 +117,6 @@ def load_profile(
     cfg = harnesses[harness]
     # Inputs and results of a pair live together in data/<harness>/<profile>/.
     data_dir = f"data/{harness}/{name}"
-    if (
-        not (ROOT / data_dir / COMPACTIONS_NAME).exists()
-        and not cfg.get("finds_compactions")
-    ):
-        raise SystemExit(
-            f"No {data_dir}/{COMPACTIONS_NAME} for profile {name!r} and harness "
-            f"{harness!r} finds no compactions in its logs"
-        )
     threshold = raw["threshold"]
     post = raw["post_compaction"] or {}
     return Profile(
@@ -143,6 +142,7 @@ def load_profile(
         borrow_calibration=raw.get("borrow_calibration"),
         harness=harness,
         harness_cfg=cfg,
+        request_slope=tuple(raw["request_slope"]) if "request_slope" in raw else None,
     )
 
 

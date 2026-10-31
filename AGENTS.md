@@ -18,15 +18,21 @@ Context Compaction Threshold: an empirical calculator that replays real agent se
 
 ## Fixed analysis rules
 
-- Threshold step is 2K for every profile. The axis maximum is the largest effective trigger (largest settable window minus the measured buffer) from an authoritative source. If it cannot be verified, ask the user; never choose a value.
-- The cost axis starts at 0. Cost is normalized per 1M billed tokens with the historical billing mix.
+- Threshold step is 2K for every profile, and every grid point is a multiple of 2000 (so hovering shows round values); a test checks it. `autoCompactWindow` is always shown as whole thousands (trigger + buffer rounded to the nearest 1K). The axis maximum is the largest effective trigger (largest settable window minus the measured buffer) from an authoritative source. If it cannot be verified, ask the user; never choose a value.
+- The upper chart's axis shows percent change of cost relative to the central curve at the largest threshold, spanning only the cost line and its band with five equal round steps and 0 inside, so differences between triggers stay visible. Pages never show US dollars (no secondary line, price caption or dollar text, in either language); absolute cost per 1M billed tokens with the historical billing mix lives only in `result.json` and the docs. Counts are normalized the same way (per 1M billed tokens) and time is a share of model request time (below); a number that scales with the amount of history is never shown as a result, only as a description of the data (sessions, requests, hours).
 - Prices and context windows come from official sources, never from memory. An unknown fact becomes a question, not a guess.
 - Moving or refactoring must not change numbers: compare hashes of `result.json` and the rendered pages before and after.
-- Do not run an analysis in a way that overwrites committed `data/` files unintentionally; send results elsewhere with `--output-dir`. A Claude Code run rewrites its `compactions.json` from the current logs.
+- Do not run an analysis in a way that overwrites committed `data/` files unintentionally; send results elsewhere with `--output-dir`. A run rewrites the logged rows (`log-`, `transcript-`, `borrowed-` sources) of its `compactions.json` from the current logs and keeps hand-timed rows, so Codex hand rows stay as measured; a log row with the same input, cached and output tokens as a hand row is dropped.
+
+## Time share and model time
+
+- Pages have two stacked charts with the same x axis and width: the upper one is cost only; the lower one is time, where the orange share line and the purple total-time line share ONE percent axis, from just below the lowest total-time change (at least 0) to a fixed top of 20% (`time_axis_max`), curves clipped above. The orange line is a share of model request time: an agent's compaction-request seconds divided by its own total request seconds (compaction requests included), pooled across sessions as sum over sum. Every request carries its observed duration (`Request.seconds`) and the context it really had (`Request.observed_input`); replay and bootstrap carry both, a replayed request's duration is the observed one plus the fitted context slope times the context difference, and modelled compactions add seconds to numerator and denominator. Model time (request plus compaction seconds) relative to the largest threshold is still computed and documented but drawn as the purple line of the lower chart (the text layer's `legend_total` is the switch), computed live from the slider speed with a band from the slope interval and the compaction lo/central/hi rows. DeepSeek's context slope is not fitted from the logs (they mix cold and warm requests) but measured in a controlled run (Codex, deepseek-flash high, 384 requests in 4 night-time blocks, 16K to 900K; warm OLS is central, Theil-Sen the low end, OLS 90th percentile the high end; no daytime-peak run) and set in the profile as `request_slope` (central, low, high; the one place to update). Tool execution and user time are never included. There is no idle-gap or wall-clock concept; do not reintroduce one.
+- Request duration per harness is defined in `docs/methodology.md` ("Timing from the logs"); keep both harnesses and both languages of that section in step with the code.
+- Codex summary size `G` is the constant mean (harness setting `summary_grows_with_input` false); Claude Code uses `G = g0 + g1 * C`.
 
 ## Page text
 
-Page text lives only in `config/pages.json`, in English and Simplified Chinese, in plain human tone. Chinese text has no English sentences mixed in. Do not hard-code text in `src/render.py`.
+Page text lives only in `config/pages.json`, in English and Simplified Chinese, in plain human tone. Chinese text has no English sentences mixed in. Do not hard-code text in `src/render.py`. The page body says only what the reader needs to act; evidence and justification (sources, reasons, fit details) go in the collapsed details section or in `docs/methodology*.md`.
 
 ## Adding a profile or harness
 

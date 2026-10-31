@@ -58,7 +58,7 @@ harness，所以 `<profile>.html` 不会有歧义。
 会话、网络或第三方包。Python 3.8 及以上即可。
 
 `compactions.json` 每行是一次实测压缩：`name`、`source`、`input_tokens`、
-`cached_tokens`、`output_tokens`、`seconds`，只有数字。Codex 的样本是手工测得的。
+`cached_tokens`、`output_tokens`、`seconds`，只有数字。Codex 的文件保留 9 个手工计时的样本，每次分析还会加上从日志读到的压缩（`log-auto`）。
 Claude Code 每次分析都会从对话记录重新写出样本（`transcript-auto` 或
 `transcript-manual`），拟合再读回这些样本。Claude Sonnet 5.5 自己的压缩太少，拟合时
 借用 Opus 的样本；借来的行不会复制进它的文件。用 `--compactions FILE` 可以改用别的

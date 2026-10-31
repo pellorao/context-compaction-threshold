@@ -7,6 +7,7 @@ paths, prompts or message content.
 from __future__ import annotations
 
 import json
+import re
 import statistics
 from collections import Counter
 from dataclasses import dataclass, field
@@ -19,6 +20,7 @@ from analysis import (
     CompactionSample,
     _fit_no_intercept,
     chain_requests,
+    fill_unknown_seconds,
     parse_timestamp,
 )
 from model_profile import Profile
@@ -26,6 +28,10 @@ from model_profile import Profile
 
 CJK_FROM = 0x2E80
 CALIBRATION_MIN_CHARS = 200
+
+# Every transcript entry carries a uuid, a timestamp and its parent's uuid.
+STAMP = re.compile(rb'"uuid":"([0-9a-f-]{36})","timestamp":"([^"]+)"')
+PARENT = re.compile(rb'^\{"parentUuid":(?:"([0-9a-f-]{36})"|null)')
 
 
 @dataclass
@@ -42,6 +48,10 @@ class _Message:
     text_other: int = 0
     text_only: bool = True
     stop_reason: str | None = None
+    # uuid of the entry the request answers, and the last streamed line's time.
+    parent: str | None = None
+    end: float = 0.0
+    seconds: float = 0.0
 
     @property
     def context(self) -> int:
@@ -84,11 +94,21 @@ def _read_transcript(
     """Parse one transcript; messages are unique across files by message id."""
     transcript = _Transcript(subagent="subagents" in path.parts)
     by_id: dict[str, _Message] = {}
+    # uuid -> (timestamp, parent uuid, is an attachment or system entry)
+    entries: dict[str, tuple[bytes, str | None, bool]] = {}
     skipped_ids: set[str] = set()
     # Read bytes: Python 3.14's incremental text reader intermittently
     # segfaults on some very long third-party JSONL records.
     with path.open("rb") as stream:
         for line in stream:
+            stamp = STAMP.search(line)
+            if stamp:
+                parent = PARENT.match(line)
+                entries[stamp.group(1).decode()] = (
+                    stamp.group(2),
+                    parent.group(1).decode() if parent and parent.group(1) else None,
+                    b'"type":"attachment"' in line or b'"type":"system"' in line,
+                )
             if b'"type":"assistant"' in line:
                 kind = "assistant"
             elif b'"subtype":"compact_boundary"' in line:
@@ -137,6 +157,7 @@ def _read_transcript(
                         cache_read=usage.get("cache_read_input_tokens") or 0,
                         output_tokens=0,
                         thinking_tokens=0,
+                        parent=record.get("parentUuid"),
                     )
                     by_id[message_id] = parsed
                     seen_messages.add(message_id)
@@ -150,6 +171,7 @@ def _read_transcript(
                         usage.get("output_tokens_details") or {}
                     ).get("thinking_tokens") or 0
                 parsed.stop_reason = message.get("stop_reason") or parsed.stop_reason
+                parsed.end = parse_timestamp(record["timestamp"])
                 content = message.get("content")
                 for block in content if isinstance(content, list) else ():
                     if block.get("type") == "text":
@@ -182,6 +204,15 @@ def _read_transcript(
                 text = content if isinstance(content, str) else json.dumps(content)
                 boundary = transcript.boundaries[-1]
                 boundary.summary_cjk, boundary.summary_other = _char_classes(text)
+    for message in transcript.messages:
+        # The request starts at the nearest user or assistant entry before it:
+        # attachment and system entries (hook output, reminders) are written
+        # asynchronously and carry unrelated times.
+        parent = message.parent
+        while parent in entries and entries[parent][2]:
+            parent = entries[parent][1]
+        if parent in entries:
+            message.seconds = message.end - parse_timestamp(entries[parent][0].decode())
     return transcript
 
 
@@ -223,23 +254,6 @@ def _uncached_multiplier(messages: list[_Message], profile: Profile) -> float:
     return cost / (tokens * price["input"]) if tokens else 1.0
 
 
-def _active_seconds(
-    messages: list[_Message],
-    boundaries: list[_Boundary],
-    idle_gap: float,
-) -> float:
-    """Agent working time: request gaps up to idle_gap, minus compaction time."""
-    total = 0.0
-    for previous, current in zip(messages, messages[1:]):
-        gap = current.timestamp - previous.timestamp
-        for boundary in boundaries:
-            if previous.timestamp <= boundary.timestamp <= current.timestamp:
-                gap -= boundary.duration_seconds
-        if 0 < gap <= idle_gap:
-            total += gap
-    return total
-
-
 def collect(
     root: Path,
     profile: Profile,
@@ -270,11 +284,11 @@ def collect(
         sessions.append(
             Session(
                 requests=chain_requests(
-                    [Request(m.context, m.cache_read, m.output_tokens) for m in messages],
+                    [
+                        Request(m.context, m.cache_read, m.output_tokens, m.seconds)
+                        for m in messages
+                    ],
                     [b.position for b in boundaries],
-                ),
-                task_seconds=_active_seconds(
-                    messages, boundaries, profile.harness_cfg["idle_gap_seconds"]
                 ),
                 segment="subagent" if transcript.subagent else "main",
                 uncached_multiplier=_uncached_multiplier(messages, profile),
@@ -318,6 +332,7 @@ def collect(
     if not sessions or not compactions:
         raise ValueError("No matching sessions or compactions were found")
     stats = {
+        "requests_without_duration": fill_unknown_seconds(sessions),
         "included_sessions_main": sum(s.segment == "main" for s in sessions),
         "included_sessions_subagent": sum(s.segment == "subagent" for s in sessions),
         "max_input_tokens": max(

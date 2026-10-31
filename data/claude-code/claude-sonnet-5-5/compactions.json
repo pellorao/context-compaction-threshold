@@ -146,13 +146,37 @@
   {
     "name": "compaction-019",
     "source": "transcript-auto",
+    "input_tokens": 267226,
+    "cached_tokens": 265609,
+    "output_tokens": 7807,
+    "seconds": 285.486
+  },
+  {
+    "name": "compaction-020",
+    "source": "transcript-auto",
+    "input_tokens": 270208,
+    "cached_tokens": 265334,
+    "output_tokens": 6466,
+    "seconds": 89.685
+  },
+  {
+    "name": "compaction-021",
+    "source": "transcript-auto",
+    "input_tokens": 266950,
+    "cached_tokens": 264166,
+    "output_tokens": 9977,
+    "seconds": 87.335
+  },
+  {
+    "name": "compaction-022",
+    "source": "transcript-auto",
     "input_tokens": 268852,
     "cached_tokens": 265059,
     "output_tokens": 8021,
     "seconds": 66.515
   },
   {
-    "name": "compaction-020",
+    "name": "compaction-023",
     "source": "transcript-auto",
     "input_tokens": 267352,
     "cached_tokens": 266656,
@@ -160,7 +184,7 @@
     "seconds": 42.861
   },
   {
-    "name": "compaction-021",
+    "name": "compaction-024",
     "source": "transcript-auto",
     "input_tokens": 267090,
     "cached_tokens": 266895,

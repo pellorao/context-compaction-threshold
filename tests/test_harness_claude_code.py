@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import json
 import sys
 import tempfile
@@ -14,10 +15,27 @@ from harness import collect  # noqa: E402
 from model_profile import load_profile  # noqa: E402
 
 
-def assistant(message_id, model, usage, second, *, output=10, stop=None):
-    return {
+COUNTER = itertools.count(1)
+
+
+def uid(number: int) -> str:
+    return f"{number:036x}"
+
+
+def entry(record: dict, parent: str | None = None, uuid: str | None = None) -> dict:
+    """Order the fields as Claude Code writes them: parentUuid first, then uuid and timestamp."""
+    timestamp = record.pop("timestamp")
+    return {"parentUuid": parent, **record, "uuid": uuid or uid(next(COUNTER)), "timestamp": timestamp}
+
+
+def at(second: int) -> str:
+    return f"2026-10-01T00:00:{second:02d}.000Z"
+
+
+def assistant(message_id, model, usage, second, *, output=10, stop=None, parent=None):
+    return entry({
         "type": "assistant",
-        "timestamp": f"2026-10-01T00:00:{second:02d}.000Z",
+        "timestamp": at(second),
         "message": {
             "id": message_id,
             "model": model,
@@ -34,7 +52,7 @@ def assistant(message_id, model, usage, second, *, output=10, stop=None):
                 "output_tokens": output,
             },
         },
-    }
+    }, parent)
 
 
 def write(path: Path, records: list[dict]) -> None:
@@ -57,22 +75,36 @@ class ClaudeSourceTest(unittest.TestCase):
                 "durationMs": 40_000,
             },
         }
-        summary = {
+        summary = entry({
             "type": "user",
             "isCompactSummary": True,
-            "timestamp": "2026-10-01T00:00:31.000Z",
+            "timestamp": at(31),
             "message": {"content": "s" * 3_000},
-        }
+        }, uuid=uid(900))
+        user = lambda number, second: entry(
+            {"type": "user", "timestamp": at(second), "message": {"content": "q"}},
+            uuid=uid(number),
+        )
+        # A hook attachment written long after the response it precedes (t=50):
+        # the request is timed from the user entry before it, not from it.
+        attachment = entry(
+            {"type": "attachment", "attachment": {"type": "hook"}, "timestamp": at(50)},
+            parent=uid(902), uuid=uid(903),
+        )
         main = [
-            assistant("m1", opus, (10, 0, 5_000, 0), 0),
+            user(901, 0),
+            assistant("m1", opus, (10, 0, 5_000, 0), 2, parent=uid(901)),
+            user(902, 3),
+            attachment,
             # One response split over two lines: the last line has the output.
-            assistant("m2", opus, (10, 0, 1_000, 5_000), 5, output=3),
+            assistant("m2", opus, (10, 0, 1_000, 5_000), 5, output=3, parent=uid(903)),
             assistant("m2", opus, (10, 0, 1_000, 5_000), 5, output=300, stop="end_turn"),
             assistant("h1", "claude-haiku-5-5", (1, 0, 9_000, 0), 6),
             boundary,
             summary,
-            assistant("m3", opus, (10, 0, 20_000, 3_000), 40),
-            assistant("m4", opus, (10, 0, 500, 23_000), 45),
+            assistant("m3", opus, (10, 0, 20_000, 3_000), 40, parent=uid(900)),
+            user(904, 42),
+            assistant("m4", opus, (10, 0, 500, 23_000), 45, parent=uid(904)),
         ]
         sub = [assistant("s1", opus, (10, 2_000, 0, 0), 0)]
         # Plain answers calibrate tokens per CJK and per other character:
@@ -120,8 +152,9 @@ class ClaudeSourceTest(unittest.TestCase):
         # Main thread writes at the 1-hour price (2x input), subagents at 5 minutes.
         self.assertAlmostEqual(main_session.uncached_multiplier, 2.0, places=2)
         self.assertAlmostEqual(sub_session.uncached_multiplier, 1.25, places=2)
-        # Compaction time (40 s) is not counted as work.
-        self.assertLess(main_session.task_seconds, 40)
+        # A request lasts from the nearest user or assistant entry before it to
+        # its last streamed line; attachments are skipped.
+        self.assertEqual([r.seconds for r in main_session.requests], [2, 2, 9, 3])
         # One calibration compaction, duplicates collapsed.
         self.assertEqual(len(compactions), 1)
         self.assertEqual(stats["compactions_used"], 1)

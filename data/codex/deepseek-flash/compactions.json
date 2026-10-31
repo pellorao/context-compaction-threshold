@@ -70,5 +70,133 @@
     "cached_tokens": 3712,
     "output_tokens": 8263,
     "seconds": 54.439
+  },
+  {
+    "name": "log-001",
+    "source": "log-auto",
+    "input_tokens": 881086,
+    "cached_tokens": 6272,
+    "output_tokens": 4469,
+    "seconds": 36.40400004386902
+  },
+  {
+    "name": "log-002",
+    "source": "log-auto",
+    "input_tokens": 283225,
+    "cached_tokens": 3456,
+    "output_tokens": 2327,
+    "seconds": 16.592999935150146
+  },
+  {
+    "name": "log-003",
+    "source": "log-auto",
+    "input_tokens": 272085,
+    "cached_tokens": 4224,
+    "output_tokens": 3708,
+    "seconds": 25.414999961853027
+  },
+  {
+    "name": "log-004",
+    "source": "log-auto",
+    "input_tokens": 273772,
+    "cached_tokens": 273408,
+    "output_tokens": 4835,
+    "seconds": 30.789999961853027
+  },
+  {
+    "name": "log-005",
+    "source": "log-auto",
+    "input_tokens": 304262,
+    "cached_tokens": 3712,
+    "output_tokens": 3408,
+    "seconds": 21.21299982070923
+  },
+  {
+    "name": "log-006",
+    "source": "log-auto",
+    "input_tokens": 294141,
+    "cached_tokens": 4864,
+    "output_tokens": 4153,
+    "seconds": 27.019999980926514
+  },
+  {
+    "name": "log-007",
+    "source": "log-auto",
+    "input_tokens": 300496,
+    "cached_tokens": 4992,
+    "output_tokens": 3195,
+    "seconds": 19.611999988555908
+  },
+  {
+    "name": "log-008",
+    "source": "log-auto",
+    "input_tokens": 311212,
+    "cached_tokens": 16128,
+    "output_tokens": 2825,
+    "seconds": 15.301000118255615
+  },
+  {
+    "name": "log-009",
+    "source": "log-auto",
+    "input_tokens": 293171,
+    "cached_tokens": 5248,
+    "output_tokens": 3240,
+    "seconds": 20.54200005531311
+  },
+  {
+    "name": "log-010",
+    "source": "log-auto",
+    "input_tokens": 296475,
+    "cached_tokens": 5248,
+    "output_tokens": 4708,
+    "seconds": 30.013000011444092
+  },
+  {
+    "name": "log-011",
+    "source": "log-auto",
+    "input_tokens": 288111,
+    "cached_tokens": 4480,
+    "output_tokens": 4340,
+    "seconds": 29.73799991607666
+  },
+  {
+    "name": "log-012",
+    "source": "log-auto",
+    "input_tokens": 281082,
+    "cached_tokens": 16000,
+    "output_tokens": 7114,
+    "seconds": 49.21199989318848
+  },
+  {
+    "name": "log-013",
+    "source": "log-auto",
+    "input_tokens": 285017,
+    "cached_tokens": 16000,
+    "output_tokens": 7043,
+    "seconds": 48.37999987602234
+  },
+  {
+    "name": "log-014",
+    "source": "log-auto",
+    "input_tokens": 279442,
+    "cached_tokens": 16000,
+    "output_tokens": 2552,
+    "seconds": 15.95199990272522
+  },
+  {
+    "name": "log-015",
+    "source": "log-auto",
+    "input_tokens": 278022,
+    "cached_tokens": 5120,
+    "output_tokens": 2607,
+    "seconds": 17.44600009918213
+  },
+  {
+    "name": "log-016",
+    "source": "log-auto",
+    "input_tokens": 289809,
+    "cached_tokens": 16256,
+    "output_tokens": 3197,
+    "seconds": 22.15400004386902
   }
 ]

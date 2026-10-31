@@ -15,17 +15,30 @@ from pathlib import Path
 from model_profile import Profile
 
 
+# Sources written by the harnesses (or borrowed from another model); any other
+# source is a hand measurement.
+LOGGED_SOURCES = ("log-", "transcript-", "borrowed-")
+
+
 @dataclass(frozen=True)
 class Request:
     input_tokens: int
     cached_tokens: int
     output_tokens: int
+    # Observed duration of the request (0 when the logs do not give one).
+    seconds: float
+    # Context the request really had when it was timed; chaining and resampling
+    # move input_tokens but not this. None means input_tokens itself.
+    observed_input: int | None = None
+
+    @property
+    def observed(self) -> int:
+        return self.input_tokens if self.observed_input is None else self.observed_input
 
 
 @dataclass
 class Session:
     requests: list[Request]
-    task_seconds: float
     segment: str | None = None
     # Price of an uncached token relative to the plain input price (cache
     # writes cost more than plain input on some models).
@@ -62,6 +75,11 @@ class BootstrapConfig:
     block_requests: int = 8
     seed: int = 20_261_031
     workers: int = min(8, os.cpu_count() or 1)
+
+
+# The slope of request duration on context is weakly determined; its interval
+# is the 10th to 90th percentile over the bootstrap replicates.
+SLOPE_QUANTILES = (0.1, 0.9)
 
 
 def parse_timestamp(value: str) -> float:
@@ -159,15 +177,14 @@ class FittedModel:
 
 
 def fit_model(compactions: list[CompactionSample], profile: Profile) -> FittedModel:
-    summary_points = [
-        [1.0, float(item.input_tokens)]
-        for item in compactions
-    ]
     summary_values = [float(item.output_tokens) for item in compactions]
-    summary_intercept, summary_per_input = _fit_no_intercept(
-        summary_points,
-        summary_values,
-    )
+    if profile.summary_grows_with_input:
+        summary_intercept, summary_per_input = _fit_no_intercept(
+            [[1.0, float(item.input_tokens)] for item in compactions],
+            summary_values,
+        )
+    else:
+        summary_intercept, summary_per_input = statistics.fmean(summary_values), 0.0
     residuals = [
         item.output_tokens
         - (summary_intercept + summary_per_input * item.input_tokens)
@@ -235,10 +252,10 @@ def borrow_compactions(
     """Add another model's compactions to a model with too few of its own.
 
     The donor fit supplies how compaction time and summary size depend on the
-    context. Donor durations are rescaled by the ratio of the model's own
-    measured durations to what the donor fit predicts for them, so the level
-    still comes from the model's own compactions. Returns the pooled compactions
-    and the scale.
+    context. Donor durations are rescaled by the median, over the model's own
+    compactions, of measured duration divided by what the donor fit predicts, so
+    the level still comes from the model's own compactions and one outlier
+    barely moves it. Returns the pooled compactions and the scale.
     """
     donor_model = fit_model(donor, profile)
 
@@ -253,7 +270,7 @@ def borrow_compactions(
             + donor_model.seconds_per_output * item.output_tokens
         )
 
-    scale = sum(item.seconds for item in own) / sum(predicted(item) for item in own)
+    scale = statistics.median(item.seconds / predicted(item) for item in own)
     borrowed = [
         replace(
             item,
@@ -299,6 +316,8 @@ def chain_requests(requests: list[Request], cuts: list[int]) -> list[Request]:
                     context,
                     context - min(context, typical_uncached),
                     request.output_tokens,
+                    request.seconds,
+                    request.observed,
                 )
             )
         else:
@@ -307,9 +326,53 @@ def chain_requests(requests: list[Request], cuts: list[int]) -> list[Request]:
                     request.input_tokens + offset,
                     request.cached_tokens + offset,
                     request.output_tokens,
+                    request.seconds,
+                    request.observed,
                 )
             )
     return chained
+
+
+@dataclass(frozen=True)
+class RequestTimeFit:
+    intercept: float
+    seconds_per_input: float
+    seconds_per_output: float
+    r2: float
+
+
+def fit_request_time(sessions: list[Session]) -> RequestTimeFit:
+    """OLS of an ordinary request's duration on its context and output tokens.
+
+    Uses the context the request really had (`observed`). Context is scaled to
+    100K and output to 1K tokens inside the normal equations for conditioning.
+    """
+    rows = [
+        (request.observed / 1e5, request.output_tokens / 1e3, request.seconds)
+        for session in sessions
+        for request in session.requests
+    ]
+    intercept, per_input, per_output = _fit_no_intercept(
+        [[1.0, x, y] for x, y, _ in rows], [t for _, _, t in rows]
+    )
+    mean = statistics.fmean(t for _, _, t in rows)
+    residual = sum((t - intercept - per_input * x - per_output * y) ** 2 for x, y, t in rows)
+    total = sum((t - mean) ** 2 for _, _, t in rows)
+    return RequestTimeFit(intercept, per_input / 1e5, per_output / 1e3, 1 - residual / total)
+
+
+def fill_unknown_seconds(sessions: list[Session]) -> int:
+    """Give requests without a usable duration (<= 0) the median of the others."""
+    median = statistics.median(
+        r.seconds for s in sessions for r in s.requests if r.seconds > 0
+    )
+    unknown = 0
+    for session in sessions:
+        for index, request in enumerate(session.requests):
+            if request.seconds <= 0:
+                session.requests[index] = replace(request, seconds=median)
+                unknown += 1
+    return unknown
 
 
 def _summary_tokens(
@@ -344,8 +407,11 @@ def _replay_session(
     compactions = 0
     prefill_seconds = 0.0
     output_seconds = 0.0
+    request_seconds = 0.0
+    context_shift = 0
 
     for index, request in enumerate(requests):
+        request_seconds += request.seconds
         if index:
             context += request.input_tokens - requests[index - 1].input_tokens
 
@@ -369,6 +435,9 @@ def _replay_session(
             context = profile.post_context
             compacted = True
 
+        # A request's duration moves with the context it runs at; the caller
+        # turns the summed shift into seconds with the fitted slope.
+        context_shift += context - request.observed
         actual_uncached = request.input_tokens - request.cached_tokens
         uncached = (
             min(context, profile.post_cold_uncached)
@@ -388,6 +457,30 @@ def _replay_session(
         "prefill_seconds": prefill_seconds,
         "output_seconds": output_seconds,
         "compaction_seconds": prefill_seconds + output_seconds,
+        "request_seconds": request_seconds,
+        "context_shift": context_shift,
+    }
+
+
+def _request_fields(
+    base: float,
+    shift: float,
+    compaction_seconds: float,
+    slopes: tuple[float, float, float],
+    profile: Profile,
+) -> dict:
+    """Request seconds under the central, low and high slope, and the time share."""
+    central, low, high = slopes
+    request_seconds = base + central * shift
+    share = compaction_seconds / (request_seconds + compaction_seconds)
+    return {
+        "request_base_seconds": base,
+        "context_shift_tokens": shift,
+        "request_seconds": request_seconds,
+        "request_seconds_slope_lo": base + low * shift,
+        "request_seconds_slope_hi": base + high * shift,
+        "time_share": share,
+        "feasible_time": share <= profile.time_limit,
     }
 
 
@@ -398,8 +491,8 @@ def curve(
     *,
     cached_prefix: int,
     summary_shift: float = 0,
+    slopes: tuple[float, float, float] = (0.0, 0.0, 0.0),
 ) -> list[dict]:
-    work_seconds = sum(session.task_seconds for session in sessions)
     rows = []
     for threshold in range(
         profile.min_threshold,
@@ -420,7 +513,6 @@ def curve(
         compaction_seconds = sum(
             result["compaction_seconds"] for result in results
         )
-        time_share = compaction_seconds / (work_seconds + compaction_seconds)
         rows.append(
             {
                 "threshold": threshold,
@@ -438,8 +530,13 @@ def curve(
                 "compaction_output_seconds": sum(
                     result["output_seconds"] for result in results
                 ),
-                "time_share": time_share,
-                "feasible_time": time_share <= profile.time_limit,
+                **_request_fields(
+                    sum(result["request_seconds"] for result in results),
+                    sum(result["context_shift"] for result in results),
+                    compaction_seconds,
+                    slopes,
+                    profile,
+                ),
             }
         )
     return rows
@@ -449,6 +546,7 @@ def scenario_curves(
     sessions: list[Session],
     model: FittedModel,
     profile: Profile,
+    slopes: tuple[float, float, float] = (0.0, 0.0, 0.0),
 ) -> dict[str, list[dict]]:
     return {
         "central": curve(
@@ -456,6 +554,7 @@ def scenario_curves(
             model,
             profile,
             cached_prefix=model.central_cached_prefix,
+            slopes=slopes,
         ),
         "cost_low": curve(
             sessions,
@@ -463,6 +562,7 @@ def scenario_curves(
             profile,
             cached_prefix=model.high_cached_prefix,
             summary_shift=model.summary_low_shift,
+            slopes=slopes,
         ),
         "cost_high": curve(
             sessions,
@@ -470,6 +570,7 @@ def scenario_curves(
             profile,
             cached_prefix=model.low_cached_prefix,
             summary_shift=model.summary_high_shift,
+            slopes=slopes,
         ),
     }
 
@@ -478,10 +579,7 @@ def _resample_session(session: Session, rng: random.Random, block_size: int) -> 
     requests = session.requests
     if len(requests) < 2:
         return Session(
-            list(requests),
-            session.task_seconds,
-            session.segment,
-            session.uncached_multiplier,
+            list(requests), session.segment, session.uncached_multiplier
         )
 
     transitions = [
@@ -489,10 +587,12 @@ def _resample_session(session: Session, rng: random.Random, block_size: int) -> 
             current.input_tokens - previous.input_tokens,
             current.input_tokens - current.cached_tokens,
             current.output_tokens,
+            current.seconds,
+            current.observed,
         )
         for previous, current in zip(requests, requests[1:])
     ]
-    picked: list[tuple[int, int, int]] = []
+    picked: list[tuple[int, int, int, float, int]] = []
     while len(picked) < len(transitions):
         start = rng.randrange(len(transitions))
         picked.extend(
@@ -511,9 +611,11 @@ def _resample_session(session: Session, rng: random.Random, block_size: int) -> 
             input_tokens=context,
             cached_tokens=context - initial_uncached,
             output_tokens=requests[0].output_tokens,
+            seconds=requests[0].seconds,
+            observed_input=requests[0].observed,
         )
     ]
-    for increment, uncached, output_tokens in picked:
+    for increment, uncached, output_tokens, seconds, observed in picked:
         context = max(0, context + increment)
         actual_uncached = max(0, min(context, uncached))
         sampled.append(
@@ -521,14 +623,11 @@ def _resample_session(session: Session, rng: random.Random, block_size: int) -> 
                 input_tokens=context,
                 cached_tokens=context - actual_uncached,
                 output_tokens=output_tokens,
+                seconds=seconds,
+                observed_input=observed,
             )
         )
-    return Session(
-        sampled,
-        session.task_seconds,
-        session.segment,
-        session.uncached_multiplier,
-    )
+    return Session(sampled, session.segment, session.uncached_multiplier)
 
 
 @dataclass(frozen=True)
@@ -547,7 +646,7 @@ def _init_worker(job: _WorkerJob) -> None:
     _WORKER_JOB = job
 
 
-def _bootstrap_replicate(index: int) -> dict[str, list[dict]]:
+def _bootstrap_replicate(index: int) -> tuple[dict[str, list[dict]], float]:
     if _WORKER_JOB is None:
         raise RuntimeError("Bootstrap worker was not initialized")
     job = _WORKER_JOB
@@ -556,15 +655,17 @@ def _bootstrap_replicate(index: int) -> dict[str, list[dict]]:
         _resample_session(session, rng, job.config.block_requests)
         for session in job.sessions
     ]
-    return scenario_curves(sessions, job.model, job.profile)
+    return (
+        scenario_curves(sessions, job.model, job.profile),
+        fit_request_time(sessions).seconds_per_input,
+    )
 
 
 def _average_curves(
     replicates: list[dict[str, list[dict]]],
-    sessions: list[Session],
     profile: Profile,
+    slopes: tuple[float, float, float],
 ) -> dict[str, list[dict]]:
-    work_seconds = sum(session.task_seconds for session in sessions)
     output = {}
     for name in ("central", "cost_low", "cost_high"):
         replicate_curves = [replicate[name] for replicate in replicates]
@@ -573,7 +674,6 @@ def _average_curves(
             compaction_seconds = statistics.fmean(
                 rows[index]["compaction_seconds"] for rows in replicate_curves
             )
-            time_share = compaction_seconds / (work_seconds + compaction_seconds)
             cost = statistics.fmean(
                 rows[index]["cost_usd_off_peak"] for rows in replicate_curves
             )
@@ -593,8 +693,19 @@ def _average_curves(
                         rows[index]["compaction_output_seconds"]
                         for rows in replicate_curves
                     ),
-                    "time_share": time_share,
-                    "feasible_time": time_share <= profile.time_limit,
+                    **_request_fields(
+                        statistics.fmean(
+                            rows[index]["request_base_seconds"]
+                            for rows in replicate_curves
+                        ),
+                        statistics.fmean(
+                            rows[index]["context_shift_tokens"]
+                            for rows in replicate_curves
+                        ),
+                        compaction_seconds,
+                        slopes,
+                        profile,
+                    ),
                 }
             )
         output[name] = rows
@@ -606,7 +717,8 @@ def bootstrap_curves(
     model: FittedModel,
     profile: Profile,
     config: BootstrapConfig,
-) -> dict[str, list[dict]]:
+    central_slope: float,
+) -> tuple[dict[str, list[dict]], tuple[float, float, float]]:
     job = _WorkerJob(sessions, model, profile, config)
     indices = range(config.replicates)
     if config.workers <= 1:
@@ -619,7 +731,12 @@ def bootstrap_curves(
             initargs=(job,),
         ) as pool:
             replicates = list(pool.imap(_bootstrap_replicate, indices, chunksize=1))
-    return _average_curves(replicates, sessions, profile)
+    slope_values = [slope for _, slope in replicates]
+    slopes = profile.request_slope or (
+        central_slope,
+        *(_quantile(slope_values, q) for q in SLOPE_QUANTILES),
+    )
+    return _average_curves([curves for curves, _ in replicates], profile, slopes), slopes
 
 
 def _minimum_valid(rows: list[dict]) -> dict:
@@ -637,6 +754,10 @@ def _compact_curve(rows: list[dict]) -> list[dict]:
         "compaction_seconds",
         "compaction_prefill_seconds",
         "compaction_output_seconds",
+        "request_seconds",
+        "request_seconds_slope_lo",
+        "request_seconds_slope_hi",
+        "context_shift_tokens",
         "time_share",
         "feasible_time",
         "cost_per_million_tokens",
@@ -654,8 +775,10 @@ def build_result(
     extra_snapshot: dict | None = None,
 ) -> dict:
     model = fit_model(compactions, profile)
-    exact_curves = scenario_curves(sessions, model, profile)
-    curves = bootstrap_curves(sessions, model, profile, config)
+    request_fit = fit_request_time(sessions)
+    central_slope = request_fit.seconds_per_input
+    curves, slopes = bootstrap_curves(sessions, model, profile, config, central_slope)
+    exact_curves = scenario_curves(sessions, model, profile, slopes)
 
     # Cost per 1M billed tokens: one constant per profile, the billed tokens
     # of the real history (not of each replay, which changes with the threshold).
@@ -720,7 +843,9 @@ def build_result(
             "requests": sum(len(session.requests) for session in sessions),
             "billed_tokens": billed_tokens,
             "billing_mix": billing_mix,
-            "work_seconds": sum(session.task_seconds for session in sessions),
+            "request_seconds": sum(
+                request.seconds for session in sessions for request in session.requests
+            ),
             "included_sessions": len(sessions) - int(included_active_tail),
             "included_active_tail": included_active_tail,
             "max_input_tokens": max(
@@ -748,6 +873,14 @@ def build_result(
             "high_cached_prefix_tokens": model.high_cached_prefix,
             "post_compaction_context": profile.post_context,
             "post_compaction_cold_uncached": profile.post_cold_uncached,
+            "request_seconds_intercept": request_fit.intercept,
+            "request_seconds_per_context_token": slopes[0],
+            "request_seconds_per_context_token_low": slopes[1],
+            "request_seconds_per_context_token_high": slopes[2],
+            "request_slope_source": "controlled" if profile.request_slope else "log-fit",
+            "request_seconds_per_context_token_log_fit": central_slope,
+            "request_seconds_per_output_token": request_fit.seconds_per_output,
+            "request_time_r2": request_fit.r2,
             "bootstrap_replicates": config.replicates,
             "bootstrap_block_requests": config.block_requests,
             "bootstrap_seed": config.seed,

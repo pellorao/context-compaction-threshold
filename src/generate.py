@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 
 from analysis import (
+    LOGGED_SOURCES,
     BootstrapConfig,
     borrow_compactions,
     build_result,
@@ -97,11 +98,27 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
         excluded_threads=args.exclude_thread,
     )
     profile = collected.profile
-    finds = profile.harness_cfg.get("finds_compactions")
     compactions_path = args.compactions or ROOT / profile.compactions_path
-    if finds and not args.compactions:
-        # Samples found in the logs are stored; the fit reads the stored file.
-        save_compactions(compactions_path, collected.compactions)
+    if not args.compactions:
+        # Samples found in the logs are stored (the hand-measured ones already
+        # in the file stay); the fit reads the stored file.
+        hand = (
+            [
+                s
+                for s in load_compactions(compactions_path)
+                if not s.source.startswith(LOGGED_SOURCES)
+            ]
+            if compactions_path.exists()
+            else []
+        )
+        # A compaction that was also timed by hand keeps its hand timing.
+        timed = {(h.input_tokens, h.cached_tokens, h.output_tokens) for h in hand}
+        found = [
+            c
+            for c in collected.compactions
+            if (c.input_tokens, c.cached_tokens, c.output_tokens) not in timed
+        ]
+        save_compactions(compactions_path, hand + found)
     compactions = load_compactions(compactions_path)
     stats = dict(collected.stats)
     needed = profile.harness_cfg.get("min_fit_compactions", 0)
@@ -140,7 +157,7 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
     snapshot = result["snapshot"]
     print(
         f"{snapshot['requests']} requests, "
-        f"{snapshot['work_seconds']:.1f} work-seconds, "
+        f"{snapshot['request_seconds']:.1f} request-seconds, "
         f"{snapshot['included_sessions']} independent sessions"
         + (" + active tail" if snapshot["included_active_tail"] else "")
     )

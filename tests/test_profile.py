@@ -66,19 +66,31 @@ class ProfileTest(unittest.TestCase):
         for name in profile_names():
             self.assertEqual(load_profile(name).threshold_step, 2_000, name)
 
-    def test_claude_axis_is_the_largest_settable_trigger(self) -> None:
+    def test_claude_axis_ends_at_the_largest_grid_point_below_the_effective_trigger(self) -> None:
         for name in ("claude-opus-5-5", "claude-sonnet-5-5"):
             profile = load_profile(name)
-            trigger = profile.trigger
+            trigger, step = profile.trigger, profile.threshold_step
             buffer = trigger["buffer"]
-            self.assertEqual(
-                profile.max_threshold,
-                min(profile.context_window, trigger["max_window"]) - buffer,
-            )
-            self.assertEqual(profile.min_threshold, trigger["min_window"] - buffer)
-            # Every grid point maps to a round window.
-            self.assertEqual((profile.min_threshold + buffer) % 2_000, 0)
+            top = min(profile.context_window, trigger["max_window"]) - buffer
+            bottom = trigger["min_window"] - buffer
+            self.assertEqual(profile.max_threshold, top // step * step)
+            self.assertEqual(profile.min_threshold, -(-bottom // step) * step)
+            self.assertLess(top - profile.max_threshold, step)
+            self.assertLess(profile.min_threshold - bottom, step)
         self.assertIsNone(load_profile("deepseek-flash").trigger)
+
+    def test_every_grid_point_is_a_multiple_of_the_step(self) -> None:
+        for name in profile_names():
+            profile = load_profile(name)
+            self.assertEqual(profile.min_threshold % profile.threshold_step, 0, name)
+            self.assertEqual(profile.max_threshold % profile.threshold_step, 0, name)
+            grid = range(
+                profile.min_threshold, profile.max_threshold + 1, profile.threshold_step
+            )
+            self.assertTrue(all(point % 2_000 == 0 for point in grid), name)
+            result = json.loads((ROOT / profile.data_dir / "result.json").read_text())
+            thresholds = [row["threshold"] for row in result["curves"]["central"]]
+            self.assertEqual(thresholds, list(grid), name)
 
     def test_harness_is_chosen_independently_of_the_profile(self) -> None:
         profile = load_profile("deepseek-flash", "claude-code")
@@ -88,9 +100,6 @@ class ProfileTest(unittest.TestCase):
         self.assertEqual(profile.prices["input"], 0.15)
         # Paths follow the (harness, profile) pair.
         self.assertEqual(profile.data_dir, "data/claude-code/deepseek-flash")
-        # A pair without a compactions file needs a harness that finds compactions.
-        with self.assertRaises(SystemExit):
-            load_profile("claude-opus-5-5", "codex")
         with self.assertRaises(SystemExit):
             load_profile("deepseek-flash", "missing")
 

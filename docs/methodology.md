@@ -10,6 +10,7 @@ This page holds the fixed rules of the project and the data statistics of each p
 
 - A threshold is the context size, in tokens, at which a compaction triggers.
 - The grid step is **2000 tokens for every profile**. The published DeepSeek curve already used 2000; it is a project rule, not a per-model choice. A test checks it.
+- The cost axis always starts at $0 and is never truncated, so curves and models can be compared by eye.
 - The grid minimum is the smallest trigger that can be set. The grid maximum is the **maximum effective trigger = maximum setting - measured buffer**. If that maximum cannot be verified from an authoritative source for a model, the profile's axis maximum is left unset and the question goes to the maintainer.
 - DeepSeek Flash on Codex keeps its published axis, 64K to 900K. Codex has no window-plus-buffer setting, so its page only shows the trigger.
 

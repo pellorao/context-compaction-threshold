@@ -308,7 +308,7 @@ const readout=document.getElementById('readout'),speedInput=document.getElementB
 const C=D.rows.c,LO=D.rows.lo,HI=D.rows.hi;
 const xMin=C[0][0],xMax=C[C.length-1][0],timeMax=D.timeAxisMax;
 const costs=LO.concat(HI).map(r=>r[1]);
-const cMinRaw=Math.min(...costs),cMaxRaw=Math.max(...costs);
+const cMaxRaw=Math.max(...costs);
 const kfmt=n=>n>=1e6?(n/1e6).toFixed(2).replace(/\.?0+$/,'')+'M':(n/1e3).toFixed(0)+'K';
 const nfmt=n=>Math.round(n).toLocaleString('en-US');
 const usd=v=>'$'+(v>=100?nfmt(v):v.toFixed(v>=10?1:v>=1?2:v>=0.1?3:4));
@@ -316,8 +316,8 @@ function niceStep(range,n){
   const raw=range/n,p=Math.pow(10,Math.floor(Math.log10(raw))),f=raw/p;
   return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p;
 }
-const cStep=niceStep(cMaxRaw-cMinRaw,4);
-const cMin=Math.floor(cMinRaw/cStep)*cStep,cMax=Math.ceil(cMaxRaw/cStep)*cStep;
+const cStep=niceStep(cMaxRaw,4);
+const cMin=0,cMax=Math.ceil(cMaxRaw/cStep)*cStep;
 let cDec=0;
 while(cDec<5&&Math.abs(cStep*10**cDec-Math.round(cStep*10**cDec))>1e-9)cDec++;
 const timeShare=(r,speed)=>{

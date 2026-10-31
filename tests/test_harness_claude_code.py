@@ -97,7 +97,7 @@ class ClaudeSourceTest(unittest.TestCase):
             profile = load_profile("claude-opus-5-5")
             collected = collect(profile, root)
         sessions, excluded = collected.sessions, collected.excluded
-        trials, measured, stats = collected.trials, collected.profile, collected.stats
+        compactions, measured, stats = collected.compactions, collected.profile, collected.stats
 
         self.assertEqual(len(sessions), 2)
         self.assertAlmostEqual(stats["summary_tokens_per_cjk_char"], 1.0, places=1)
@@ -122,15 +122,15 @@ class ClaudeSourceTest(unittest.TestCase):
         self.assertAlmostEqual(sub_session.uncached_multiplier, 1.25, places=2)
         # Compaction time (40 s) is not counted as work.
         self.assertLess(main_session.task_seconds, 40)
-        # One calibration trial, duplicates collapsed.
-        self.assertEqual(len(trials), 1)
+        # One calibration compaction, duplicates collapsed.
+        self.assertEqual(len(compactions), 1)
         self.assertEqual(stats["compactions_used"], 1)
-        self.assertEqual(trials[0].input_tokens, 100_000)
-        self.assertEqual(trials[0].seconds, 40.0)
-        self.assertEqual(trials[0].source, "auto-main")
+        self.assertEqual(compactions[0].input_tokens, 100_000)
+        self.assertEqual(compactions[0].seconds, 40.0)
+        self.assertEqual(compactions[0].source, "transcript-auto")
         self.assertEqual(measured.post_context, 20_000 + 3_000 + 10)
         self.assertEqual(measured.post_cold_uncached, 20_010)
-        serialized = json.dumps([stats, trials[0].name, trials[0].source])
+        serialized = json.dumps([stats, compactions[0].name, compactions[0].source])
         self.assertNotIn("subagents", serialized)
         self.assertNotIn(directory, serialized)
 

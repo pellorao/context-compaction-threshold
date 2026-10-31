@@ -19,7 +19,7 @@ from model_profile import ROOT, Profile
 PAGES_PATH = ROOT / "config" / "pages.json"
 LANGS = ("en", "zh")
 GITHUB_URL = "https://github.com/pellorao/context-compaction-threshold"
-LANDING_NAME = "threshold-chart.html"
+LANDING_NAME = "index.html"
 
 HEAD = r"""<!doctype html>
 <html lang="en" data-lang="en">
@@ -543,7 +543,7 @@ def page_vars(data: dict, profile: Profile, labels: dict[str, str], texts: dict)
         "requests": f"{snap['requests']:,}",
         "work_hours": f"{hours:,.0f}" if hours >= 10 else f"{hours:.1f}",
         "n_fit": str(len(data["measurements"])),
-        "n_trials": str(borrowed["own"] if borrowed else len(data["measurements"])),
+        "n_compactions": str(borrowed["own"] if borrowed else len(data["measurements"])),
         "r2_two": f"{fit['time_r2_two_factor']:.2f}",
         "r2_output": f"{fit['time_r2_output_only']:.2f}",
         "r2_input": f"{fit['time_r2_input_only']:.2f}",

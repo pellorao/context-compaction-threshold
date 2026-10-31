@@ -7,7 +7,13 @@ import argparse
 import json
 from pathlib import Path
 
-from analysis import BootstrapConfig, borrow_trials, build_result, load_trials
+from analysis import (
+    BootstrapConfig,
+    borrow_compactions,
+    build_result,
+    load_compactions,
+    save_compactions,
+)
 from harness import collect
 from model_profile import (
     DEFAULT_PROFILE,
@@ -55,14 +61,14 @@ def parse_args() -> argparse.Namespace:
         help="Additional session thread to exclude; may be repeated",
     )
     parser.add_argument(
-        "--trials",
+        "--compactions",
         type=Path,
-        help="Compaction trials file (default: the profile's trials file)",
+        help="Compaction samples file (default: the profile's compactions.json)",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        help="Directory for result.json and curves.csv (default: the profile's output_dir)",
+        help="Directory for result.json (default: data/<harness>/<profile>)",
     )
     parser.add_argument(
         "--site-dir",
@@ -91,38 +97,36 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
         excluded_threads=args.exclude_thread,
     )
     profile = collected.profile
-    trials_path = args.trials or (
-        ROOT / profile.trials_path if profile.trials_path else None
-    )
+    finds = profile.harness_cfg.get("finds_compactions")
+    compactions_path = args.compactions or ROOT / profile.compactions_path
+    if finds and not args.compactions:
+        # Samples found in the logs are stored; the fit reads the stored file.
+        save_compactions(compactions_path, collected.compactions)
+    compactions = load_compactions(compactions_path)
     stats = dict(collected.stats)
-    if trials_path:
-        trials = load_trials(trials_path)
-    else:
-        trials = collected.trials
-        needed = profile.harness_cfg["min_fit_compactions"]
-        if len(trials) < needed:
-            if not profile.borrow_calibration:
-                raise SystemExit(
-                    f"Only {len(trials)} compactions found for {profile.name}; "
-                    f"at least {needed} are needed to fit the time model "
-                    "(or set borrow_calibration in the profile)"
-                )
-            donor = collect(
-                load_profile(profile.borrow_calibration, profile.harness),
-                args.session_root,
+    needed = profile.harness_cfg.get("min_fit_compactions", 0)
+    if len(compactions) < needed:
+        if not profile.borrow_calibration:
+            raise SystemExit(
+                f"Only {len(compactions)} compactions found for {profile.name}; "
+                f"at least {needed} are needed to fit the time model "
+                "(or set borrow_calibration in the profile)"
             )
-            own = len(trials)
-            trials, scale = borrow_trials(trials, donor.trials, profile)
-            stats["calibration_borrowed"] = {
-                "donor": profile.borrow_calibration,
-                "own": own,
-                "borrowed": len(donor.trials),
-                "scale": scale,
-            }
+        donor = load_compactions(
+            ROOT / load_profile(profile.borrow_calibration, profile.harness).compactions_path
+        )
+        own = len(compactions)
+        compactions, scale = borrow_compactions(compactions, donor, profile)
+        stats["calibration_borrowed"] = {
+            "donor": profile.borrow_calibration,
+            "own": own,
+            "borrowed": len(donor),
+            "scale": scale,
+        }
     result = build_result(
         collected.sessions,
         collected.excluded,
-        trials,
+        compactions,
         profile,
         config,
         collected.billing_mix,
@@ -133,21 +137,6 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
     (output_dir / "result.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False) + "\n"
     )
-    with (output_dir / "curves.csv").open("w") as stream:
-        stream.write(
-            "threshold,expected_cost_usd,expected_compactions,"
-            "expected_compaction_seconds,expected_time_share,"
-            "expected_cost_usd_per_million_tokens\n"
-        )
-        for row in result["curves"]["central"]:
-            stream.write(
-                f"{row['threshold']},"
-                f"{row['cost_usd_off_peak']:.6f},"
-                f"{row['compactions']:.6f},"
-                f"{row['compaction_seconds']:.6f},"
-                f"{row['time_share']:.8f},"
-                f"{row['cost_per_million_tokens']:.6f}\n"
-            )
     snapshot = result["snapshot"]
     print(
         f"{snapshot['requests']} requests, "
@@ -166,23 +155,21 @@ def write_site(site_dir: Path, results: dict[str, dict], profiles: dict[str, Pro
             render_model(data, profiles[name], pages, labels)
         )
     landing = render_landing(results, profiles, pages, labels)
-    # Cloudflare Pages copies threshold-chart.html to index.html; write both names.
     (site_dir / LANDING_NAME).write_text(landing)
-    (site_dir / "index.html").write_text(landing)
     print(site_dir / LANDING_NAME)
 
 
 def main() -> None:
     args = parse_args()
     analyzed = load_profile(args.profile, args.harness)
-    analyzed_dir = args.output_dir or ROOT / analyzed.output_dir
+    analyzed_dir = args.output_dir or ROOT / analyzed.data_dir
     if not args.render_only:
         analyze(args, analyzed, analyzed_dir)
     profiles: dict[str, Profile] = {}
     results: dict[str, dict] = {}
     for name in profile_names():
         profile = analyzed if name == args.profile else load_profile(name)
-        result_path = (analyzed_dir if name == args.profile else ROOT / profile.output_dir) / "result.json"
+        result_path = (analyzed_dir if name == args.profile else ROOT / profile.data_dir) / "result.json"
         if result_path.exists():
             profiles[name] = profile
             results[name] = json.loads(result_path.read_text())

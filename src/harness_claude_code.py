@@ -16,7 +16,7 @@ from analysis import (
     Collected,
     Request,
     Session,
-    Trial,
+    CompactionSample,
     _fit_no_intercept,
     chain_requests,
     parse_timestamp,
@@ -244,7 +244,7 @@ def collect(
     root: Path,
     profile: Profile,
 ) -> Collected:
-    """Sessions, compactions (as calibration trials), measured profile, stats."""
+    """Sessions, compactions (as calibration compactions), measured profile, stats."""
     prefixes = profile.model_prefixes
     seen_messages: set[str] = set()
     seen_boundaries: set[tuple[float, int]] = set()
@@ -259,11 +259,11 @@ def collect(
 
     per_cjk, per_other, estimator_points = _fit_token_estimator(transcripts)
     sessions: list[Session] = []
-    trials: list[Trial] = []
+    compactions: list[CompactionSample] = []
     post_contexts: list[int] = []
     post_uncached: list[int] = []
-    trial_excluded: Counter[str] = Counter()
-    compactions: Counter[str] = Counter()
+    skipped: Counter[str] = Counter()
+    found: Counter[str] = Counter()
     for transcript in transcripts:
         messages = transcript.messages
         boundaries = transcript.boundaries
@@ -288,23 +288,23 @@ def collect(
                 if boundary.position < len(messages)
                 else None
             )
-            compactions[f"{boundary.trigger}-{where}"] += 1
+            found[f"{boundary.trigger}-{where}"] += 1
             if after is not None:
                 post_contexts.append(after.context)
                 post_uncached.append(
                     after.input_tokens + after.written_5m + after.written_1h
                 )
             if before is None:
-                trial_excluded["no-request-before"] += 1
+                skipped["no-request-before"] += 1
             elif boundary.duration_seconds <= 0 or boundary.pre_tokens <= 0:
-                trial_excluded["no-duration-or-size"] += 1
+                skipped["no-duration-or-size"] += 1
             elif boundary.summary_cjk is None:
-                trial_excluded["no-summary"] += 1
+                skipped["no-summary"] += 1
             else:
                 tail = max(0, boundary.pre_tokens - before.context)
-                trials.append(
-                    Trial(
-                        name=f"compaction-{len(trials) + 1:03d}",
+                compactions.append(
+                    CompactionSample(
+                        name=f"compaction-{len(compactions) + 1:03d}",
                         input_tokens=boundary.pre_tokens,
                         cached_tokens=boundary.pre_tokens - tail,
                         output_tokens=round(
@@ -312,10 +312,10 @@ def collect(
                             + per_other * boundary.summary_other
                         ),
                         seconds=boundary.duration_seconds,
-                        source=f"{boundary.trigger}-{where}",
+                        source=f"transcript-{boundary.trigger}",
                     )
                 )
-    if not sessions or not trials:
+    if not sessions or not compactions:
         raise ValueError("No matching sessions or compactions were found")
     stats = {
         "included_sessions_main": sum(s.segment == "main" for s in sessions),
@@ -323,18 +323,18 @@ def collect(
         "max_input_tokens": max(
             m.context for t in transcripts for m in t.messages
         ),
-        "compactions_found": dict(compactions),
-        "compactions_used": len(trials),
-        "compactions_excluded": dict(trial_excluded),
+        "compactions_found": dict(found),
+        "compactions_used": len(compactions),
+        "compactions_excluded": dict(skipped),
         "summary_tokens_per_cjk_char": per_cjk,
         "summary_tokens_per_other_char": per_other,
         "summary_estimator_messages": estimator_points,
         "observed_compaction_input_median": round(
-            statistics.median(t.input_tokens for t in trials)
+            statistics.median(t.input_tokens for t in compactions)
         ),
         "observed_auto_compaction_median": round(
             statistics.median(
-                t.input_tokens for t in trials if t.source.startswith("auto")
+                t.input_tokens for t in compactions if t.source == "transcript-auto"
             )
         ),
         "mean_uncached_multiplier": statistics.fmean(
@@ -353,4 +353,4 @@ def collect(
         "cache_read": sum(m.cache_read for m in messages),
         "output": sum(m.output_tokens for m in messages),
     }
-    return Collected(sessions, dict(excluded), trials, measured, stats, billing_mix)
+    return Collected(sessions, dict(excluded), compactions, measured, stats, billing_mix)

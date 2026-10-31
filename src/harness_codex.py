@@ -211,7 +211,7 @@ def collect(
     if not sessions:
         raise ValueError(f"No {profile.model} sessions with token usage were found")
     # Codex logs carry no usable compaction timings: calibration comes from
-    # the profile's trials file.
+    # the profile's compactions file.
     billing_mix = {
         "uncached_input": sum(r.input_tokens - r.cached_tokens for r in raw),
         "cache_write_5m": 0,

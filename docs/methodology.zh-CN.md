@@ -4,6 +4,19 @@
 
 本文记录项目的固定规则和各个 profile 的数据统计。README 保持简短，只指向这里。统计数据来自生成的 `result.json`。维护者机器上的 Claude Code 对话记录还在增长，重新运行会得到略有不同的数字。
 
+## 数据布局
+
+所有数据都按（harness，profile）组合存放，路径由这两个名字推出：
+
+| 内容 | 路径 |
+|---|---|
+| 脱敏后的压缩样本（校准输入），已提交 | `data/<harness>/<profile>/compactions.json` |
+| 分析结果（页面的唯一输入），已提交 | `data/<harness>/<profile>/result.json` |
+| 图表页，部署时生成，被 git 忽略 | `artifacts/index.html`、`artifacts/<profile>.html` |
+| 原始私有会话（不在仓库里；示例位置） | `.tmp/sessions/<harness>/<profile>/`，用 `--session-root` 传入 |
+
+下面的统计数据就是这些 `result.json` 的内容。git 里只存 `data/` 下的数据；Cloudflare Pages 用 `python3 src/generate.py --render-only` 构建页面，它只读已提交的 `result.json`（会话日志是私有的）。
+
 ## 固定规则
 
 ### 阈值网格
@@ -76,14 +89,14 @@ Claude Code（`~/.claude/projects/**/*.jsonl`）：
 
 ### 如何找到压缩并校准
 
-- Codex：手工测得的试验文件 `data/compaction_trials.json`。会话里的真实压缩只用来接续请求流，不用于校准。
-- Claude Code：子类型为 `compact_boundary` 的 `system` 记录，带有 `compactMetadata`（触发方式、`preTokens`、`durationMs`）。摘要是紧随其后、标记为 `isCompactSummary` 的用户记录。边界按时间戳和 `preTokens` 去重。如果压缩前没有请求、没有耗时或大小、或没有摘要文本，这次压缩就不用于校准。
+- Codex：手工测得的样本 `data/codex/deepseek-flash/compactions.json`（来源为 `native` 或 `session-derived`）。会话里的真实压缩只用来接续请求流，不用于校准。
+- Claude Code：样本每次分析都会写到 `data/claude-code/<profile>/compactions.json`（来源为 `transcript-auto` 或 `transcript-manual`；只有数字，没有 ID、时间戳、路径或文本），拟合再读回。子类型为 `compact_boundary` 的 `system` 记录，带有 `compactMetadata`（触发方式、`preTokens`、`durationMs`）。摘要是紧随其后、标记为 `isCompactSummary` 的用户记录。边界按时间戳和 `preTokens` 去重。如果压缩前没有请求、没有耗时或大小、或没有摘要文本，这次压缩就不用于校准。
 - 压缩请求本身不在对话记录里。它的输入是压缩前的整个上下文：除了一小段未缓存的尾部（`preTokens` 减去最后一次请求的上下文），全部是缓存读取；尾部按该会话的倍数作为缓存写入计价。
 - 摘要 token 数由摘要文本估计。普通回答（只有文本，扣除思考 token）的输出 token 数，对汉字个数和其他字符个数做回归。
 - 压缩耗时 `t_c = a * C + G / v` 在各次压缩上无截距拟合（`C` 是整个压缩输入，`G` 是摘要 token 数）。摘要 token 数服从 `G = g0 + g1 * C`。
 - 压缩后的上下文及其未缓存部分，取每次压缩后第一个请求的中位数（Claude Code），或取实测值（DeepSeek）。
 - 真实的自动压缩都发生在同一个水平（Claude Code 约 267K，Codex 约 300K），所以更高的触发点从未被观察到。每个会话被真实压缩切开的各段，会接成一条未压缩的请求流：后一段从前一段的上下文出发，加一个中位数增量，未缓存部分取中位数。因此约 267K 以上的曲线是外推得到的。
-- 如果某个模型自己的压缩少于 50 次（harness 设置 `min_fit_compactions`），并且 profile 指定了 `borrow_calibration` 的来源 profile，拟合就同时用自己的压缩和来源模型的压缩。来源模型的耗时要乘以一个比值：该模型自己实测的总耗时，除以来源模型拟合结果对这些压缩的预测耗时。页面和下面的统计表都会标明这一点。没有来源模型时运行会停止。
+- 如果某个模型自己的压缩少于 50 次（harness 设置 `min_fit_compactions`），并且 profile 指定了 `borrow_calibration` 的来源 profile，拟合就同时用自己的压缩和来源模型的压缩，来源模型的样本从它的 `compactions.json` 读取（借来的行是拟合时的规则，不会复制进该模型自己的文件）。来源模型的耗时要乘以一个比值：该模型自己实测的总耗时，除以来源模型拟合结果对这些压缩的预测耗时。页面和下面的统计表都会标明这一点。没有来源模型时运行会停止。
 
 ### DeepSeek 2026-10-17 的模型更新
 

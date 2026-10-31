@@ -23,7 +23,7 @@ DeepSeek Flash，Claude Code 上的 Claude Opus 5.5 和 Claude Sonnet 5.5）。�
 
 ```bash
 python3 src/generate.py --profile claude-opus-5-5 --workers 30   # 分析，然后重建站点
-python3 src/generate.py --render-only                           # 用已有结果重建站点
+python3 src/generate.py --render-only                           # 用 data/*/*/result.json 重建页面
 python3 -m unittest discover -s tests -p 'test_*.py'            # 测试
 ```
 
@@ -41,31 +41,46 @@ python3 -m unittest discover -s tests -p 'test_*.py'            # 测试
 
 ## 输出与部署
 
+git 里只存数据。一个（harness，profile）组合的全部数据放在
+`data/<harness>/<profile>/` 下，路径由这两个名字推出：
+
 ```text
-artifacts/threshold-chart.html   首页（同时写成 index.html）
-artifacts/<profile>.html         每个模型一张图表页
-artifacts/result.json            DeepSeek Flash 的结果（已发布，保持不变）
-artifacts/curves.csv
-artifacts/<profile>/result.json  Claude 各 profile 的结果
-artifacts/<profile>/curves.csv
+data/<harness>/<profile>/compactions.json   脱敏后的压缩样本（校准输入）
+data/<harness>/<profile>/result.json        分析结果（页面的唯一输入）
 ```
 
-Cloudflare Pages 发布 `artifacts/`，并把 `threshold-chart.html` 复制为生产根路径的
-`index.html`，不需要改动控制台设置。
+`artifacts/` 只放生成的页面，被 git 忽略，不提交：`artifacts/index.html`（首页）和
+`artifacts/<profile>.html`（每个模型一张图表页）。每个 profile 只有一个默认
+harness，所以 `<profile>.html` 不会有歧义。
+
+每次推送到 `main`，Cloudflare Pages 都会用 `python3 src/generate.py --render-only`
+构建站点，并发布 `artifacts/`。构建只需要 Python 3 和已提交的 `result.json`，不需要
+会话、网络或第三方包。Python 3.8 及以上即可。
+
+`compactions.json` 每行是一次实测压缩：`name`、`source`、`input_tokens`、
+`cached_tokens`、`output_tokens`、`seconds`，只有数字。Codex 的样本是手工测得的。
+Claude Code 每次分析都会从对话记录重新写出样本（`transcript-auto` 或
+`transcript-manual`），拟合再读回这些样本。Claude Sonnet 5.5 自己的压缩太少，拟合时
+借用 Opus 的样本；借来的行不会复制进它的文件。用 `--compactions FILE` 可以改用别的
+样本文件拟合。
+
+私有的原始会话不进仓库，例如放在被 git 忽略的 `.tmp/sessions/<harness>/<profile>/`
+下，用 `--session-root` 传入。默认根目录仍然是各 harness 自己的
+（`~/.codex/sessions`、`~/.claude/projects`）。
 
 ## 目录结构
 
 ```text
 config/       models.json、pages.json
-data/         脱敏后的 DeepSeek 压缩样本
+data/         按 harness 和 profile 提交的数据：compactions.json、result.json
 docs/         方法与统计数据
 src/          分析、harness、profile 加载、渲染、入口
 tests/        使用标准库的单元测试
-artifacts/    生成的站点和机器可读结果
+artifacts/    只放生成的页面（被 git 忽略，部署时生成）
 ```
 
 ## 隐私
 
 程序只读取原始会话日志（`~/.codex/sessions`、`~/.claude/projects`），不会复制。
-生成的文件只有聚合数量、拟合系数、曲线和脱敏后的压缩样本，不含会话 ID、路径、
+提交和生成的文件只有聚合数量、拟合系数、曲线和脱敏后的压缩样本，不含会话 ID、路径、
 提示词或消息正文。发布其他机器上的结果前，请先检查生成文件。

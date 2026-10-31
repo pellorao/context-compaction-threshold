@@ -1,0 +1,170 @@
+[
+  {
+    "name": "compaction-001",
+    "source": "transcript-auto",
+    "input_tokens": 276096,
+    "cached_tokens": 263653,
+    "output_tokens": 8615,
+    "seconds": 69.028
+  },
+  {
+    "name": "compaction-002",
+    "source": "transcript-auto",
+    "input_tokens": 268675,
+    "cached_tokens": 266983,
+    "output_tokens": 7435,
+    "seconds": 71.278
+  },
+  {
+    "name": "compaction-003",
+    "source": "transcript-auto",
+    "input_tokens": 267355,
+    "cached_tokens": 260703,
+    "output_tokens": 9840,
+    "seconds": 64.795
+  },
+  {
+    "name": "compaction-004",
+    "source": "transcript-auto",
+    "input_tokens": 266684,
+    "cached_tokens": 263335,
+    "output_tokens": 7779,
+    "seconds": 70.332
+  },
+  {
+    "name": "compaction-005",
+    "source": "transcript-auto",
+    "input_tokens": 271656,
+    "cached_tokens": 262117,
+    "output_tokens": 6020,
+    "seconds": 89.492
+  },
+  {
+    "name": "compaction-006",
+    "source": "transcript-auto",
+    "input_tokens": 266835,
+    "cached_tokens": 265272,
+    "output_tokens": 5540,
+    "seconds": 38.769
+  },
+  {
+    "name": "compaction-007",
+    "source": "transcript-auto",
+    "input_tokens": 267792,
+    "cached_tokens": 266950,
+    "output_tokens": 7533,
+    "seconds": 48.111
+  },
+  {
+    "name": "compaction-008",
+    "source": "transcript-auto",
+    "input_tokens": 267534,
+    "cached_tokens": 266698,
+    "output_tokens": 7016,
+    "seconds": 59.129
+  },
+  {
+    "name": "compaction-009",
+    "source": "transcript-auto",
+    "input_tokens": 267112,
+    "cached_tokens": 266506,
+    "output_tokens": 9693,
+    "seconds": 64.378
+  },
+  {
+    "name": "compaction-010",
+    "source": "transcript-auto",
+    "input_tokens": 268229,
+    "cached_tokens": 267868,
+    "output_tokens": 6178,
+    "seconds": 40.884
+  },
+  {
+    "name": "compaction-011",
+    "source": "transcript-auto",
+    "input_tokens": 267120,
+    "cached_tokens": 265338,
+    "output_tokens": 5722,
+    "seconds": 37.061
+  },
+  {
+    "name": "compaction-012",
+    "source": "transcript-auto",
+    "input_tokens": 268493,
+    "cached_tokens": 266039,
+    "output_tokens": 8655,
+    "seconds": 63.938
+  },
+  {
+    "name": "compaction-013",
+    "source": "transcript-auto",
+    "input_tokens": 266801,
+    "cached_tokens": 264377,
+    "output_tokens": 7332,
+    "seconds": 69.412
+  },
+  {
+    "name": "compaction-014",
+    "source": "transcript-auto",
+    "input_tokens": 269833,
+    "cached_tokens": 267217,
+    "output_tokens": 7712,
+    "seconds": 78.384
+  },
+  {
+    "name": "compaction-015",
+    "source": "transcript-auto",
+    "input_tokens": 267874,
+    "cached_tokens": 265688,
+    "output_tokens": 5431,
+    "seconds": 71.026
+  },
+  {
+    "name": "compaction-016",
+    "source": "transcript-auto",
+    "input_tokens": 269187,
+    "cached_tokens": 264060,
+    "output_tokens": 5340,
+    "seconds": 38.242
+  },
+  {
+    "name": "compaction-017",
+    "source": "transcript-auto",
+    "input_tokens": 268919,
+    "cached_tokens": 266173,
+    "output_tokens": 9732,
+    "seconds": 82.424
+  },
+  {
+    "name": "compaction-018",
+    "source": "transcript-auto",
+    "input_tokens": 269848,
+    "cached_tokens": 262000,
+    "output_tokens": 9940,
+    "seconds": 102.2
+  },
+  {
+    "name": "compaction-019",
+    "source": "transcript-auto",
+    "input_tokens": 268852,
+    "cached_tokens": 265059,
+    "output_tokens": 8021,
+    "seconds": 66.515
+  },
+  {
+    "name": "compaction-020",
+    "source": "transcript-auto",
+    "input_tokens": 267352,
+    "cached_tokens": 266656,
+    "output_tokens": 5870,
+    "seconds": 42.861
+  },
+  {
+    "name": "compaction-021",
+    "source": "transcript-auto",
+    "input_tokens": 267090,
+    "cached_tokens": 266895,
+    "output_tokens": 7515,
+    "seconds": 56.039
+  }
+]

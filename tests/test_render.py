@@ -123,11 +123,11 @@ class RenderTest(unittest.TestCase):
         html = render_landing(results, profiles, self.pages, self.labels)
         for name in results:
             self.assertIn(f'href="{name}.html"', html)
-        self.assertEqual(LANDING_NAME, "threshold-chart.html")
+        self.assertEqual(LANDING_NAME, "index.html")
 
 
 class RenderOnlyTest(unittest.TestCase):
-    def test_render_only_writes_landing_and_index(self) -> None:
+    def test_write_site_writes_landing_and_model_pages(self) -> None:
         from generate import write_site
 
         results = {n: _result(n != "deepseek-flash", n != "deepseek-flash") for n in profile_names()}
@@ -136,14 +136,7 @@ class RenderOnlyTest(unittest.TestCase):
             site = Path(directory)
             write_site(site, results, profiles)
             names = {p.name for p in site.iterdir()}
-            self.assertEqual(
-                names,
-                {f"{n}.html" for n in results} | {"threshold-chart.html", "index.html"},
-            )
-            self.assertEqual(
-                (site / "index.html").read_text(),
-                (site / "threshold-chart.html").read_text(),
-            )
+            self.assertEqual(names, {f"{n}.html" for n in results} | {"index.html"})
 
 
 if __name__ == "__main__":

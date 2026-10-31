@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CONFIG_PATH = ROOT / "config" / "models.json"
 DEFAULT_PROFILE = "deepseek-flash"
 DEFAULT_HARNESS = "codex"
+COMPACTIONS_NAME = "compactions.json"
 
 
 @dataclass(frozen=True)
@@ -39,14 +40,17 @@ class Profile:
     post_cold_uncached: int | None
     min_summary: int
     range_quantiles: tuple[float, float]
-    output_dir: str
-    # Trials file with measured compactions, or None to use compactions the
-    # harness finds in the logs.
-    trials_path: str | None
+    # Repository-relative directory of this (harness, profile) pair's data:
+    # compactions.json and result.json.
+    data_dir: str
     # Profile whose compactions top up this model's when it has too few.
     borrow_calibration: str | None
     harness: str
     harness_cfg: dict
+
+    @property
+    def compactions_path(self) -> str:
+        return f"{self.data_dir}/{COMPACTIONS_NAME}"
 
     @property
     def alpha(self) -> float:
@@ -104,11 +108,15 @@ def load_profile(
             f"Unknown harness {harness!r}; available: {', '.join(sorted(harnesses))}"
         )
     cfg = harnesses[harness]
-    calibration = raw["calibration"]
-    if calibration is None and not cfg.get("finds_compactions"):
+    # Inputs and results of a pair live together in data/<harness>/<profile>/.
+    data_dir = f"data/{harness}/{name}"
+    if (
+        not (ROOT / data_dir / COMPACTIONS_NAME).exists()
+        and not cfg.get("finds_compactions")
+    ):
         raise SystemExit(
-            f"Profile {name!r} has no trials file and harness {harness!r} "
-            "finds no compactions in its logs"
+            f"No {data_dir}/{COMPACTIONS_NAME} for profile {name!r} and harness "
+            f"{harness!r} finds no compactions in its logs"
         )
     threshold = raw["threshold"]
     post = raw["post_compaction"] or {}
@@ -131,8 +139,7 @@ def load_profile(
         post_cold_uncached=post.get("cold_uncached"),
         min_summary=raw["min_summary"],
         range_quantiles=tuple(raw["range_quantiles"]),
-        output_dir=raw["output_dir"],
-        trials_path=calibration["trials"] if calibration else None,
+        data_dir=data_dir,
         borrow_calibration=raw.get("borrow_calibration"),
         harness=harness,
         harness_cfg=cfg,

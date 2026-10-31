@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -13,12 +14,13 @@ from analysis import (  # noqa: E402
     BootstrapConfig,
     Request,
     Session,
-    Trial,
+    CompactionSample,
     _replay_session,
-    borrow_trials,
+    borrow_compactions,
     build_result,
     fit_model,
-    load_trials,
+    load_compactions,
+    save_compactions,
 )
 from model_profile import load_profile  # noqa: E402
 
@@ -26,8 +28,8 @@ from model_profile import load_profile  # noqa: E402
 class AnalysisTest(unittest.TestCase):
     def test_fit_and_bootstrap_output_are_stable_and_sanitized(self) -> None:
         profile = load_profile("deepseek-flash")
-        trials = load_trials(ROOT / profile.trials_path)
-        model = fit_model(trials, profile)
+        compactions = load_compactions(ROOT / profile.compactions_path)
+        model = fit_model(compactions, profile)
         self.assertGreater(model.time_r2, 0.95)
         self.assertAlmostEqual(model.output_speed, 167.5, delta=0.5)
 
@@ -43,7 +45,7 @@ class AnalysisTest(unittest.TestCase):
         result = build_result(
             [session],
             {"smoke-or-test": 1},
-            trials,
+            compactions,
             profile,
             BootstrapConfig(replicates=2, block_requests=2, seed=7, workers=1),
             {"uncached_input": 1_000, "cache_write_5m": 0, "cache_write_1h": 0,
@@ -57,7 +59,7 @@ class AnalysisTest(unittest.TestCase):
 
     def test_cost_is_normalised_by_one_constant_per_profile(self) -> None:
         profile = load_profile("deepseek-flash")
-        trials = load_trials(ROOT / profile.trials_path)
+        compactions = load_compactions(ROOT / profile.compactions_path)
         session = Session(
             requests=[Request(20_000, 13_000, 500), Request(280_000, 270_000, 600)],
             task_seconds=60,
@@ -65,7 +67,7 @@ class AnalysisTest(unittest.TestCase):
         mix = {"uncached_input": 1_000, "cache_write_5m": 0, "cache_write_1h": 0,
                "cache_read": 3_000, "output": 1_000}
         result = build_result(
-            [session], {}, trials, profile,
+            [session], {}, compactions, profile,
             BootstrapConfig(replicates=2, block_requests=2, seed=7, workers=1), mix,
         )
         self.assertEqual(result["snapshot"]["billed_tokens"], 5_000)
@@ -75,30 +77,50 @@ class AnalysisTest(unittest.TestCase):
                 row["cost_per_million_tokens"], row["cost_usd_off_peak"] * 200
             )
 
+    def test_compactions_round_trip_and_committed_files_hold_numbers_only(self) -> None:
+        samples = [
+            CompactionSample("compaction-1", 200_000, 198_000, 4_000, 50.0, "transcript-auto"),
+            CompactionSample("compaction-2", 260_000, 258_000, 6_000, 60.5, "transcript-manual"),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "nested" / "compactions.json"
+            save_compactions(path, samples)
+            self.assertEqual(load_compactions(path), samples)
+        for committed in sorted((ROOT / "data").glob("*/*/compactions.json")):
+            rows = json.loads(committed.read_text())
+            self.assertTrue(rows, committed)
+            for row in rows:
+                self.assertEqual(
+                    set(row),
+                    {"name", "source", "input_tokens", "cached_tokens", "output_tokens", "seconds"},
+                )
+                self.assertRegex(row["name"], r"^[a-z0-9-]{1,20}$")
+                self.assertRegex(row["source"], r"^[a-z-]+$")
+
     def test_borrowed_calibration_rescales_donor_durations(self) -> None:
         profile = load_profile("claude-sonnet-5-5")
         donor = [
-            Trial("a", 200_000, 198_000, 4_000, 50.0, "auto"),
-            Trial("b", 260_000, 258_000, 6_000, 60.0, "auto"),
-            Trial("c", 270_000, 267_000, 8_000, 70.0, "auto"),
+            CompactionSample("a", 200_000, 198_000, 4_000, 50.0, "transcript-auto"),
+            CompactionSample("b", 260_000, 258_000, 6_000, 60.0, "transcript-auto"),
+            CompactionSample("c", 270_000, 267_000, 8_000, 70.0, "transcript-auto"),
         ]
-        own = [Trial("x", 250_000, 248_000, 5_000, 110.0, "auto")]
-        trials, scale = borrow_trials(own, donor, profile)
-        self.assertEqual(len(trials), 4)
+        own = [CompactionSample("x", 250_000, 248_000, 5_000, 110.0, "transcript-auto")]
+        compactions, scale = borrow_compactions(own, donor, profile)
+        self.assertEqual(len(compactions), 4)
         self.assertGreater(scale, 1.0)
-        borrowed = [t for t in trials if t.name.startswith("borrowed-")]
+        borrowed = [t for t in compactions if t.name.startswith("borrowed-")]
         self.assertEqual(len(borrowed), 3)
         self.assertTrue(all(t.source.startswith("borrowed-") for t in borrowed))
         self.assertAlmostEqual(borrowed[0].seconds, 50.0 * scale)
 
     def test_replay_prices_cache_writes_and_compaction_tail(self) -> None:
         profile = load_profile("claude-opus-5-5").with_measured(50_000, 30_000)
-        trials = [
-            Trial("a", 200_000, 198_000, 4_000, 50.0, "auto"),
-            Trial("b", 260_000, 258_000, 6_000, 60.0, "auto"),
-            Trial("c", 270_000, 267_000, 8_000, 70.0, "auto"),
+        compactions = [
+            CompactionSample("a", 200_000, 198_000, 4_000, 50.0, "transcript-auto"),
+            CompactionSample("b", 260_000, 258_000, 6_000, 60.0, "transcript-auto"),
+            CompactionSample("c", 270_000, 267_000, 8_000, 70.0, "transcript-auto"),
         ]
-        model = fit_model(trials, profile)
+        model = fit_model(compactions, profile)
         # The compaction input is mostly cache read; only the tail is uncached.
         self.assertEqual(model.central_cached_prefix, 2_000)
         session = Session(

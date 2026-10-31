@@ -193,7 +193,7 @@
         "def_a": "Seconds per uncached input token, fitted on the measured compactions.",
         "def_omega": "",
         "price_caption": "Costs use {model} prices per million tokens: input {price_input}, cache hit {price_read}, output {price_output}.",
-        "caveat_calibration": "<strong>Few compactions were timed.</strong> Summary length and cached prefix vary between the {n_trials} timed runs. The shaded bands show that spread; they are not statistical confidence intervals.",
+        "caveat_calibration": "<strong>Few compactions were timed.</strong> Summary length and cached prefix vary between the {n_compactions} timed runs. The shaded bands show that spread; they are not statistical confidence intervals.",
         "caveat_extra": "<strong>Part of the data is trimmed.</strong> Some timed compactions come from real contexts that were cut down to a smaller size, so they are not exactly what a natural compaction at that size would look like."
       },
       "zh": {
@@ -210,7 +210,7 @@
         "def_a": "每个未缓存输入 token 的处理时间，单位是秒，由实测压缩拟合。",
         "def_omega": "",
         "price_caption": "费用按 {model} 的价格计算（每百万 token：输入 {price_input}，缓存命中 {price_read}，输出 {price_output}）。",
-        "caveat_calibration": "<strong>测过耗时的压缩不多。</strong>{n_trials} 次实测之间，摘要长度和缓存前缀都有波动。浅色区域表示这种波动，不是统计置信区间。",
+        "caveat_calibration": "<strong>测过耗时的压缩不多。</strong>{n_compactions} 次实测之间，摘要长度和缓存前缀都有波动。浅色区域表示这种波动，不是统计置信区间。",
         "caveat_extra": "<strong>一部分数据是裁剪出来的。</strong>有些实测压缩来自被裁剪到较小规模的真实上下文，和该规模下自然发生的压缩并不完全一样。"
       }
     },
@@ -225,7 +225,7 @@
         "trigger_p": "The setting is <code>autoCompactWindow</code>, in tokens. It accepts {min_window} to {max_window} and works globally or per model under <code>modelSettings</code>. Claude Code does not compact at the window itself. It keeps a buffer of {buffer} free for writing the summary, so it compacts when the context reaches <strong>the window minus {buffer}</strong>. The chart is drawn against that real trigger, so type <strong>trigger + {buffer}</strong>. For example, a trigger of 267K means <code>autoCompactWindow: 300000</code>.",
         "trigger_p2": "The buffer is {buffer}, from three sources. Claude Code's documentation says sessions with a 1M window auto-compact at about {max_trigger} by default. The installed Claude Code reserves 20K for the summary plus a 13K margin. And in the logs, automatic compactions of {model} happened at a median of {observed_median} under a window of {observed_window}, a buffer of {buffer_observed}. The highest trigger you can set is {max_window} minus {buffer}, which is {max_trigger}, so the chart ends there. Claude Code also caps the window at the model's own context window of {window}.",
         "workload_step": "Request by request, from {requests} real {model} requests in Claude Code transcripts: the context size, the cached share and the output of each one. Both the main conversation and its subagents count.",
-        "calibration_step": "{n_trials} real compactions recorded by Claude Code give the input size and the seconds taken for each. Summary size is estimated from the summary text. Almost all are automatic; a few are manual.",
+        "calibration_step": "{n_compactions} real compactions recorded by Claude Code give the input size and the seconds taken for each. Summary size is estimated from the summary text. Almost all are automatic; a few are manual.",
         "exclude_note": "Sessions that used other models, and sessions with no {model} request, are left out. Work time is the gap between neighbouring requests, with gaps over {idle_gap} counted as idle and compaction time removed. The main conversation and parallel subagents are added together.",
         "formula": "Cost of one request\nQ(x, c, y) = p_m · [ω(1-c) + αc] · x + p_o · y\n\nPrice ratios\nα = p_c / p_m\nρ = p_o / p_m\nB = ω(1-β) + αβ\n\nTotal cost\nJ(T) = Σ Q(ordinary requests)\n     + Σ Q(compaction input and summary output)\n\nTime of one compaction\nt_c = a · C + G / v\n\nTime share\nN_c(T) · t_c(T) / [W + N_c(T) · t_c(T)]\n\nSteady-state approximation\nT* ≈ R + √( 2Δ · (BR + ρG) / α )",
         "def_ck": "<code>C</code> is the compaction input: the whole context before compaction. Almost all of it is billed as cache reads. <code>K</code> differs from <code>C</code> only by the few thousand tokens added in the last turn, so <code>K</code> does not appear in the formula.",
@@ -234,7 +234,7 @@
         "price_caption": "Costs use standard {model} API prices per million tokens: input {price_input}, cache write {price_write5} (5 minutes) or {price_write1} (1 hour), cache read {price_read}, output {price_output}.",
         "caveat_calibration": "<strong>Compaction behaviour is extrapolated.</strong> Real automatic compactions all happen near {observed_median}, so how compaction time and summary size grow with context is extrapolated for higher triggers. The summary size is estimated from the text. The bands span the 10th to 90th percentile; they are not confidence intervals.",
         "caveat_extra": "<strong>Work time is agent time.</strong> Subagents running in parallel are added up, so the time share is a share of agent time, not of the clock on your wall. The compaction request itself is not in the transcripts, so its cache split and summary size are inferred.",
-        "data_volume": "{sessions} independent work sessions ({sessions_main} main conversations and {sessions_sub} subagent sessions), {requests} deduplicated requests and about {work_hours} hours of agent time. {n_trials} real compactions calibrate the model. {exclude_note}",
+        "data_volume": "{sessions} independent work sessions ({sessions_main} main conversations and {sessions_sub} subagent sessions), {requests} deduplicated requests and about {work_hours} hours of agent time. {n_compactions} real compactions calibrate the model. {exclude_note}",
         "js": {
           "readout_window": "autoCompactWindow %window%"
         }
@@ -249,7 +249,7 @@
         "trigger_p": "设置项是 <code>autoCompactWindow</code>，单位是 token，取值 {min_window} 到 {max_window}，可以全局设置，也可以在 <code>modelSettings</code> 里按模型设置。Claude Code 不会等到窗口满了才压缩，它要留出 {buffer} 给写摘要用，所以实际在上下文达到<strong>窗口减 {buffer}</strong>时压缩。这张图画的是这个真实触发点，所以要填<strong>触发点加 {buffer}</strong>。比如触发点 267K，就设 <code>autoCompactWindow: 300000</code>。",
         "trigger_p2": "缓冲是 {buffer}，有三处依据。Claude Code 文档说，窗口为 1M 时默认大约在 {max_trigger} 处自动压缩；已安装的 Claude Code 预留 20K 给摘要，再加 13K 余量；日志里 {model} 的自动压缩，在窗口 {observed_window} 下发生在中位数 {observed_median}，缓冲约 {buffer_observed}。你能设的最高触发点是 {max_window} 减 {buffer}，即 {max_trigger}，所以图画到这里。窗口还会被限制在模型自身 {window} 的上下文窗口以内。",
         "workload_step": "逐个请求分析 Claude Code 转录里的 {requests} 个真实 {model} 请求：每个请求的上下文大小、缓存命中比例和输出量。主对话和子代理都计入。",
-        "calibration_step": "Claude Code 记录了 {n_trials} 次真实压缩，每次都有输入大小和耗时。摘要大小由摘要文本估算。几乎都是自动压缩，少数是手动压缩。",
+        "calibration_step": "Claude Code 记录了 {n_compactions} 次真实压缩，每次都有输入大小和耗时。摘要大小由摘要文本估算。几乎都是自动压缩，少数是手动压缩。",
         "exclude_note": "用了其他模型的会话，以及没有 {model} 请求的会话，都没有计入。工作时间按相邻请求的间隔估算，超过 {idle_gap}的间隔算空闲，并扣掉压缩耗时。主对话和并行的子代理时间是加在一起的。",
         "formula": "单次请求费用\nQ(x, c, y) = p_m · [ω(1-c) + αc] · x + p_o · y\n\n价格比例\nα = p_c / p_m\nρ = p_o / p_m\nB = ω(1-β) + αβ\n\n总费用\nJ(T) = Σ Q(普通请求)\n     + Σ Q(压缩输入与摘要输出)\n\n单次压缩耗时\nt_c = a · C + G / v\n\n时间占比\nN_c(T) · t_c(T) / [W + N_c(T) · t_c(T)]\n\n稳态近似\nT* ≈ R + √( 2Δ · (BR + ρG) / α )",
         "def_ck": "<code>C</code> 是压缩输入，也就是压缩前的整段上下文，几乎全部按缓存读取计费。<code>K</code> 和 <code>C</code> 只差最后一轮新增的几千 token，所以公式里不出现 <code>K</code>。",
@@ -258,7 +258,7 @@
         "price_caption": "费用按 {model} 的标准 API 价格计算（每百万 token：输入 {price_input}，缓存写入 5 分钟 {price_write5} / 1 小时 {price_write1}，缓存读取 {price_read}，输出 {price_output}）。",
         "caveat_calibration": "<strong>压缩的表现是外推的。</strong>真实的自动压缩几乎都发生在 {observed_median} 附近，所以更高触发点上压缩耗时和摘要大小如何随上下文增长，是外推出来的。摘要大小由文本估算。浅色区域取第 10 到第 90 百分位，不是置信区间。",
         "caveat_extra": "<strong>工作时间是代理时间。</strong>并行的子代理时间是加在一起的，所以时间占比是代理时间的占比，不是墙上时钟的占比。压缩请求本身不在转录里，它的缓存拆分和摘要大小是推断的。",
-        "data_volume": "{sessions} 个独立工作会话（{sessions_main} 个主对话和 {sessions_sub} 个子代理会话），共 {requests} 个去重请求，约 {work_hours} 小时的代理时间。{n_trials} 次真实压缩用来校准模型。{exclude_note}",
+        "data_volume": "{sessions} 个独立工作会话（{sessions_main} 个主对话和 {sessions_sub} 个子代理会话），共 {requests} 个去重请求，约 {work_hours} 小时的代理时间。{n_compactions} 次真实压缩用来校准模型。{exclude_note}",
         "js": {
           "readout_window": "autoCompactWindow %window%"
         }
@@ -269,11 +269,11 @@
     "deepseek-flash": {
       "en": {
         "blurb": "Codex sessions on DeepSeek Flash. Cached input is very cheap, so the cheapest triggers are fairly low and the curve is flat near its minimum.",
-        "data_volume": "{sessions} independent work sessions{active_tail_note}, {requests} deduplicated requests and about {work_hours} hours of work. {n_trials} measured compactions calibrate the model. {exclude_note}"
+        "data_volume": "{sessions} independent work sessions{active_tail_note}, {requests} deduplicated requests and about {work_hours} hours of work. {n_compactions} measured compactions calibrate the model. {exclude_note}"
       },
       "zh": {
         "blurb": "Codex 里 DeepSeek Flash 的会话。缓存输入非常便宜，所以最便宜的触发点相对较低，最低点附近的曲线也很平。",
-        "data_volume": "{sessions} 个独立工作会话{active_tail_note}，共 {requests} 个去重请求，约 {work_hours} 小时的工作。{n_trials} 次实测压缩用来校准模型。{exclude_note}"
+        "data_volume": "{sessions} 个独立工作会话{active_tail_note}，共 {requests} 个去重请求，约 {work_hours} 小时的工作。{n_compactions} 次实测压缩用来校准模型。{exclude_note}"
       }
     },
     "claude-opus-5-5": {

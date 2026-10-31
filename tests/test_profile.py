@@ -28,7 +28,10 @@ class ProfileTest(unittest.TestCase):
         self.assertEqual(profile.context_window, 996_147)
         self.assertEqual(profile.post_context, 17_623)
         self.assertEqual(profile.post_cold_uncached, 13_152)
-        self.assertEqual(profile.output_dir, "artifacts")
+        self.assertEqual(profile.data_dir, "data/codex/deepseek-flash")
+        self.assertEqual(
+            profile.compactions_path, "data/codex/deepseek-flash/compactions.json"
+        )
         self.assertEqual(profile.harness, "codex")
         self.assertEqual(profile.compaction_cache, "fixed_prefix")
 
@@ -42,7 +45,10 @@ class ProfileTest(unittest.TestCase):
         self.assertEqual(profile.prices["output"], 20.0)
         self.assertAlmostEqual(profile.alpha, 0.05)
         self.assertEqual(profile.write_multiplier, 2.0)
-        self.assertEqual(profile.output_dir, "artifacts/claude-opus-5-5")
+        self.assertEqual(profile.data_dir, "data/claude-code/claude-opus-5-5")
+        self.assertEqual(
+            profile.compactions_path, "data/claude-code/claude-opus-5-5/compactions.json"
+        )
         # Left to be measured from transcripts.
         self.assertIsNone(profile.post_context)
 
@@ -54,7 +60,7 @@ class ProfileTest(unittest.TestCase):
         self.assertEqual(profile.prices["cache_read"], 0.2)
         self.assertAlmostEqual(profile.alpha, 0.1)
         self.assertEqual(profile.borrow_calibration, "claude-opus-5-5")
-        self.assertEqual(profile.output_dir, "artifacts/claude-sonnet-5-5")
+        self.assertEqual(profile.data_dir, "data/claude-code/claude-sonnet-5-5")
 
     def test_every_profile_uses_the_fixed_2k_step(self) -> None:
         for name in profile_names():
@@ -80,8 +86,9 @@ class ProfileTest(unittest.TestCase):
         self.assertEqual(profile.compaction_cache, "context_minus_tail")
         # Model facts stay those of the profile.
         self.assertEqual(profile.prices["input"], 0.15)
-        self.assertEqual(profile.trials_path, "data/compaction_trials.json")
-        # A profile without a trials file needs a harness that finds compactions.
+        # Paths follow the (harness, profile) pair.
+        self.assertEqual(profile.data_dir, "data/claude-code/deepseek-flash")
+        # A pair without a compactions file needs a harness that finds compactions.
         with self.assertRaises(SystemExit):
             load_profile("claude-opus-5-5", "codex")
         with self.assertRaises(SystemExit):

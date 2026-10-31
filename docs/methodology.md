@@ -4,6 +4,19 @@ English | [简体中文](methodology.zh-CN.md)
 
 This page holds the fixed rules of the project and the data statistics of each profile. The README stays short and points here. Statistics come from the generated `result.json` files. The Claude Code transcripts on the maintainer's machine keep growing, so a new run gives slightly different numbers.
 
+## Data layout
+
+Everything is stored per (harness, profile) pair, with paths derived from the two names:
+
+| What | Path |
+|---|---|
+| Sanitized compaction samples (calibration input), committed | `data/<harness>/<profile>/compactions.json` |
+| Analysis result (the only input of the pages), committed | `data/<harness>/<profile>/result.json` |
+| Chart pages, generated at deploy time, git-ignored | `artifacts/index.html`, `artifacts/<profile>.html` |
+| Raw private sessions (not in the repository; example location) | `.tmp/sessions/<harness>/<profile>/`, passed with `--session-root` |
+
+The statistics below are the contents of those `result.json` files. Git holds only the data under `data/`; Cloudflare Pages builds the pages with `python3 src/generate.py --render-only`, which reads only the committed `result.json` files (the session logs are private).
+
 ## Fixed rules
 
 ### Threshold grid
@@ -76,14 +89,14 @@ Claude Code (`~/.claude/projects/**/*.jsonl`):
 
 ### How compactions are found and calibrated
 
-- Codex: a hand-measured trials file, `data/compaction_trials.json`. Real compactions inside the sessions are only used to chain the stream, not for calibration.
-- Claude Code: `system` entries with subtype `compact_boundary`, carrying `compactMetadata` (trigger, `preTokens`, `durationMs`). The summary is the following user entry marked `isCompactSummary`. Boundaries are deduplicated by timestamp and `preTokens`. A compaction is dropped from calibration if there is no request before it, no duration or size, or no summary text.
+- Codex: hand-measured samples in `data/codex/deepseek-flash/compactions.json` (source `native` or `session-derived`). Real compactions inside the sessions are only used to chain the stream, not for calibration.
+- Claude Code: the samples are written to `data/claude-code/<profile>/compactions.json` on every analysis run (source `transcript-auto` or `transcript-manual`; numbers only, no ids, timestamps, paths or text) and read back for the fit. `system` entries with subtype `compact_boundary`, carrying `compactMetadata` (trigger, `preTokens`, `durationMs`). The summary is the following user entry marked `isCompactSummary`. Boundaries are deduplicated by timestamp and `preTokens`. A compaction is dropped from calibration if there is no request before it, no duration or size, or no summary text.
 - The compaction request itself is not in the transcripts. Its input is the whole context before the compaction: all cache reads except a small uncached tail (`preTokens` minus the last request's context), which is priced as a cache write at the session's multiplier.
 - Summary tokens are estimated from the summary text. Output tokens of plain answers (text only, thinking tokens subtracted) are regressed on the number of CJK characters and of other characters.
 - Compaction time `t_c = a * C + G / v` is fitted without intercept on the compactions (`C` is the whole compaction input, `G` the summary tokens). Summary tokens follow `G = g0 + g1 * C`.
 - Post-compaction context and its uncached part are the medians of the first request after each compaction (Claude Code), or the measured values (DeepSeek).
 - Real automatic compactions fire at one level (about 267K for Claude Code, about 300K for Codex), so higher triggers are never observed. Each session's segments split by real compactions are chained into one uncompacted request stream: a later segment continues from the previous context by one median increment, with the median uncached part. Above about 267K the curves are therefore extrapolated.
-- If a model has fewer than 50 compactions of its own (harness setting `min_fit_compactions`) and the profile names a `borrow_calibration` profile, the fit uses its own compactions plus the donor's. The donor's durations are multiplied by the ratio of the model's own measured total time to what the donor fit predicts for them. The page and the statistics below label this. Without a donor the run stops.
+- If a model has fewer than 50 compactions of its own (harness setting `min_fit_compactions`) and the profile names a `borrow_calibration` profile, the fit uses its own compactions plus the donor's, read from the donor's `compactions.json` (the borrowed rows are a fit-time rule and are not copied into the model's own file). The donor's durations are multiplied by the ratio of the model's own measured total time to what the donor fit predicts for them. The page and the statistics below label this. Without a donor the run stops.
 
 ### DeepSeek model update of 2026-10-17
 

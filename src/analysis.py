@@ -33,7 +33,7 @@ class Session:
 
 
 @dataclass(frozen=True)
-class Trial:
+class CompactionSample:
     name: str
     input_tokens: int
     cached_tokens: int
@@ -48,7 +48,7 @@ class Collected:
 
     sessions: list[Session]
     excluded: dict[str, int]
-    trials: list[Trial] | None
+    compactions: list[CompactionSample] | None
     profile: Profile
     stats: dict
     # Billed tokens of the real history by price class: uncached_input,
@@ -68,10 +68,27 @@ def parse_timestamp(value: str) -> float:
     return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
 
 
-def load_trials(path: Path) -> list[Trial]:
+def save_compactions(path: Path, samples: list[CompactionSample]) -> None:
+    """Write samples (numbers and a source label only) next to the other inputs."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    rows = [
+        {
+            "name": item.name,
+            "source": item.source,
+            "input_tokens": item.input_tokens,
+            "cached_tokens": item.cached_tokens,
+            "output_tokens": item.output_tokens,
+            "seconds": item.seconds,
+        }
+        for item in samples
+    ]
+    path.write_text(json.dumps(rows, indent=2) + "\n")
+
+
+def load_compactions(path: Path) -> list[CompactionSample]:
     raw = json.loads(path.read_text())
     return [
-        Trial(
+        CompactionSample(
             name=item["name"],
             input_tokens=int(item["input_tokens"]),
             cached_tokens=int(item["cached_tokens"]),
@@ -141,12 +158,12 @@ class FittedModel:
     high_cached_prefix: int
 
 
-def fit_model(trials: list[Trial], profile: Profile) -> FittedModel:
+def fit_model(compactions: list[CompactionSample], profile: Profile) -> FittedModel:
     summary_points = [
         [1.0, float(item.input_tokens)]
-        for item in trials
+        for item in compactions
     ]
-    summary_values = [float(item.output_tokens) for item in trials]
+    summary_values = [float(item.output_tokens) for item in compactions]
     summary_intercept, summary_per_input = _fit_no_intercept(
         summary_points,
         summary_values,
@@ -154,19 +171,19 @@ def fit_model(trials: list[Trial], profile: Profile) -> FittedModel:
     residuals = [
         item.output_tokens
         - (summary_intercept + summary_per_input * item.input_tokens)
-        for item in trials
+        for item in compactions
     ]
     low_q, high_q = profile.range_quantiles
 
-    def prefill_tokens(item: Trial) -> float:
+    def prefill_tokens(item: CompactionSample) -> float:
         if profile.prefill_time_on_total:
             return float(item.input_tokens)
         return float(item.input_tokens - item.cached_tokens)
 
     time_points = [
-        [prefill_tokens(item), float(item.output_tokens)] for item in trials
+        [prefill_tokens(item), float(item.output_tokens)] for item in compactions
     ]
-    time_values = [item.seconds for item in trials]
+    time_values = [item.seconds for item in compactions]
     seconds_per_uncached, seconds_per_output = _fit_no_intercept(
         time_points,
         time_values,
@@ -188,10 +205,10 @@ def fit_model(trials: list[Trial], profile: Profile) -> FittedModel:
     # uncached tail of the compaction input (context_minus_tail). low_ is the
     # least cached scenario and high_ the most cached one.
     if profile.compaction_cache == "fixed_prefix":
-        cache_values = [item.cached_tokens for item in trials]
+        cache_values = [item.cached_tokens for item in compactions]
         low_cache_q, high_cache_q = low_q, high_q
     else:
-        cache_values = [item.input_tokens - item.cached_tokens for item in trials]
+        cache_values = [item.input_tokens - item.cached_tokens for item in compactions]
         low_cache_q, high_cache_q = high_q, low_q
     return FittedModel(
         summary_intercept=summary_intercept,
@@ -202,30 +219,30 @@ def fit_model(trials: list[Trial], profile: Profile) -> FittedModel:
         seconds_per_output=seconds_per_output,
         output_speed=1 / seconds_per_output,
         time_r2=r2(time_points),
-        output_only_r2=r2([[item.output_tokens] for item in trials]),
-        input_only_r2=r2([[prefill_tokens(item)] for item in trials]),
+        output_only_r2=r2([[item.output_tokens] for item in compactions]),
+        input_only_r2=r2([[prefill_tokens(item)] for item in compactions]),
         central_cached_prefix=round(statistics.median(cache_values)),
         low_cached_prefix=round(_quantile(cache_values, low_cache_q)),
         high_cached_prefix=round(_quantile(cache_values, high_cache_q)),
     )
 
 
-def borrow_trials(
-    own: list[Trial],
-    donor: list[Trial],
+def borrow_compactions(
+    own: list[CompactionSample],
+    donor: list[CompactionSample],
     profile: Profile,
-) -> tuple[list[Trial], float]:
+) -> tuple[list[CompactionSample], float]:
     """Add another model's compactions to a model with too few of its own.
 
     The donor fit supplies how compaction time and summary size depend on the
     context. Donor durations are rescaled by the ratio of the model's own
     measured durations to what the donor fit predicts for them, so the level
-    still comes from the model's own compactions. Returns the pooled trials
+    still comes from the model's own compactions. Returns the pooled compactions
     and the scale.
     """
     donor_model = fit_model(donor, profile)
 
-    def predicted(item: Trial) -> float:
+    def predicted(item: CompactionSample) -> float:
         prefill = (
             item.input_tokens
             if profile.prefill_time_on_total
@@ -630,13 +647,13 @@ def _compact_curve(rows: list[dict]) -> list[dict]:
 def build_result(
     sessions: list[Session],
     excluded_count: dict[str, int],
-    trials: list[Trial],
+    compactions: list[CompactionSample],
     profile: Profile,
     config: BootstrapConfig,
     billing_mix: dict[str, int],
     extra_snapshot: dict | None = None,
 ) -> dict:
-    model = fit_model(trials, profile)
+    model = fit_model(compactions, profile)
     exact_curves = scenario_curves(sessions, model, profile)
     curves = bootstrap_curves(sessions, model, profile, config)
 
@@ -685,7 +702,7 @@ def build_result(
             )
             * profile.usd_per_token,
         }
-        for item in trials
+        for item in compactions
     ]
 
     result = {

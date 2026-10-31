@@ -34,9 +34,6 @@
         "deepseek-flash"
       ],
       "provider": "deepseek",
-      "calibration": {
-        "trials": "data/compaction_trials.json"
-      },
       "prices_usd_per_million": {
         "input": 0.15,
         "cache_write_5m": 0.15,
@@ -65,7 +62,6 @@
         0,
         1
       ],
-      "output_dir": "artifacts",
       "label": "DeepSeek Flash",
       "quick_limits": [
         0.05,
@@ -81,7 +77,6 @@
         "claude-opus-5-5"
       ],
       "provider": null,
-      "calibration": null,
       "prices_usd_per_million": {
         "input": 4.0,
         "cache_write_5m": 5.0,
@@ -107,7 +102,6 @@
         0.1,
         0.9
       ],
-      "output_dir": "artifacts/claude-opus-5-5",
       "label": "Claude Opus 5.5",
       "quick_limits": [
         0.05,
@@ -123,7 +117,6 @@
         "claude-sonnet-5-5"
       ],
       "provider": null,
-      "calibration": null,
       "prices_usd_per_million": {
         "input": 2.0,
         "cache_write_5m": 2.5,
@@ -149,7 +142,6 @@
         0.1,
         0.9
       ],
-      "output_dir": "artifacts/claude-sonnet-5-5",
       "label": "Claude Sonnet 5.5",
       "quick_limits": [
         0.05,

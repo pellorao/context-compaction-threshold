@@ -5,3 +5,4 @@ __pycache__/
 .wrangler/
 .browser-profile/
 .DS_Store
+artifacts/

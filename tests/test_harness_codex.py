@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from analysis import _replay_session, fit_model, load_trials  # noqa: E402
+from analysis import _replay_session, fit_model, load_compactions  # noqa: E402
 from harness import collect  # noqa: E402
 from model_profile import load_profile  # noqa: E402
 
@@ -63,7 +63,7 @@ class CodexCompactionTest(unittest.TestCase):
         self.assertEqual(collected.stats["max_input_tokens"], 100_000)
 
         # Without compaction the replay costs exactly the chained requests.
-        model = fit_model(load_trials(ROOT / profile.trials_path), profile)
+        model = fit_model(load_compactions(ROOT / profile.compactions_path), profile)
         replay = _replay_session(
             session, 10**12, model, profile, cached_prefix=model.central_cached_prefix
         )

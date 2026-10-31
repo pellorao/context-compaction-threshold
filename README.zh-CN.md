@@ -8,7 +8,7 @@
 DeepSeek Flash，Claude Code 上的 Claude Opus 5.5 和 Claude Sonnet 5.5）。页面
 提供英文和简体中文。
 
-[查看在线页面](https://deepseek-compaction-threshold.pages.dev/)
+[查看在线页面](https://context-compaction-threshold.pages.dev/)
 
 不存在适用于所有人的唯一阈值。合适的阈值取决于你需要保留多少上下文，以及你
 能接受多少额外费用和压缩等待。对 Claude Code，页面还会告诉你该设置多大的

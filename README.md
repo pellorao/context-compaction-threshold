@@ -10,7 +10,7 @@ model, and one chart page per model (DeepSeek Flash on Codex, Claude Opus 5.5
 and Claude Sonnet 5.5 on Claude Code). Pages are in English and Simplified
 Chinese.
 
-[View the live report](https://deepseek-compaction-threshold.pages.dev/)
+[View the live report](https://context-compaction-threshold.pages.dev/)
 
 The chart has no universal winner. The useful threshold depends on how much
 working context you need and how much compaction cost and delay you accept.

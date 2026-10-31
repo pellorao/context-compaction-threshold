@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import statistics
 from collections import Counter
 from dataclasses import dataclass, field
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable
 
@@ -32,6 +34,22 @@ MODEL_OUTPUT = {"reasoning", "function_call", "custom_tool_call", "tool_search_c
 COMPACTION_OWN_EVENT_SECONDS = 1.0
 
 
+def _session_start(path: Path) -> float | None:
+    """Read the recorded start, never the file's modification time."""
+    with path.open("rb") as stream:
+        for line in stream:
+            try:
+                record = json.loads(line)
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                continue
+            if isinstance(record, dict) and record.get("type") == "session_meta":
+                value = (record.get("payload") or {}).get("timestamp") or record.get(
+                    "timestamp"
+                )
+                return parse_timestamp(value) if value else None
+    return None
+
+
 @dataclass
 class _Log:
     found: bool = False
@@ -55,6 +73,7 @@ def _read_session(path: Path, profile: Profile) -> _Log:
     models: set[str] = set()
     token_counts: list[float] = []
     request_start: float | None = None
+    turn_start: float | None = None
     # Read bytes: Python 3.14's incremental text reader intermittently
     # segfaults on some very long third-party JSONL records.
     with path.open("rb") as stream:
@@ -79,6 +98,8 @@ def _read_session(path: Path, profile: Profile) -> _Log:
                 request_start = parse_timestamp(record["timestamp"])
             elif event_type == "event_msg" and subtype == "token_count":
                 token_counts.append(parse_timestamp(record["timestamp"]))
+            elif event_type == "event_msg" and subtype == "task_started":
+                turn_start = parse_timestamp(record["timestamp"])
             elif event_type == "compacted":
                 now = parse_timestamp(record["timestamp"])
                 if log.requests and log.requests[-1] is not COMPACTION:
@@ -92,6 +113,10 @@ def _read_session(path: Path, profile: Profile) -> _Log:
                         ),
                         None,
                     )
+                    # A new turn may compact before its first ordinary request.
+                    # The previous token_count can then predate the user's wait.
+                    if turn_start is not None:
+                        start = max(start, turn_start) if start is not None else turn_start
                     if start is not None:
                         log.compactions.append(
                             (
@@ -143,6 +168,7 @@ def collect(
     *,
     active_thread: str | None = None,
     excluded_threads: Iterable[str] = (),
+    snapshot_at: datetime | None = None,
 ) -> Collected:
     """Load Codex workloads without exposing raw sessions in output."""
     excluded = set(excluded_threads)
@@ -153,8 +179,28 @@ def collect(
     # Requests as logged (not chained), for the billing mix.
     raw: list[Request] = []
     excluded_count: Counter[str] = Counter()
+    post_requests: list[Request] = []
+    selection = None
+    if profile.session_max_age_days is not None:
+        end = snapshot_at or datetime.now(timezone.utc)
+        start = end - timedelta(days=profile.session_max_age_days)
+        selection = {
+            "max_age_days": profile.session_max_age_days,
+            "started_at_or_after": start.isoformat(),
+            "started_at_or_before": end.isoformat(),
+        }
 
     for path in sorted(session_root.rglob("*.jsonl")):
+        # Filter whole sessions before they can consume response IDs or supply
+        # compaction calibration, including old sessions resumed recently.
+        if selection is not None:
+            started = _session_start(path)
+            if started is None:
+                excluded_count["session-start-unknown"] += 1
+                continue
+            if not start.timestamp() <= started <= end.timestamp():
+                excluded_count["session-start-outside-window"] += 1
+                continue
         log = _read_session(path, profile)
         if not log.found:
             continue
@@ -191,6 +237,7 @@ def collect(
         # Compactions of the analysis session count; the calibration sessions
         # are the hand-measured samples already in the compactions file.
         if reason in (None, "active-analysis"):
+            post_requests.extend(unique[cut] for cut in cuts if cut < len(unique))
             for response_id, sample in log.compactions:
                 if response_id is None or response_id not in seen_compactions:
                     seen_compactions.add(response_id)
@@ -209,6 +256,13 @@ def collect(
 
     if not sessions:
         raise ValueError(f"No {profile.model} sessions with token usage were found")
+    if profile.post_context is None or profile.post_cold_uncached is None:
+        if not post_requests:
+            raise ValueError(f"No post-compaction requests found for {profile.model}")
+        profile = profile.with_measured(
+            round(statistics.median(r.input_tokens for r in post_requests)),
+            round(statistics.median(r.input_tokens - r.cached_tokens for r in post_requests)),
+        )
     compactions = [
         CompactionSample(
             f"log-{number:03d}",
@@ -232,6 +286,8 @@ def collect(
         "max_input_tokens": max(r.input_tokens for r in raw),
         "requests_without_duration": unknown,
     }
+    if selection is not None:
+        stats["session_selection"] = selection
     return Collected(
         sessions, dict(excluded_count), compactions, profile, stats, billing_mix
     )

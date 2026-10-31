@@ -17,6 +17,12 @@ Everything is stored per (harness, profile) pair, with paths derived from the tw
 
 The statistics below are the contents of those `result.json` files. Git holds only the data under `data/`; Cloudflare Pages builds the pages with `python3 src/generate.py --render-only`, which reads only the committed `result.json` files (the session logs are private).
 
+### Rebuild the published pages
+
+Run `python3 src/generate.py --render-only` from a checkout. The six committed results, model profiles, bilingual text and renderer reproduce the landing page and all six model pages without raw sessions, a new fit or network access. The 14-day filter runs only during analysis: rendering uses the saved snapshot and does not age out its data as time passes.
+
+The sanitized compaction files preserve calibration inputs; they do not contain the ordinary-request histories needed to rerun analysis. For a new analysis, use the private frozen sessions and their manifests, including the recorded analysis-session exclusion, together with `--snapshot-at`. A timestamp fixes the session-start selection window, not the contents of a live log directory. Keep new results separate with `--output-dir`; use `--compactions` to select a saved calibration without rewriting the committed samples. Raw sessions, private manifests and generated HTML are never committed.
+
 ## Fixed rules
 
 ### Threshold grid
@@ -26,6 +32,15 @@ The statistics below are the contents of those `result.json` files. Git holds on
 - The cost axis spans only the range of the curves and their shaded band, rounded to whole ticks, rather than starting at $0, so differences between triggers stay visible. Read the tick labels before comparing heights across models.
 - The grid sits on even multiples of the step, so hovering shows round values such as 200K and 300K. The grid minimum is the smallest multiple of 2K at or above the smallest trigger that can be set. The grid maximum is the largest multiple of 2K at or below the **maximum effective trigger = maximum setting - measured buffer**. A test checks that every grid point is a multiple of 2000. If that maximum cannot be verified from an authoritative source for a model, the profile's axis maximum is left unset and the question goes to the maintainer.
 - DeepSeek Flash on Codex keeps its published axis, 64K to 900K. Codex has no window-plus-buffer setting, so its page only shows the trigger.
+
+### Codex subscription profiles (GPT-6.1 Sol, GPT-6.1 Terra, GPT-6 Luna)
+
+- Each profile has its own requests and compaction calibration, with exact model-prefix filtering and the existing exclusions and response-ID deduplication. Sessions without compactions remain part of the ordinary workload.
+- `session_max_age_days: 14` selects sessions whose recorded start is within the 14 days ending at the analysis snapshot. An older session is excluded in full even if resumed recently. Selection happens before response-ID deduplication and applies to ordinary requests, compaction samples, the ordinary-request time fit and post-compaction measurements alike. Missing start times and starts after the snapshot are excluded; file modification times are never used.
+- `--snapshot-at` accepts an ISO timestamp with a timezone; without it, the snapshot is the current UTC time. All three published profiles use the same frozen snapshot. The inclusive start bounds are recorded as `snapshot.session_selection` in each result.
+- The maintainer confirmed **872,000 tokens × 95% = 828,400** as the effective upper trigger for these profiles. The grid is **64K, 66K, ... 828K**, rounding the upper bound down to a 2K grid point. This is the agreed Codex boundary, not the API catalog's context-window size or a claim that the default Codex window is 872K. The public [configuration reference](https://learn.chatgpt.com/docs/config-file/config-reference) defines `model_context_window` and `model_auto_compact_token_limit` separately.
+- Relative costs use the official API standard input/cache-read/output weights below, held constant at every context length. The project uses the agreed subscription convention of no long-context surcharge; it does not estimate included subscription allowance or purchased-credit consumption. A uniform rate multiplier cancels in relative cost, whereas a context-dependent surcharge would change the curve. Codex records no separate cache writes here; the unused cache-write fields in these profiles equal the plain input weight, not an API cache-write tariff.
+- Each model uses its own timed compactions. Summary size is their constant mean, and post-compaction context and uncached input are the medians of the first ordinary requests after compaction, before chaining. Ordinary-request context slopes are fitted from these sessions, not borrowed from DeepSeek's controlled measurement. The existing Codex min/max compaction scenarios, block size 8, 100 bootstrap replicates and seed 20261031 apply.
 
 ### Claude Code trigger (Opus 5.5, Sonnet 5.5)
 
@@ -66,8 +81,11 @@ Costs are in units of the plain input price, then converted to USD. Prices are p
 | deepseek-flash | $0.15 | $0.15 | $0.15 | $0.003 | $0.60 | DeepSeek off-peak list prices, as used by the first published version of this project |
 | claude-opus-5-5 | $4 | $5 | $8 | $0.20 | $20 | claude-api skill: Current Models table ($4 / $20); prompt-caching Economics (writes 1.25x for 5 minutes and 2x for 1 hour, reads 0.05x on Opus 5.5) |
 | claude-sonnet-5-5 | $2 | $2.50 | $4 | $0.20 | $10 | claude-api skill: Current Models table ($2 / $10, cache reads $0.20); same write multipliers |
+| gpt-6.1-sol | $2 | n/a | n/a | $0.10 | $10 | [Official model page](https://developers.openai.com/api/docs/models/gpt-6.1-sol) |
+| gpt-6.1-terra | $1 | n/a | n/a | $0.05 | $5 | [Official model page](https://developers.openai.com/api/docs/models/gpt-6.1-terra) |
+| gpt-6-luna | $0.10 | n/a | n/a | $0.01 | $0.50 | [Official model page](https://developers.openai.com/api/docs/models/gpt-6-luna) |
 
-The ratio alpha (cache read / input) is 0.02, 0.05 and 0.1. The ratio rho (output / input) is 4, 5 and 5.
+For the three GPT profiles, alpha is 0.05, 0.05 and 0.1, and rho is 5 for all three. For the other profiles, the ratio alpha (cache read / input) is 0.02, 0.05 and 0.1. The ratio rho (output / input) is 4, 5 and 5.
 
 ### Which sessions and requests count
 
@@ -118,13 +136,13 @@ Both harnesses give the duration of every normal request and of every real compa
 
 | | Codex (`~/.codex/sessions`) | Claude Code (`~/.claude/projects`) |
 |---|---|---|
-| Compaction: start | The last `token_count` event more than 1 s before the `compacted` record. It is the end of the request before the compaction, or the start of the turn that holds the compaction. Events within 1 s of the record belong to the compaction request itself. | Not needed: Claude Code writes the duration itself. |
+| Compaction: start | The later of the current turn's `task_started` and the last `token_count` event more than 1 s before `compacted` (use whichever exists if only one is available). This excludes the user's wait when a turn compacts before its first ordinary request. It is the end of the request before the compaction, or the start of the turn that holds the compaction. Events within 1 s of the record belong to the compaction request itself. | Not needed: Claude Code writes the duration itself. |
 | Compaction: end | The `compacted` record's timestamp. | The `compact_boundary` entry, carrying `compactMetadata.durationMs`. |
 | Compaction: seconds | End minus start. | `durationMs / 1000`. |
 | Compaction: input `C` and cached part | The usage record of the compaction request (the `token_usage_record` right before `compacted`): `input_tokens` and `cached_input_tokens`. | `compactMetadata.preTokens` for `C`. The compaction request is not in the transcript: the cached part is `preTokens` minus an uncached tail (`preTokens` minus the context of the last request before the boundary, at least 0). |
 | Compaction: summary size `G` | `output_tokens` of the same usage record, exact. | Estimated from the summary text (the user entry marked `isCompactSummary`): tokens per CJK character and per other character, fitted on plain answers (text only, thinking subtracted). |
 | Compactions used | All compactions of the included sessions and of the analysis session (a duplicate is dropped by `compaction_response_id`). A compaction that was also timed by hand keeps its hand timing. | All `compact_boundary` entries, deduplicated by timestamp and `preTokens`. |
-| Compactions left out | Those of smoke or test sessions, of sessions on another model and of the hand-timing sessions (they are the hand-timed rows); those without an earlier `token_count`. | Those with no request before, no duration or size, or no summary text. |
+| Compactions left out | Those of smoke or test sessions, of sessions on another model and of the hand-timing sessions (they are the hand-timed rows); those without either an earlier `token_count` or a current `task_started`. | Those with no request before, no duration or size, or no summary text. |
 | Request: start | The timestamp of the last log record before the request that is not the model's own output: a user or developer message or a tool output. For the first request after a compaction, the `compacted` record. | The timestamp of the nearest `user` or `assistant` entry on the `parentUuid` chain above the first line of the response. `attachment` and `system` entries (hooks, reminders) are skipped: they are written asynchronously and carry unrelated times. |
 | Request: end | The request's `token_usage_record` timestamp (the same instant as its `token_count`). | The last streamed line of the same `message.id`. |
 | Request: unknown or not positive | Takes the median of the known durations (0 requests in the current data). | The same (82 of 45,293 Opus requests, 0.2%: the first line of a transcript has no parent; Sonnet 0). |
@@ -133,7 +151,7 @@ Both harnesses give the duration of every normal request and of every real compa
 Known limits:
 
 - Timestamps are the times the harness wrote the records, with millisecond resolution; a duration includes any client-side gap between a record and the request leaving or arriving.
-- Codex compactions are timed from the previous `token_count`, so the seconds include the time between the end of the previous request and the compaction request, usually a second or less. For the 9 compactions that were timed both by hand and in the logs, the hand timing is 0.2 s to 2.7 s longer (about 1.5 s on average), a client-side offset of the hand method. The hand rows are kept as measured.
+- Codex compactions start at the later of the previous `token_count` and the current `task_started`. This excludes the user's wait before a turn, while a little client-side time before the compaction request may remain. For the 9 compactions that were timed both by hand and in the logs, the hand timing is 0.2 s to 2.7 s longer (about 1.5 s on average), a client-side offset of the hand method. The hand rows are kept as measured.
 - Codex input and cached part come from the compaction request's own usage, not from the request before it (the two differ by up to about 20K tokens for the same compaction, and the own usage is what the model processed). The hand-timed rows used the same fields.
 - Claude Code: if a response interleaves with tool execution, its last streamed line can be later than the real end of the response, which lengthens that request. The summary size is an estimate (Sonnet's estimator rests on 33 plain answers).
 - In both harnesses the request seconds include the model's thinking time and any network retry.
@@ -279,3 +297,53 @@ Triggers whose cost is within a given margin of the minimum:
 | 5% | 90K to 176K | 80K to 162K | 74K to 262K |
 
 Ends of the axis: Opus costs $0.430 at a 68K trigger (33.5% of request time compacting) and $0.620 at 966K (0.68%). Sonnet costs $0.325 at 68K (37.0%) and $0.399 at 966K (0.23%). DeepSeek costs $0.0068 at 64K (31.3%) and $0.0090 at 900K (1.01%), so no trigger on its axis keeps compaction under 1% of request time.
+
+## Recent Codex subscription profile statistics
+
+All three snapshots are anchored at **2026-10-31 21:11:07 UTC**, with session starts from **2026-10-17 21:11:07 UTC through that instant**, inclusive. These statistics are separate from the original three models' published snapshots; their results are not recomputed. Ordinary requests and compactions use the same selected cohort; under the existing rule the active analysis session supplies compaction calibration only, with no ordinary-request tail included in this snapshot.
+
+| | gpt-6.1-sol | gpt-6.1-terra | gpt-6-luna |
+|---|---|---|---|
+| Independent sessions | 137 | 12 | 58 |
+| Ordinary requests after deduplication | 38,991 | 10,907 | 16,736 |
+| Ordinary request time | 184.3 h | 14.9 h | 42.2 h |
+| Timed compactions | 346 | 66 | 269 |
+| Billed tokens in ordinary history | 5,969,263,954 | 1,558,705,812 | 2,157,860,960 |
+| Cache read / plain input / output | 96.30% / 3.33% / 0.37% | 98.44% / 1.34% / 0.22% | 94.91% / 4.41% / 0.68% |
+| Largest ordinary request input | 458,260 | 449,760 | 245,127 |
+| Post-compaction context / uncached input | 33,717 / 20,854 | 68,834 / 58,054 | 48,783 / 35,809 |
+
+None has separately billed cache writes or ordinary requests needing a median duration fill. Sol's calibration includes compactions of the active analysis session, so the sessions supplying calibration are not exactly the ordinary-request session counts above. Every fit uses its own compactions, with no borrowed calibration.
+
+| | gpt-6.1-sol | gpt-6.1-terra | gpt-6-luna |
+|---|---|---|---|
+| Mean summary tokens (constant G) | 6,033.0 | 2,146.8 | 2,527.9 |
+| Compaction seconds per uncached input token | 6.3516e-05 | 8.7303e-05 | 2.6787e-05 |
+| Compaction seconds per output token | 0.02314 | 0.01287 | 0.00871 |
+| Summary speed, tokens/s | 43.2 | 77.7 | 114.8 |
+| Compaction time fit R2 | 0.588 | 0.694 | 0.851 |
+| Ordinary request: seconds per additional 100K context tokens (low to high) | 4.021 (3.747–4.227) | 0.638 (0.466–0.751) | 0.163 (0.050–0.279) |
+| Ordinary request time fit R2 | 0.644 | 0.514 | 0.909 |
+| Compaction cached prefix: median (min to max) | 200,000 (7,680–466,560) | 199,296 (11,904–449,536) | 199,552 (7,168–244,992) |
+
+At the default summary speed, the rows below show the central curve's cheapest trigger, and its cheapest trigger subject to a compaction-time share limit. Cost and total model time are relative to 828K. Absolute amounts per million billed tokens are normalized costs under the fixed API weights, not subscription spending or allowance consumption. The pages display relative costs only.
+
+| Profile | Share limit | Trigger | Relative cost | Normalized USD / 1M billed tokens | Model time change | Compaction share |
+|---|---|---|---|---|---|---|
+| gpt-6.1-sol | none | 86K | -59.1% | 0.14131 | -28.4% | 28.11% |
+| gpt-6.1-sol | 5% | 320K | -39.2% | 0.21013 | -29.0% | 4.99% |
+| gpt-6.1-sol | 3% | 470K | -26.3% | 0.25460 | -20.4% | 2.99% |
+| gpt-6.1-sol | 2% | 622K | -15.2% | 0.29305 | -12.0% | 2.00% |
+| gpt-6.1-sol | 1% | — | — | — | — | — |
+| gpt-6.1-terra | none | 120K | -59.5% | 0.06045 | -20.1% | 9.45% |
+| gpt-6.1-terra | 5% | 168K | -57.0% | 0.06420 | -21.7% | 4.90% |
+| gpt-6.1-terra | 3% | 246K | -49.3% | 0.07576 | -19.7% | 2.98% |
+| gpt-6.1-terra | 2% | 398K | -34.2% | 0.09829 | -14.2% | 2.00% |
+| gpt-6.1-terra | 1% | — | — | — | — | — |
+| gpt-6-luna | none | 92K | -62.8% | 0.01369 | +7.0% | 12.33% |
+| gpt-6-luna | 5% | 166K | -58.2% | 0.01539 | -0.7% | 4.94% |
+| gpt-6-luna | 3% | 252K | -49.5% | 0.01861 | -2.1% | 2.99% |
+| gpt-6-luna | 2% | 382K | -36.8% | 0.02327 | -2.1% | 1.99% |
+| gpt-6-luna | 1% | — | — | — | — | — |
+
+828K exceeds the observed contexts of all three models, so that part of each curve depends on extrapolation; the largest ordinary-request inputs are listed above. Terra has only 12 independent sessions; 100 block-bootstrap replicates do not increase that count. Reasoning effort and service modes retain the mix in the logs rather than having separate pages, so these durations are not a model-speed ranking. Terra's measured post-compaction context is 68,834 tokens, above the 64K grid floor; replay at the far left compacts very frequently and should not be read as a practical setting recommendation.

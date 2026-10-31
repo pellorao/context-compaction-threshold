@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from analysis import (
@@ -26,6 +27,16 @@ from model_profile import (
 from render import LANDING_NAME, load_pages, render_landing, render_model
 
 SITE_DIR = ROOT / "artifacts"
+
+
+def snapshot_time(value: str) -> datetime:
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise argparse.ArgumentTypeError("Use an ISO timestamp with a timezone") from error
+    if parsed.tzinfo is None:
+        raise argparse.ArgumentTypeError("The snapshot timestamp needs a timezone")
+    return parsed.astimezone(timezone.utc)
 
 
 def parse_args() -> argparse.Namespace:
@@ -81,6 +92,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--block-size", type=int, default=8)
     parser.add_argument("--seed", type=int, default=20_261_031)
     parser.add_argument("--workers", type=int, default=BootstrapConfig().workers)
+    parser.add_argument(
+        "--snapshot-at", type=snapshot_time,
+        help="UTC/offset timestamp anchoring the profile's recent-session window (default: now)",
+    )
     return parser.parse_args()
 
 
@@ -96,6 +111,7 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
         args.session_root,
         active_thread=args.active_thread,
         excluded_threads=args.exclude_thread,
+        snapshot_at=args.snapshot_at,
     )
     profile = collected.profile
     compactions_path = args.compactions or ROOT / profile.compactions_path

@@ -50,6 +50,7 @@ class Profile:
     # Measured request-duration slope (central, low, high; seconds per context
     # token) that replaces the log fit and its bootstrap interval, or None.
     request_slope: tuple[float, float, float] | None = None
+    session_max_age_days: int | None = None
 
     @property
     def compactions_path(self) -> str:
@@ -143,6 +144,7 @@ def load_profile(
         harness=harness,
         harness_cfg=cfg,
         request_slope=tuple(raw["request_slope"]) if "request_slope" in raw else None,
+        session_max_age_days=raw.get("session_max_age_days"),
     )
 
 

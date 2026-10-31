@@ -151,6 +151,126 @@
         0.01
       ],
       "borrow_calibration": "claude-opus-5-5"
+    },
+    "gpt-6.1-sol": {
+      "model": "gpt-6.1-sol",
+      "model_prefixes": [
+        "gpt-6.1-sol"
+      ],
+      "provider": null,
+      "prices_usd_per_million": {
+        "input": 2.0,
+        "cache_write_5m": 2.0,
+        "cache_write_1h": 2.0,
+        "cache_read": 0.1,
+        "output": 10.0
+      },
+      "context_window": 872000,
+      "threshold": {
+        "min": 64000,
+        "max": 828000,
+        "step": 2000
+      },
+      "time_limit": 0.05,
+      "time_axis_max": 0.2,
+      "speed_slider": {
+        "min": 5,
+        "max": 300
+      },
+      "post_compaction": null,
+      "min_summary": 1000,
+      "range_quantiles": [
+        0,
+        1
+      ],
+      "label": "GPT-6.1 Sol",
+      "quick_limits": [
+        0.05,
+        0.03,
+        0.02,
+        0.01
+      ],
+      "session_max_age_days": 14
+    },
+    "gpt-6.1-terra": {
+      "model": "gpt-6.1-terra",
+      "model_prefixes": [
+        "gpt-6.1-terra"
+      ],
+      "provider": null,
+      "prices_usd_per_million": {
+        "input": 1.0,
+        "cache_write_5m": 1.0,
+        "cache_write_1h": 1.0,
+        "cache_read": 0.05,
+        "output": 5.0
+      },
+      "context_window": 872000,
+      "threshold": {
+        "min": 64000,
+        "max": 828000,
+        "step": 2000
+      },
+      "time_limit": 0.05,
+      "time_axis_max": 0.2,
+      "speed_slider": {
+        "min": 5,
+        "max": 300
+      },
+      "post_compaction": null,
+      "min_summary": 1000,
+      "range_quantiles": [
+        0,
+        1
+      ],
+      "label": "GPT-6.1 Terra",
+      "quick_limits": [
+        0.05,
+        0.03,
+        0.02,
+        0.01
+      ],
+      "session_max_age_days": 14
+    },
+    "gpt-6-luna": {
+      "model": "gpt-6-luna",
+      "model_prefixes": [
+        "gpt-6-luna"
+      ],
+      "provider": null,
+      "prices_usd_per_million": {
+        "input": 0.1,
+        "cache_write_5m": 0.1,
+        "cache_write_1h": 0.1,
+        "cache_read": 0.01,
+        "output": 0.5
+      },
+      "context_window": 872000,
+      "threshold": {
+        "min": 64000,
+        "max": 828000,
+        "step": 2000
+      },
+      "time_limit": 0.05,
+      "time_axis_max": 0.2,
+      "speed_slider": {
+        "min": 5,
+        "max": 300
+      },
+      "post_compaction": null,
+      "min_summary": 1000,
+      "range_quantiles": [
+        0,
+        1
+      ],
+      "label": "GPT-6 Luna",
+      "quick_limits": [
+        0.05,
+        0.03,
+        0.02,
+        0.01
+      ],
+      "session_max_age_days": 14
     }
   }
 }

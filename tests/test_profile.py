@@ -14,6 +14,24 @@ from model_profile import CONFIG_PATH, load_profile, profile_names  # noqa: E402
 
 
 class ProfileTest(unittest.TestCase):
+    def test_subscription_codex_profiles_use_recent_sessions_and_agreed_axis(self) -> None:
+        for name, alpha in (("gpt-6.1-sol", 0.05), ("gpt-6.1-terra", 0.05), ("gpt-6-luna", 0.1)):
+            with self.subTest(model=name):
+                profile = load_profile(name)
+                self.assertEqual(profile.model_prefixes, (name,))
+                self.assertIsNone(profile.provider)
+                self.assertEqual(profile.harness, "codex")
+                self.assertEqual(profile.session_max_age_days, 14)
+                self.assertEqual(profile.context_window, 872_000)
+                self.assertEqual(profile.max_threshold, int(872_000 * 0.95) // 2000 * 2000)
+                self.assertEqual(profile.min_threshold, 64_000)
+                self.assertAlmostEqual(profile.alpha, alpha)
+                self.assertEqual(profile.output_over_miss, 5)
+                self.assertIsNone(profile.post_context)
+                self.assertIsNone(profile.request_slope)
+                self.assertIsNone(profile.borrow_calibration)
+        self.assertIsNone(load_profile("deepseek-flash").session_max_age_days)
+
     def test_deepseek_profile_keeps_published_values(self) -> None:
         profile = load_profile("deepseek-flash")
         self.assertEqual(profile.model, "deepseek-flash")

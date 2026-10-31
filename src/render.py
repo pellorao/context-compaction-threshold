@@ -64,6 +64,7 @@ html[data-lang="en"] [data-l="zh"], html[data-lang="zh"] [data-l="en"] { display
 a { color:var(--blue); }
 code { font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace; font-size:.9em; overflow-wrap:anywhere; }
 .wrap { width:100%; max-width:1040px; margin:0 auto; padding:0 16px 28px; }
+.wrap:has(.landing-hero) { max-width:1200px; }
 .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 0 6px; font-size:15px; }
 .topbar .back { color:var(--muted); text-decoration:none; font-weight:600; }
 .topbar .back:hover { color:var(--ink); }
@@ -76,13 +77,13 @@ code { font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monosp
 .github:hover { color:var(--ink); }
 .github svg { width:24px; height:24px; display:block; }
 header.hero { padding:18px 0 4px; }
-h1 { margin:0 0 12px; font-size:clamp(30px,5.4vw,46px); line-height:1.1; letter-spacing:-.03em; text-wrap:balance; }
+h1 { margin:0 0 20px; font-size:clamp(30px,5.4vw,46px); line-height:1.1; letter-spacing:-.03em; text-wrap:balance; }
 html[data-lang="zh"] h1 { letter-spacing:0; }
 .lede { margin:0; color:var(--muted); font-size:18px; line-height:1.6; }
-section { margin-top:34px; }
-h2 { margin:0 0 8px; font-size:clamp(23px,3.4vw,29px); line-height:1.25; letter-spacing:-.015em; }
+section { margin-top:48px; }
+h2 { margin:0 0 16px; font-size:clamp(23px,3.4vw,29px); line-height:1.25; letter-spacing:-.015em; }
 html[data-lang="zh"] h2 { letter-spacing:0; }
-h3 { margin:26px 0 8px; font-size:18px; }
+h3 { margin:36px 0 24px; font-size:18px; }
 .sub { margin:0 0 14px; color:var(--muted); }
 .card { padding:24px; border:1px solid var(--line); border-radius:20px; background:var(--surface); box-shadow:var(--shadow); }
 .picks { display:grid; gap:18px; }
@@ -96,8 +97,6 @@ h3 { margin:26px 0 8px; font-size:18px; }
 .pick .big + dl { margin-top:10px; }
 .pick .set .sep { display:none; }
 .tip .set code { color:var(--blue); font-weight:700; }
-.model-card .set { font:400 .9em ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace; color:var(--muted); }
-.model-card .set code { font-size:1em; }
 .pick dl { display:grid; grid-template-columns:auto 1fr; gap:2px 12px; margin:0; font-size:14px; color:var(--muted); }
 .pick dt { white-space:nowrap; }
 .pick dd { margin:0; color:var(--ink); text-align:right; font-variant-numeric:tabular-nums; }
@@ -135,8 +134,8 @@ h3 { margin:26px 0 8px; font-size:18px; }
 .bullets { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin:0; padding:0; list-style:none; --n:3; }
 .bullets li { flex:0 1 calc((100% - (var(--n) - 1) * 10px) / var(--n)); padding:12px 16px; border-radius:14px; background:var(--surface-2); }
 .bullets.two { --n:2; }
-details { margin-top:34px; border-top:1px solid var(--line); }
-details > summary { list-style:none; cursor:pointer; padding:18px 0; font-size:clamp(23px,3.4vw,29px); line-height:1.25; font-weight:700; letter-spacing:-.015em; }
+details { margin-top:48px; border-top:1px solid var(--line); }
+details > summary { list-style:none; cursor:pointer; padding:24px 0; font-size:clamp(23px,3.4vw,29px); line-height:1.25; font-weight:700; letter-spacing:-.015em; }
 details > summary::-webkit-details-marker { display:none; }
 details > summary::after { content:"+"; float:right; color:var(--muted); font-weight:400; }
 details[open] > summary::after { content:"\2212"; }
@@ -150,15 +149,17 @@ details > summary:focus-visible { outline:2px solid var(--blue); outline-offset:
 .defs div { flex:0 1 calc((100% - (var(--n) - 1) * 10px) / var(--n)); padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-size:14px; line-height:1.55; }
 .defs code { color:var(--blue); font-weight:700; }
 .defs span.d { display:block; margin-top:2px; color:var(--muted); }
-.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:16px; }
-.model-card { display:flex; flex-direction:column; gap:6px; padding:18px 22px; border:1px solid var(--line); border-radius:20px; background:var(--surface); box-shadow:var(--shadow); color:var(--ink); text-decoration:none; }
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:16px; }
+.model-card { display:flex; flex-direction:column; gap:2px; padding:10px 20px; border:1px solid var(--line); border-radius:20px; background:var(--surface); box-shadow:var(--shadow); color:var(--ink); text-decoration:none; }
 .model-card:hover, .model-card:focus-visible { border-color:var(--blue); }
 .model-card:focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
-.chip { align-self:flex-start; padding:3px 10px; border-radius:999px; background:var(--surface-2); color:var(--muted); font-size:13px; font-weight:600; }
-.model-card h2 { margin:4px 0 0; font-size:22px; }
-.model-card p { margin:0; color:var(--muted); font-size:15px; line-height:1.6; }
-.model-card .stat { margin-top:8px; color:var(--ink); font-weight:650; }
-.model-card .cta { margin-top:auto; padding-top:8px; color:var(--blue); font-weight:700; }
+.chip { align-self:flex-end; padding:3px 10px; border-radius:999px; background:var(--surface-2); color:var(--muted); font-size:13px; font-weight:600; }
+.model-card h2 { margin:0; font-size:22px; }
+.model-card .stat { margin:2px 0 0; color:var(--muted); font-size:15px; line-height:1.6; font-weight:400; }
+.model-card .cta { margin-top:auto; padding-top:2px; color:var(--blue); font-weight:700; }
+.landing-hero h1 { font-size:clamp(30px,4vw,38px); }
+section.landing-section { margin-top:32px; }
+footer.landing-footer { margin-top:16px; }
 footer { margin-top:28px; color:var(--muted); font-size:13px; text-align:center; }
 @media (max-width:900px) { .bullets, .defs { --n:2; } }
 @media (max-width:640px) { .bullets, .bullets.two, .defs { --n:1; } .steps { grid-template-columns:1fr; } }
@@ -166,7 +167,6 @@ footer { margin-top:28px; color:var(--muted); font-size:13px; text-align:center;
   body { font-size:16px; }
   .card { padding:16px; border-radius:16px; }
   .lede { font-size:17px; }
-  section { margin-top:36px; }
 }
 </style>
 </head>
@@ -186,18 +186,18 @@ footer { margin-top:28px; color:var(--muted); font-size:13px; text-align:center;
   </nav>
 """
 
-LANDING_BODY = r"""  <header class="hero">
+LANDING_BODY = r"""  <header class="hero landing-hero">
     <h1>[[landing_h1]]</h1>
     <p class="lede">[[landing_lede]]</p>
   </header>
-  <section>
+  <section class="landing-section">
     <h2>[[landing_pick_h]]</h2>
     <p class="sub">[[landing_pick_p]]</p>
     <div class="cards">
 __CARDS__
     </div>
   </section>
-  <section class="prose">
+  <section class="prose landing-section">
     <h2>[[landing_find_h]]</h2>
     <ul class="bullets">
       <li>[[landing_find_1]]</li>
@@ -205,7 +205,7 @@ __CARDS__
       <li>[[landing_find_3]]</li>
     </ul>
   </section>
-  <footer>[[foot]]</footer>
+  <footer class="landing-footer">[[foot]]</footer>
 </div>
 """
 
@@ -668,6 +668,12 @@ def page_vars(data: dict, profile: Profile, labels: dict[str, str], texts: dict)
             donor=labels[borrowed["donor"]],
             time_scale=f"×{borrowed['scale']:.2f}",
         )
+    if "session_selection" in snap:
+        selection = snap["session_selection"]
+        values.update(
+            session_start_since=selection["started_at_or_after"].replace("+00:00", "Z"),
+            session_start_until=selection["started_at_or_before"].replace("+00:00", "Z"),
+        )
     return values
 
 
@@ -802,20 +808,13 @@ def render_landing(
         per_lang = expanded_texts(pages, profile, data, labels)
         site = site or per_lang
         best = cheapest(data)["threshold"]
-        trigger = profile.trigger
         for lang in LANGS:
             texts = per_lang[lang]
-            stat = expand(texts["card_stat"], {"trigger": kfmt(best)})
-            if trigger:
-                stat += '<br><span class="set">' + texts["pick_set"].replace(
-                    "%window%", str(window_for(best, trigger["buffer"]))
-                ) + "</span>"
-            texts["card_stat"] = stat
+            texts["card_stat"] = expand(texts["card_stat"], {"trigger": kfmt(best)})
         cards.append(
             f'      <a class="model-card" href="{name}.html">'
             f'<span class="chip">{localized("harness_name", per_lang)}</span>'
             f"<h2>{html.escape(profile.label)}</h2>"
-            f'<p>{localized("blurb", per_lang)}</p>'
             f'<p class="stat">{localized("card_stat", per_lang)}</p>'
             f'<span class="cta">{localized("card_cta", per_lang)} →</span></a>'
         )

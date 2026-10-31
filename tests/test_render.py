@@ -51,6 +51,11 @@ def _result(per_million: bool, trigger: bool) -> dict:
     snapshot = {
         "requests": 100, "request_seconds": 3600.0, "included_sessions": 3,
         "included_active_tail": False,
+        "session_selection": {
+            "max_age_days": 14,
+            "started_at_or_after": "2026-10-18T00:00:00+00:00",
+            "started_at_or_before": "2026-11-01T00:00:00+00:00",
+        },
     }
     if per_million:
         snapshot["billed_tokens"] = 1_000_000
@@ -96,6 +101,21 @@ class RenderTest(unittest.TestCase):
         self.assertIsNone(re.search(r"\{[a-z_0-9]+\}|\[\[|\{\?", body))
         self.assertIn(GITHUB_URL, html)
         self.assertEqual(GITHUB_URL, "https://github.com/pellorao/context-compaction-threshold")
+
+    def test_subscription_pages_use_own_recent_log_fit_and_no_deepseek_claims(self) -> None:
+        for name in ("gpt-6.1-sol", "gpt-6.1-terra", "gpt-6-luna"):
+            html = self.model_page(name, True, False)
+            main, details = html.split("<details", 1)
+            self.assertNotIn("872K", main)
+            self.assertIn("872K", details)
+            self.assertIn("828K", html)
+            self.assertIn("2026-10-18T00:00:00Z", details)
+            self.assertIn("14 days", details)
+            self.assertIn("Fitting the real requests", details)
+            self.assertNotIn("DeepSeek", html)
+            self.assertNotIn("trimmed", details)
+            body = html.split("<body", 1)[1].split("<script>", 1)[0]
+            self.assertIsNone(re.search(r"\{[a-z_0-9]+\}|\[\[|\{\?", body))
 
     def test_time_share_is_described_as_model_request_time(self) -> None:
         for name, per_million, trigger in (("claude-opus-5-5", True, True), ("deepseek-flash", True, False)):
@@ -193,7 +213,10 @@ class RenderTest(unittest.TestCase):
         self.assertIn("Why the buffer is 33K", details)
 
     def test_pages_show_no_dollar_amounts(self) -> None:
-        for name, per_million, trigger in (("claude-opus-5-5", True, True), ("deepseek-flash", True, False)):
+        for name, per_million, trigger in (
+            ("claude-opus-5-5", True, True), ("deepseek-flash", True, False),
+            *((name, True, False) for name in ("gpt-6.1-sol", "gpt-6.1-terra", "gpt-6-luna")),
+        ):
             html = self.model_page(name, per_million, trigger)
             self.assertNotIn("per_m", html)
             self.assertNotIn("usd(", html)
@@ -216,11 +239,7 @@ class RenderTest(unittest.TestCase):
         self.assertIn("plain", out)
 
     def test_landing_lists_every_model_and_links_pages(self) -> None:
-        results = {
-            "deepseek-flash": _result(False, False),
-            "claude-opus-5-5": _result(True, True),
-            "claude-sonnet-5-5": _result(True, True),
-        }
+        results = {n: _result(True, load_profile(n).trigger is not None) for n in profile_names()}
         profiles = {n: load_profile(n) for n in results}
         html = render_landing(results, profiles, self.pages, self.labels)
         for name in results:
@@ -232,7 +251,7 @@ class RenderOnlyTest(unittest.TestCase):
     def test_write_site_writes_landing_and_model_pages(self) -> None:
         from generate import write_site
 
-        results = {n: _result(n != "deepseek-flash", n != "deepseek-flash") for n in profile_names()}
+        results = {n: _result(True, load_profile(n).trigger is not None) for n in profile_names()}
         profiles = {n: load_profile(n) for n in results}
         with tempfile.TemporaryDirectory() as directory:
             site = Path(directory)

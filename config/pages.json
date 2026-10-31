@@ -190,14 +190,11 @@
         "x_axis": "Compaction trigger (tokens)",
         "tip_set": "",
         "workload_step": "Request by request, from real {model} sessions in Codex: the context size, the cached share and the output of each one.",
-        "calibration_step": "{n_logged} compactions were read from the session logs and {n_hand} were timed by hand. Each has the input size, the cached prefix, the summary written and the seconds taken. A logged compaction runs from the end of the request before it to the compaction record, so it can include a little client-side time. Some hand-timed runs trim a real session's context to a smaller size first. In this data the summary does not grow with the input, so the model uses its average size.",
         "exclude_note": "Smoke tests, test sessions and the sessions used to time compaction are left out. Where Codex compacted a session for real, the compaction request is dropped and the stretches before and after are joined into one uncompacted stream, so the replay decides where compactions happen.",
         "formula": "Cost of one request\nQ(x, c, y) = p_m · [(1-c) + αc] · x + p_o · y\n\nCost ratios\nα = p_c / p_m\nρ = p_o / p_m\nB = (1-β) + αβ\n\nTotal cost\nJ(T) = Σ Q(ordinary requests)\n     + Σ Q(compaction input and summary output)\n\nTime of one compaction\nt_c = a · (C - K) + G / v\n\nRequest time at trigger T\nU(T) = Σ [τ + s · (x_T - x_obs)]\n\nTime share\nN_c(T) · t_c(T) / [U(T) + N_c(T) · t_c(T)]\n\nSteady-state approximation\nT* ≈ R + √( 2Δ · (BR + ρG) / α )",
         "def_ck": "<code>C</code> is the compaction input in tokens. <code>K</code> is the part of it that comes from the cache.",
         "def_a": "Seconds per uncached input token, fitted on the measured compactions.",
         "def_omega": "",
-        "caveat_calibration": "<strong>Compaction timing is noisy and clustered.</strong> The {n_compactions} timed compactions mostly sit near one context size, and summary length varies a lot between them. Compaction time at other sizes is extrapolated. The shaded bands show that spread; they are not statistical confidence intervals.",
-        "caveat_extra": "<strong>Part of the data is trimmed.</strong> Some hand-timed compactions come from real contexts that were cut down to a smaller size, so they are not exactly what a natural compaction at that size would look like.",
         "js": {
           "legend_total": "Total model time vs {max_trigger}",
           "tip_total": "Total model time vs {max_trigger}",
@@ -208,7 +205,12 @@
         "speed_p": "Compaction time is mostly the model writing its summary. If your server is faster or slower than the measured {output_speed} tokens per second, move the slider. It changes the orange and purple lines and their shaded ranges in the bottom chart and the pick cards above. The cost chart stays the same.",
         "chart_p": "Everything is measured against the largest trigger, {max_trigger}, which sits at 0%. The top chart is cost. The bottom chart is time: orange is the share of model request time spent compacting, and purple is how much longer or shorter the model runs in total, ordinary requests and compactions together, compared with the {max_trigger} trigger. Both use one axis that stops at 20%, so a curve that climbs higher runs off the top. Hover or tap either chart to read any trigger. The shaded bands show the likely range.",
         "picks_p": "The first row shows the cheapest trigger overall and the one with the shortest total model time. The second row shows the cheapest trigger for each waiting budget. The cards change when you move the speed slider under the chart. The chart only counts cost and waiting time, not what a smaller context does to the work itself. Day-to-day development usually needs 150K to 300K of context to go smoothly, so don't set the threshold too low; treat the \"Cheapest overall\" card as a reference only.",
-        "reqtime_p": "An ordinary request takes longer the more context it carries. The session logs mix cold and warm requests, so the slope here comes from a controlled measurement: 384 requests through Codex on DeepSeek Flash (high effort) at context sizes from 16K to 900K, nearly all served from the cache. Every extra 100K tokens of context adds about {slope_100k} s to a request, likely between {slope_lo_100k} s and {slope_hi_100k} s, on a mean request of {mean_request} s. The replay applies this to every request: one that now runs at a larger context than it really had takes longer, one at a smaller context takes less. The range runs from the typical request to the 90th percentile, since long contexts are more often slow. All runs were at night, so the daytime peak is not covered."
+        "calibration_step": "{n_compactions} compactions from these sessions calibrate the model. Each has its own input, cached prefix, summary output and observed duration. Timing starts at the later of the preceding request and the current turn start, and ends at the compaction record; it may include a little client-side time. Summary size uses the measured mean.",
+        "caveat_calibration": "<strong>Compaction behaviour is extrapolated.</strong> The shaded bands reflect the observed spread in summary size and cached prefix, not a confidence interval. At context sizes outside the measurements, the fitted relationships are extrapolated.",
+        "caveat_extra": "<strong>These sessions reflect one setup.</strong> Request times include model reasoning and retries. Different reasoning efforts and service modes can change waiting times.",
+        "buffer_h": "Trigger range and data window",
+        "buffer_p": "The chart uses 64K to {max_trigger} in 2K steps. Its upper bound is the agreed Codex window of 872K multiplied by 95%, then rounded down to a 2K grid point. Only sessions started between {session_start_since} and {session_start_until} (UTC) supply ordinary requests, compaction calibration and post-compaction measurements. This is a rolling 14 days, selected by session start rather than recent activity. Fixed API token weights are used without a long-context surcharge, following the agreed subscription convention; the chart does not estimate subscription allowance consumption.",
+        "data_volume": "{sessions} independent work sessions{active_tail_note}, {requests} deduplicated ordinary requests and about {request_hours} hours of model requests. {n_compactions} timed compactions calibrate the model. {exclude_note}"
       },
       "zh": {
         "harness_name": "Codex",
@@ -217,14 +219,11 @@
         "x_axis": "压缩触发点（token）",
         "tip_set": "",
         "workload_step": "逐个请求分析 Codex 里真实的 {model} 会话：每个请求的上下文大小、缓存命中比例和输出量。",
-        "calibration_step": "{n_logged} 次压缩读自会话日志，{n_hand} 次是手工计时。每次都有输入大小、缓存前缀、写出的摘要和花掉的秒数。日志里的压缩从它前一个请求结束算起，到压缩记录为止，所以可能含一小段客户端时间。部分手工计时的运行先把真实会话的上下文裁剪到较小的规模。这批数据里摘要大小不随输入增长，所以模型用它的平均值。",
         "exclude_note": "冒烟测试、测试会话和用来测压缩耗时的会话都没有计入。会话里 Codex 真实压缩过的地方，压缩请求本身被去掉，前后两段接成一条没有压缩的请求流，由重放来决定在哪里压缩。",
         "formula": "单次请求费用\nQ(x, c, y) = p_m · [(1-c) + αc] · x + p_o · y\n\n成本比例\nα = p_c / p_m\nρ = p_o / p_m\nB = (1-β) + αβ\n\n总费用\nJ(T) = Σ Q(普通请求)\n     + Σ Q(压缩输入与摘要输出)\n\n单次压缩耗时\nt_c = a · (C - K) + G / v\n\n触发点 T 下的请求时间\nU(T) = Σ [τ + s · (x_T - x_obs)]\n\n时间占比\nN_c(T) · t_c(T) / [U(T) + N_c(T) · t_c(T)]\n\n稳态近似\nT* ≈ R + √( 2Δ · (BR + ρG) / α )",
         "def_ck": "<code>C</code> 是压缩输入的 token 数，<code>K</code> 是其中来自缓存的部分。",
         "def_a": "每个未缓存输入 token 的处理时间，单位是秒，由实测压缩拟合。",
         "def_omega": "",
-        "caveat_calibration": "<strong>压缩耗时有噪声，而且集中在一处。</strong>{n_compactions} 次计时的压缩大多落在同一个上下文规模附近，摘要长度差别很大；其他规模上的压缩耗时是外推的。浅色区域表示这种波动，不是统计置信区间。",
-        "caveat_extra": "<strong>一部分数据是裁剪出来的。</strong>有些手工计时的压缩来自被裁剪到较小规模的真实上下文，和该规模下自然发生的压缩并不完全一样。",
         "js": {
           "legend_total": "模型总耗时变化（相对 {max_trigger}）",
           "tip_total": "模型总耗时，相对 {max_trigger}",
@@ -235,7 +234,12 @@
         "speed_p": "压缩耗时主要花在模型写摘要上。如果你的服务比实测的每秒 {output_speed} 个 token 更快或更慢，就拖动滑块。滑块会改变下面那张时间图里的橙线、紫线和它们周围的浅色区域，以及上面的卡片。费用图不会变。",
         "chart_p": "所有数值都和最大触发点 {max_trigger} 相比，那里就是 0%。上面一张图是费用，下面一张图是时间：橙线是压缩占模型请求时间的比例，紫线是模型总耗时（普通请求加压缩）比 {max_trigger} 触发点多或少了多少。两条线共用一根最高到 20% 的轴，更高的部分会冲出图的上沿。把鼠标移到任意一张图上或点一下，就能读出对应触发点的数值。浅色带是可能的范围。",
         "picks_p": "第一行是整体最省钱和模型总耗时最短的触发点，第二行是各个等待时间预算下最省钱的触发点。拖动图表下方的速度滑块，卡片会跟着变。图里只算了费用和等待时间，没算上下文变小对工作本身的影响。一般来说，日常开发需要 150K 到 300K 的上下文才能顺畅工作，所以不建议把阈值设得太小，“整体最省钱”那张卡片仅供参考。",
-        "reqtime_p": "普通请求带的上下文越多，耗时越长。会话日志里冷启动和命中缓存的请求混在一起，所以这里的斜率来自一次受控测量：通过 Codex 对 DeepSeek Flash（高推理强度）发出 384 个请求，上下文从 16K 到 900K，几乎都命中缓存。上下文每多 100K token，一次请求大约多 {slope_100k} 秒，可能在 {slope_lo_100k} 到 {slope_hi_100k} 秒之间，而一次请求平均 {mean_request} 秒。重放时每个请求都按这个关系调整：现在跑在比真实更大的上下文上，就更慢；跑在更小的上下文上，就更快。压缩占比的分母就是请求时间加压缩时间。范围从典型请求到 90% 分位，因为长上下文更常变慢。所有测量都在夜间进行，没有覆盖白天高峰。"
+        "calibration_step": "用这些会话中的 {n_compactions} 次压缩校准模型。每次都有压缩请求自己的输入、缓存前缀、摘要输出和实测耗时。计时取前一个请求结束和当前回合开始中较晚者为起点，到压缩记录为止，可能包含少量客户端时间。摘要大小取实测均值。",
+        "caveat_calibration": "<strong>压缩行为存在外推。</strong>浅色带表示实测摘要大小和缓存前缀的波动，不是置信区间。超出实测上下文范围时，使用拟合关系外推。",
+        "caveat_extra": "<strong>这些会话反映特定的使用情况。</strong>请求耗时包含模型思考和重试。推理强度、服务模式不同，等待时间也可能不同。",
+        "buffer_h": "触发点范围与数据时间范围",
+        "buffer_p": "图表从 64K 到 {max_trigger}，步长为 2K。上限按约定的 Codex 窗口 872K 乘以 95%，再向下取到 2K 网格点。普通请求、压缩校准和压缩后上下文测量，都只来自协调世界时 {session_start_since} 到 {session_start_until} 之间开始的会话。这是按会话开始时间筛选的最近 14 天，不按最近活动时间筛选。费用模型使用固定的接口 token 权重，按约定的订阅口径不加长上下文附加费；图表不估算订阅额度消耗。",
+        "data_volume": "{sessions} 个独立工作会话{active_tail_note}，共 {requests} 个去重普通请求，约 {request_hours} 小时的模型请求。{n_compactions} 次有计时压缩用来校准模型。{exclude_note}"
       }
     },
     "claude-code": {
@@ -306,30 +310,30 @@
   "profiles": {
     "deepseek-flash": {
       "en": {
-        "blurb": "Codex sessions on DeepSeek Flash.",
-        "data_volume": "{sessions} independent work sessions{active_tail_note}, {requests} deduplicated requests and about {request_hours} hours of model requests. {n_compactions} measured compactions calibrate the model. {exclude_note}"
+        "data_volume": "{sessions} independent work sessions{active_tail_note}, {requests} deduplicated requests and about {request_hours} hours of model requests. {n_compactions} measured compactions calibrate the model. {exclude_note}",
+        "reqtime_p": "An ordinary request takes longer the more context it carries. The session logs mix cold and warm requests, so the slope here comes from a controlled measurement: 384 requests through Codex on DeepSeek Flash (high effort) at context sizes from 16K to 900K, nearly all served from the cache. Every extra 100K tokens of context adds about {slope_100k} s to a request, likely between {slope_lo_100k} s and {slope_hi_100k} s, on a mean request of {mean_request} s. The replay applies this to every request: one that now runs at a larger context than it really had takes longer, one at a smaller context takes less. The range runs from the typical request to the 90th percentile, since long contexts are more often slow. All runs were at night, so the daytime peak is not covered.",
+        "calibration_step": "{n_logged} compactions were read from the session logs and {n_hand} were timed by hand. Each has the input size, the cached prefix, the summary written and the seconds taken. A logged compaction runs from the end of the request before it to the compaction record, so it can include a little client-side time. Some hand-timed runs trim a real session's context to a smaller size first. In this data the summary does not grow with the input, so the model uses its average size.",
+        "caveat_extra": "<strong>Part of the data is trimmed.</strong> Some hand-timed compactions come from real contexts that were cut down to a smaller size, so they are not exactly what a natural compaction at that size would look like.",
+        "caveat_calibration": "<strong>Compaction timing is noisy and clustered.</strong> The {n_compactions} timed compactions mostly sit near one context size, and summary length varies a lot between them. Compaction time at other sizes is extrapolated. The shaded bands show that spread; they are not statistical confidence intervals.",
+        "buffer_h": "",
+        "buffer_p": ""
       },
       "zh": {
-        "blurb": "Codex 里 DeepSeek Flash 的会话。",
-        "data_volume": "{sessions} 个独立工作会话{active_tail_note}，共 {requests} 个去重请求，约 {request_hours} 小时的模型请求。{n_compactions} 次实测压缩用来校准模型。{exclude_note}"
-      }
-    },
-    "claude-opus-5-5": {
-      "en": {
-        "blurb": "Claude Code sessions on Opus 5.5, main conversations and subagents."
-      },
-      "zh": {
-        "blurb": "Claude Code 里 Opus 5.5 的会话，含主对话和子代理。"
+        "data_volume": "{sessions} 个独立工作会话{active_tail_note}，共 {requests} 个去重请求，约 {request_hours} 小时的模型请求。{n_compactions} 次实测压缩用来校准模型。{exclude_note}",
+        "reqtime_p": "普通请求带的上下文越多，耗时越长。会话日志里冷启动和命中缓存的请求混在一起，所以这里的斜率来自一次受控测量：通过 Codex 对 DeepSeek Flash（高推理强度）发出 384 个请求，上下文从 16K 到 900K，几乎都命中缓存。上下文每多 100K token，一次请求大约多 {slope_100k} 秒，可能在 {slope_lo_100k} 到 {slope_hi_100k} 秒之间，而一次请求平均 {mean_request} 秒。重放时每个请求都按这个关系调整：现在跑在比真实更大的上下文上，就更慢；跑在更小的上下文上，就更快。压缩占比的分母就是请求时间加压缩时间。范围从典型请求到 90% 分位，因为长上下文更常变慢。所有测量都在夜间进行，没有覆盖白天高峰。",
+        "calibration_step": "{n_logged} 次压缩读自会话日志，{n_hand} 次是手工计时。每次都有输入大小、缓存前缀、写出的摘要和花掉的秒数。日志里的压缩从它前一个请求结束算起，到压缩记录为止，所以可能含一小段客户端时间。部分手工计时的运行先把真实会话的上下文裁剪到较小的规模。这批数据里摘要大小不随输入增长，所以模型用它的平均值。",
+        "caveat_extra": "<strong>一部分数据是裁剪出来的。</strong>有些手工计时的压缩来自被裁剪到较小规模的真实上下文，和该规模下自然发生的压缩并不完全一样。",
+        "caveat_calibration": "<strong>压缩耗时有噪声，而且集中在一处。</strong>{n_compactions} 次计时的压缩大多落在同一个上下文规模附近，摘要长度差别很大；其他规模上的压缩耗时是外推的。浅色区域表示这种波动，不是统计置信区间。",
+        "buffer_h": "",
+        "buffer_p": ""
       }
     },
     "claude-sonnet-5-5": {
       "en": {
-        "blurb": "Claude Code sessions on Sonnet 5.5, timing borrowed from Opus.",
         "caveat_calibration": "<strong>Sonnet's compaction timing is borrowed.</strong> Sonnet has too few compactions of its own to show how compaction time grows with context, so the model uses {donor}'s, rescaled to Sonnet's level. Above {observed_median} it is extrapolation.",
         "calibration_step": "Only {own_compactions} real compactions were recorded for {model}, all near {observed_median}, which is too little to learn how compaction time grows with context. So the time and summary-size model is fitted on those {own_compactions} plus {borrowed_compactions} from {donor}, and the borrowed durations are multiplied by {time_scale} so the overall level matches {model}'s own. Summary size is estimated from the summary text. The compaction request itself is not in the transcripts, so its cache split and summary size are inferred."
       },
       "zh": {
-        "blurb": "Claude Code 里 Sonnet 5.5 的会话，耗时借用自 Opus。",
         "caveat_calibration": "<strong>Sonnet 的压缩耗时是借来的。</strong>Sonnet 自己的压缩太少，看不出压缩耗时如何随上下文增长，所以模型借用了 {donor} 的数据，并换算到 Sonnet 的水平。超过 {observed_median} 的部分是外推。",
         "calibration_step": "{model} 只记录到 {own_compactions} 次真实压缩，都在 {observed_median} 附近，不足以学出压缩耗时如何随上下文增长。所以时间和摘要大小模型，用这 {own_compactions} 次加上 {donor} 的 {borrowed_compactions} 次来拟合，借来的耗时再乘以 {time_scale}，让整体水平和 {model} 自己的实测一致。摘要大小由摘要文本估算。压缩请求本身不在转录里，它的缓存拆分和摘要大小是推断的。"
       }

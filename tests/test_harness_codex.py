@@ -47,6 +47,81 @@ def _request(
 
 
 class CodexCompactionTest(unittest.TestCase):
+    def test_compaction_at_new_turn_does_not_include_user_wait(self) -> None:
+        lines = [
+            {"type": "session_meta", "payload": {"model_provider": "deepseek", "cwd": "/work"}},
+            _event("response_item", "function_call_output", 0),
+            _request(1, 100_000, 90_000, 500, 4),
+            _event("event_msg", "token_count", 4),
+            _event("event_msg", "task_started", 100_000),
+            _request(2, 150_000, 5000, 2000, 100_020),
+            _event("event_msg", "token_count", 100_020),
+            _event("compacted", None, 100_020.2, compaction_response_id="c1"),
+            _request(3, 20_000, 5000, 400, 100_025),
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "session.jsonl").write_text(
+                "\n".join(json.dumps(r) for r in lines) + "\n"
+            )
+            collected = collect(load_profile("deepseek-flash"), Path(directory))
+        self.assertAlmostEqual(collected.compactions[0].seconds, 20.2)
+        self.assertEqual(sum(len(s.requests) for s in collected.sessions), 2)
+
+    def test_recent_sessions_filter_before_dedup_and_measure_post_compaction(self) -> None:
+        profile = load_profile("gpt-6.1-sol")
+        day = 86400
+        cutoff, end = 14 * day, 28 * day
+
+        def session(start: int | None, compact: bool = True) -> list[dict]:
+            meta = {"id": "work", "cwd": "/work"}
+            if start is not None:
+                meta["timestamp"] = _at(start)
+            lines = [
+                {"type": "session_meta", "payload": meta},
+                {"type": "turn_context", "payload": {"model": profile.model}},
+                _event("response_item", "function_call_output", end - 100),
+                _request(1 if compact else 1000, 100_000, 90_000, 500, end - 98),
+                _event("event_msg", "token_count", end - 98),
+            ]
+            if compact:
+                lines.extend([
+                    _request(2, 150_000, 20_000, 2000, end - 78),
+                    _event("event_msg", "token_count", end - 78),
+                    _event("compacted", None, end - 77.8, compaction_response_id="c1"),
+                    _request(3, 35_000, 10_000, 400, end - 72),
+                    _event("response_item", "function_call_output", end - 70),
+                    _request(4, 40_000, 35_000, 300, end - 68),
+                ])
+            return lines
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, started, compact in (
+                ("a-old", cutoff - 1, True),
+                ("b-boundary", cutoff, True),
+                ("c-no-compaction", end, False),
+                ("d-future", end + 1, True),
+                ("e-unknown", None, True),
+            ):
+                (root / f"{name}.jsonl").write_text(
+                    "\n".join(json.dumps(r) for r in session(started, compact)) + "\n"
+                )
+            collected = collect(
+                profile, root, snapshot_at=datetime.fromisoformat(_at(end))
+            )
+        self.assertEqual(len(collected.sessions), 2)
+        self.assertEqual(sum(len(s.requests) for s in collected.sessions), 4)
+        self.assertEqual(len(collected.compactions), 1)
+        self.assertEqual(collected.compactions[0].input_tokens, 150_000)
+        self.assertEqual(collected.profile.post_context, 35_000)
+        self.assertEqual(collected.profile.post_cold_uncached, 25_000)
+        self.assertEqual(collected.stats["requests_without_duration"], 0)
+        self.assertEqual(collected.stats["session_selection"]["max_age_days"], 14)
+        self.assertEqual(collected.excluded, {
+            "session-start-outside-window": 2, "session-start-unknown": 1,
+        })
+        self.assertEqual(sum(collected.billing_mix.values()), 276_700)
+
     def test_real_compactions_are_chained_not_replayed_as_negative_context(self) -> None:
         profile = load_profile("deepseek-flash")
         usage = [

@@ -6,9 +6,9 @@ An empirical calculator for the trade-off between token cost and
 context-compaction time. It replays real agent sessions, fits a cost and
 latency model from measured compactions, expands the observed workload with a
 block bootstrap, and publishes a static site: a landing page where you pick a
-model, and one chart page per model (DeepSeek Flash on Codex, Claude Opus 5.5
-and Claude Sonnet 5.5 on Claude Code). Pages are in English and Simplified
-Chinese.
+model, and one chart page per model (DeepSeek Flash, GPT-6.1 Sol, GPT-6.1
+Terra and GPT-6 Luna on Codex, plus Claude Opus 5.5 and Claude Sonnet 5.5 on
+Claude Code). Pages are in English and Simplified Chinese.
 
 [View the live report](https://context-compaction-threshold.pages.dev/)
 
@@ -35,6 +35,13 @@ python3 -m unittest discover -s tests -p 'test_*.py'            # tests
 `--harness codex|claude-code` overrides the profile's harness. If the sandbox
 forbids multiprocessing sockets, add `--workers 1`. See `--help` for the rest.
 
+The three GPT Codex profiles use only sessions started in the previous 14 days.
+Ordinary requests and compaction calibration use the same selected sessions.
+Use `--snapshot-at 2026-10-31T21:11:07Z` to anchor that window for a reproducible
+run against a frozen session snapshot; otherwise it is anchored at run time.
+Their cost curves use fixed API token weights without a long-context surcharge,
+following the subscription convention agreed for this project.
+
 ## Configuration
 
 - `config/models.json`: model profiles (model facts: prices, context window,
@@ -60,15 +67,22 @@ data/<harness>/<profile>/result.json        Analysis result (the only input of t
 page per model). A profile has one default harness, so `<profile>.html` is
 unambiguous.
 
+Edit page text in `config/pages.json` and layout in `src/render.py`, then
+regenerate; do not edit generated HTML. The landing page keeps compact cards
+with the harness at the top right and a muted, regular-weight cheapest-trigger
+line. Card descriptions and Claude window-setting rows are omitted. Both
+languages must fit below 900px of content height at a 1920px viewport width.
+
 Cloudflare Pages builds the site on every push to `main` with
 `python3 src/generate.py --render-only` and publishes `artifacts/`. The build
 needs only Python 3 and the committed `result.json` files: no sessions, network
-or packages. Python 3.8 or newer is enough.
+or packages. Python 3.8 or newer is enough. Local Wrangler is not required;
+use the Cloudflare API for Pages configuration changes.
 
 `compactions.json` holds one row per measured compaction: `name`, `source`,
 `input_tokens`, `cached_tokens`, `output_tokens` and `seconds`, numbers only. For
-Codex the file keeps 9 hand-timed samples and every analysis run adds the
-compactions read from the logs (`log-auto`). For Claude Code every analysis run
+Codex every analysis run refreshes the compactions read from the logs
+(`log-auto`); DeepSeek also keeps its 9 hand-timed samples. For Claude Code every analysis run
 rewrites them from the transcripts (`transcript-auto` or `transcript-manual`),
 and the fit reads them back. Claude Sonnet 5.5 has too few compactions of its
 own and borrows the Opus ones when it is fitted; the borrowed rows are not
@@ -92,7 +106,7 @@ artifacts/    Generated pages only (git-ignored, built at deploy time)
 
 ## Privacy
 
-Raw session logs (`~/.codex/sessions`, `~/.claude/projects`) are read but never
-copied. Committed and generated files hold aggregate counts, fitted coefficients, curves and
+Raw session logs (`~/.codex/sessions`, `~/.claude/projects`) are private; frozen
+local snapshots stay under the git-ignored `.tmp/`. Committed and generated files hold aggregate counts, fitted coefficients, curves and
 sanitized compaction samples: no session IDs, paths, prompts or message
 content. Review generated files before publishing results from another machine.

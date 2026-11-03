@@ -18,11 +18,11 @@ Context Compaction Threshold: an empirical calculator that replays real agent se
 
 ## Fixed analysis rules
 
-- Threshold step is 2K for every profile, and every grid point is a multiple of 2000 (so hovering shows round values); a test checks it. `autoCompactWindow` is always shown as whole thousands (trigger + buffer rounded to the nearest 1K). The axis maximum is the largest effective trigger (largest settable window minus the measured buffer) from an authoritative source. If it cannot be verified, ask the user; never choose a value.
-- The upper chart's axis shows percent change of cost relative to the central curve at the largest threshold, spanning only the cost line and its band with five equal round steps and 0 inside, so differences between triggers stay visible. Pages never show US dollars (no secondary line, price caption or dollar text, in either language); absolute cost per 1M billed tokens with the historical billing mix lives only in `result.json` and the docs. Counts are normalized the same way (per 1M billed tokens) and time is a share of model request time (below); a number that scales with the amount of history is never shown as a result, only as a description of the data (sessions, requests, hours).
+- Threshold step is 2K for every profile, and every grid point is a multiple of 2000 (so hovering shows round values); a test checks it. `autoCompactWindow` is always shown as whole thousands (trigger + buffer rounded to the nearest 1K). Every profile's grid starts above its post-compaction context (a trigger at or below it compacts on every request); the analysis refuses a grid that does not, and the page says so. The axis maximum is the largest effective trigger (largest settable window minus the measured buffer) from an authoritative source. If it cannot be verified, ask the user; never choose a value.
+- The upper chart's axis shows percent change of cost relative to the central curve at the largest threshold, spanning only the cost line and its band with at most five equal round steps, both ends on ticks and 0 inside, so differences between triggers stay visible. Pages never show US dollars (no secondary line, price caption or dollar text, in either language); absolute cost per 1M billed tokens with the historical billing mix lives only in `result.json` and the docs. Counts are normalized the same way (per 1M billed tokens) and time is a share of model request time (below); a number that scales with the amount of history is never shown as a result, only as a description of the data (sessions, requests, hours).
 - Prices and context windows come from official sources, never from memory. An unknown fact becomes a question, not a guess.
 - Moving or refactoring must not change numbers: compare hashes of `result.json` and the rendered pages before and after.
-- Do not run an analysis in a way that overwrites committed `data/` files unintentionally; send results elsewhere with `--output-dir`. A run rewrites the logged rows (`log-`, `transcript-`, `borrowed-` sources) of its `compactions.json` from the current logs and keeps hand-timed rows, so Codex hand rows stay as measured; a log row with the same input, cached and output tokens as a hand row is dropped.
+- Do not run an analysis in a way that overwrites committed `data/` files unintentionally; send results elsewhere with `--output-dir`. A run rewrites the logged rows (`log-`, `transcript-` sources) of its `compactions.json` from the current logs (with `--output-dir` it writes that file into the output directory, not into `data/`; `borrowed-` rows are built in memory from the donor and never stored) and keeps hand-timed rows, so Codex hand rows stay as measured; a log row with the same input, cached and output tokens as a hand row is dropped.
 
 ## Time share and model time
 
@@ -32,7 +32,7 @@ Context Compaction Threshold: an empirical calculator that replays real agent se
 
 ## Page text
 
-Page text lives only in `config/pages.json`, in English and Simplified Chinese, in plain human tone. Chinese text has no English sentences mixed in. Do not hard-code text in `src/render.py`. The page body says only what the reader needs to act; evidence and justification (sources, reasons, fit details) go in the collapsed details section or in `docs/methodology*.md`.
+Page text lives only in `config/pages.json`, in English and Simplified Chinese, in plain human tone. Chinese text has no English sentences mixed in. Do not hard-code text in `src/render.py` (the two language names on the switch are the only exception). The page body says only what the reader needs to act; evidence and justification (sources, reasons, fit details) go in the collapsed details section or in `docs/methodology*.md`.
 
 ## Adding a profile or harness
 

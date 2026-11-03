@@ -24,7 +24,7 @@ class ProfileTest(unittest.TestCase):
                 self.assertEqual(profile.session_max_age_days, 14)
                 self.assertEqual(profile.context_window, 872_000)
                 self.assertEqual(profile.max_threshold, int(872_000 * 0.95) // 2000 * 2000)
-                self.assertEqual(profile.min_threshold, 64_000)
+                self.assertEqual(profile.min_threshold, 70_000 if name == "gpt-6.1-terra" else 64_000)
                 self.assertAlmostEqual(profile.alpha, alpha)
                 self.assertEqual(profile.output_over_miss, 5)
                 self.assertIsNone(profile.post_context)

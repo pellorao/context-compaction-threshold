@@ -209,7 +209,7 @@
         "caveat_calibration": "<strong>Compaction behaviour is extrapolated.</strong> The shaded bands reflect the observed spread in summary size and cached prefix, not a confidence interval. At context sizes outside the measurements, the fitted relationships are extrapolated.",
         "caveat_extra": "<strong>These sessions reflect one setup.</strong> Request times include model reasoning and retries. Different reasoning efforts and service modes can change waiting times.",
         "buffer_h": "Trigger range and data window",
-        "buffer_p": "The chart uses 64K to {max_trigger} in 2K steps. Its upper bound is the agreed Codex window of 872K multiplied by 95%, then rounded down to a 2K grid point. Only sessions started between {session_start_since} and {session_start_until} (UTC) supply ordinary requests, compaction calibration and post-compaction measurements. This is a rolling 14 days, selected by session start rather than recent activity. Fixed API token weights are used without a long-context surcharge, following the agreed subscription convention; the chart does not estimate subscription allowance consumption.",
+        "buffer_p": "The chart uses {min_trigger} to {max_trigger} in 2K steps. Its upper bound is the agreed Codex window of 872K multiplied by 95%, then rounded down to a 2K grid point. It starts above the context left after a compaction, because a trigger at or below that size would compact on every request. Only sessions started between {session_start_since} and {session_start_until} (UTC) supply ordinary requests, compaction calibration and post-compaction measurements. This is a rolling 14 days, selected by session start rather than recent activity. Fixed API token weights are used without a long-context surcharge, following the agreed subscription convention; the chart does not estimate subscription allowance consumption.",
         "data_volume": "{sessions} independent work sessions{active_tail_note}, {requests} deduplicated ordinary requests and about {request_hours} hours of model requests. {n_compactions} timed compactions calibrate the model. {exclude_note}"
       },
       "zh": {
@@ -238,7 +238,7 @@
         "caveat_calibration": "<strong>压缩行为存在外推。</strong>浅色带表示实测摘要大小和缓存前缀的波动，不是置信区间。超出实测上下文范围时，使用拟合关系外推。",
         "caveat_extra": "<strong>这些会话反映特定的使用情况。</strong>请求耗时包含模型思考和重试。推理强度、服务模式不同，等待时间也可能不同。",
         "buffer_h": "触发点范围与数据时间范围",
-        "buffer_p": "图表从 64K 到 {max_trigger}，步长为 2K。上限按约定的 Codex 窗口 872K 乘以 95%，再向下取到 2K 网格点。普通请求、压缩校准和压缩后上下文测量，都只来自协调世界时 {session_start_since} 到 {session_start_until} 之间开始的会话。这是按会话开始时间筛选的最近 14 天，不按最近活动时间筛选。费用模型使用固定的接口 token 权重，按约定的订阅口径不加长上下文附加费；图表不估算订阅额度消耗。",
+        "buffer_p": "图表从 {min_trigger} 到 {max_trigger}，步长为 2K。上限按约定的 Codex 窗口 872K 乘以 95%，再向下取到 2K 网格点。下限高于压缩后剩下的上下文，因为触发点不高于它时，每个请求都会压缩。普通请求、压缩校准和压缩后上下文测量，都只来自协调世界时 {session_start_since} 到 {session_start_until} 之间开始的会话。这是按会话开始时间筛选的最近 14 天，不按最近活动时间筛选。费用模型使用固定的接口 token 权重，按约定的订阅口径不加长上下文附加费；图表不估算订阅额度消耗。",
         "data_volume": "{sessions} 个独立工作会话{active_tail_note}，共 {requests} 个去重普通请求，约 {request_hours} 小时的模型请求。{n_compactions} 次有计时压缩用来校准模型。{exclude_note}"
       }
     },

@@ -207,7 +207,7 @@
       },
       "context_window": 872000,
       "threshold": {
-        "min": 64000,
+        "min": 70000,
         "max": 828000,
         "step": 2000
       },

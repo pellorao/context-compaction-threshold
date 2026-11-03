@@ -364,14 +364,15 @@ function totalSpread(i,speed){
   for(const rows of [LO,C,HI])for(const q of [5,6,7])s.push((C[i][q]+compSec(rows[i],speed))/(C[N-1][q]+compSec(rows[N-1],speed))-1);
   return [Math.min(...s),Math.max(...s)];
 }
-// Round ticks: at most 6 at a step of 1, 2, 2.5 or 5 times a power of ten.
-function ticksIn(min,max){
+// Round ticks: at most 6 (five steps) at a step of 1, 2, 2.5 or 5 times a power of ten.
+// The axis ends on ticks: the bottom is rounded down and, unless the top is fixed, the top up.
+function ticksIn(min,max,extendTop=true){
   for(let p=-3;p<=6;p++)for(const f of [1,2,2.5,5]){
-    const step=f*10**p,first=Math.ceil(min/step-1e-9),last=Math.floor(max/step+1e-9);
+    const step=f*10**p,first=Math.floor(min/step+1e-9),last=extendTop?Math.ceil(max/step-1e-9):Math.floor(max/step+1e-9);
     if(last-first+1<=6){
       let dec=0;
       while(dec<5&&Math.abs(step*10**dec-Math.round(step*10**dec))>1e-9)dec++;
-      return {min,max,ticks:Array.from({length:last-first+1},(_,i)=>(first+i)*step),dec};
+      return {min:first*step,max:extendTop?last*step:max,ticks:Array.from({length:last-first+1},(_,i)=>(first+i)*step),dec};
     }
   }
 }
@@ -439,7 +440,7 @@ function draw(){
   const cb=[],tb=[];
   for(let i=0;i<N;i++){cb.push([relCost(LO[i][1]),relCost(HI[i][1])]);tb.push(hasTotal?totalSpread(i,speed).map(v=>v*100):null);}
   const ax=axisFit(Math.min(...cb.flat()),Math.max(...cb.flat())),cMin=ax.min,cMax=ax.max;
-  const lowest=hasTotal?Math.min(0,...tb.map(b=>b[0]/100)):0,tMin=lowest-timeMargin,tAx=ticksIn(tMin,timeMax);
+  const lowest=hasTotal?Math.min(0,...tb.map(b=>b[0]/100)):0,tAx=ticksIn(lowest-timeMargin,timeMax,false),tMin=tAx.min;
   const tpct=v=>(v*100).toFixed(tAx.dec>2?tAx.dec-2:0)+'%';
   // One chart: its svg, height, bottom margin and horizontal gridline ticks; returns the drawing helpers.
   function build(svg,H,MB,ticks,label,fmtTick,y){
@@ -630,6 +631,7 @@ def page_vars(data: dict, profile: Profile, labels: dict[str, str], texts: dict)
         "output_speed": f"{fit['output_speed_tokens_per_second']:.0f}",
         "replicates": str(fit["bootstrap_replicates"]),
         "block": str(fit["bootstrap_block_requests"]),
+        "min_trigger": kfmt(profile.min_threshold),
         "max_trigger": kfmt(profile.max_threshold),
         "slope_100k": f"{fit['request_seconds_per_context_token'] * 1e5:.2f}",
         "slope_lo_100k": f"{fit['request_seconds_per_context_token_low'] * 1e5:.2f}",
@@ -651,12 +653,16 @@ def page_vars(data: dict, profile: Profile, labels: dict[str, str], texts: dict)
     trigger = profile.trigger
     if trigger:
         median = snap["observed_auto_compaction_median"]
+        if median is None:
+            raise SystemExit(
+                f"{profile.name}: the logs have no automatic compaction, so the "
+                "observed window cannot be shown; the page needs at least one"
+            )
         values.update(
             buffer=kfmt(trigger["buffer"]),
             min_window=kfmt(trigger["min_window"]),
             max_window=kfmt(trigger["max_window"]),
             eff_trigger=kfmt(min(profile.context_window, trigger["max_window"]) - trigger["buffer"]),
-            max_trigger=kfmt(profile.max_threshold),
             observed_window=kfmt(trigger["observed_window"]),
             observed_median=kfmt(round(median / 1000) * 1000),
             buffer_observed=kfmt(trigger["observed_window"] - median),
@@ -755,13 +761,18 @@ def slim(rows: list[dict], field: str) -> list[list[float]]:
     ]
 
 
+def json_for_script(value: object, **kwargs) -> str:
+    """JSON that is safe inside an inline <script> (no literal `</`)."""
+    return json.dumps(value, **kwargs).replace("</", "<\\/")
+
+
 def page(strings: dict, back: str, body: str, script: str) -> str:
     head = (
         HEAD.replace("__TITLE_EN__", html.escape(strings["en"]["title"]))
         .replace("__GITHUB__", GITHUB_URL)
         .replace("__BACK__", back)
     )
-    data = json.dumps(strings, ensure_ascii=False)
+    data = json_for_script(strings, ensure_ascii=False)
     return f"{head}{body}<script>\nconst T={data};\n{LANG_JS}{script}</script>\n</body>\n</html>\n"
 
 
@@ -791,7 +802,7 @@ def render_model(
     }.items():
         body = body.replace(key, str(value))
     back = f'<a class="back" href="{LANDING_NAME}">← {localized("nav_all", per_lang)}</a>'
-    script = MODEL_JS.replace("__DATA__", json.dumps(payload))
+    script = MODEL_JS.replace("__DATA__", json_for_script(payload))
     return page(js_strings(per_lang, "h1"), back, body, script)
 
 

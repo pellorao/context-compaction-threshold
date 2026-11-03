@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import statistics
 from collections import Counter
 from dataclasses import dataclass, field
@@ -32,6 +33,16 @@ MODEL_OUTPUT = {"reasoning", "function_call", "custom_tool_call", "tool_search_c
 # A token_count this close to the compaction record belongs to the compaction
 # request itself, not to the request before it.
 COMPACTION_OWN_EVENT_SECONDS = 1.0
+
+
+def _has_marker(cwd: str, markers: Iterable[str]) -> bool:
+    """Whether a word of the working directory starts with a marker.
+
+    Words are split at anything but letters and digits, so `test` matches
+    `tests` or `test-app` but not `latest` or `contest`.
+    """
+    words = re.split(r"[^A-Za-z0-9]+", cwd)
+    return any(word.startswith(marker) for word in words for marker in markers)
 
 
 def _session_start(path: Path) -> float | None:
@@ -226,7 +237,7 @@ def collect(
             reason = "active-analysis"
         elif thread in excluded or parent in excluded:
             reason = "compaction-calibration"
-        elif any(part in cwd for part in profile.harness_cfg["excluded_cwd_markers"]):
+        elif _has_marker(cwd, profile.harness_cfg["excluded_cwd_markers"]):
             reason = "smoke-or-test"
         elif log.other_model:
             # Matched by provider, but a session on another model (other prices).

@@ -18,6 +18,7 @@ from analysis import (
     Request,
     Session,
     CompactionSample,
+    FitError,
     _fit_no_intercept,
     chain_requests,
     fill_unknown_seconds,
@@ -237,6 +238,15 @@ def _fit_token_estimator(
             ):
                 points.append([float(message.text_cjk), float(message.text_other)])
                 values.append(float(message.output_tokens - message.thinking_tokens))
+    if not points:
+        raise FitError(
+            "No plain answers to calibrate the summary token estimate on; "
+            "the Claude Code logs need end_turn text messages"
+        )
+    if not any(cjk for cjk, _ in points):
+        # No CJK text to learn from: one rate for every character.
+        (per_other,) = _fit_no_intercept([[other] for _, other in points], values)
+        return per_other, per_other, len(points)
     per_cjk, per_other = _fit_no_intercept(points, values)
     return per_cjk, per_other, len(points)
 
@@ -331,6 +341,7 @@ def collect(
                 )
     if not sessions or not compactions:
         raise ValueError("No matching sessions or compactions were found")
+    auto_inputs = [t.input_tokens for t in compactions if t.source == "transcript-auto"]
     stats = {
         "requests_without_duration": fill_unknown_seconds(sessions),
         "included_sessions_main": sum(s.segment == "main" for s in sessions),
@@ -347,10 +358,8 @@ def collect(
         "observed_compaction_input_median": round(
             statistics.median(t.input_tokens for t in compactions)
         ),
-        "observed_auto_compaction_median": round(
-            statistics.median(
-                t.input_tokens for t in compactions if t.source == "transcript-auto"
-            )
+        "observed_auto_compaction_median": (
+            round(statistics.median(auto_inputs)) if auto_inputs else None
         ),
         "mean_uncached_multiplier": statistics.fmean(
             s.uncached_multiplier for s in sessions

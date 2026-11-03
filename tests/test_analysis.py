@@ -64,7 +64,7 @@ class AnalysisTest(unittest.TestCase):
         profile = load_profile("deepseek-flash")
         compactions = load_compactions(ROOT / profile.compactions_path)
         session = Session(
-            requests=[Request(20_000, 13_000, 500, 3.0), Request(280_000, 270_000, 600, 4.0)],
+            requests=[Request(20_000, 13_000, 500, 3.0), Request(150_000, 140_000, 800, 4.5), Request(280_000, 270_000, 600, 4.0)],
         )
         mix = {"uncached_input": 1_000, "cache_write_5m": 0, "cache_write_1h": 0,
                "cache_read": 3_000, "output": 1_000}
@@ -177,7 +177,7 @@ class AnalysisTest(unittest.TestCase):
         profile = load_profile("deepseek-flash")
         model = fit_model(load_compactions(ROOT / profile.compactions_path), profile)
         # 100 requests of 5 s each; the context passes any low threshold once.
-        requests = [Request(20_000 + 1_000 * i, 19_000 + 1_000 * i, 100, 5.0) for i in range(100)]
+        requests = [Request(20_000 + 1_000 * i, 19_000 + 1_000 * i, 100 + 7 * (i % 5), 5.0) for i in range(100)]
         rows = curve(
             [Session(requests)], model, profile, cached_prefix=model.central_cached_prefix
         )
@@ -244,7 +244,7 @@ class RequestTimeTest(unittest.TestCase):
         profile = load_profile("deepseek-flash")
         model = fit_model(load_compactions(ROOT / profile.compactions_path), profile)
         # Observed contexts 20K..119K; a 5 s request each.
-        requests = [Request(20_000 + 1_000 * i, 19_000 + 1_000 * i, 100, 5.0) for i in range(100)]
+        requests = [Request(20_000 + 1_000 * i, 19_000 + 1_000 * i, 100 + 7 * (i % 5), 5.0) for i in range(100)]
         slopes = (1e-5, 0.0, 2e-5)
         rows = curve(
             [Session(requests)], model, profile,
@@ -297,7 +297,7 @@ class RequestTimeTest(unittest.TestCase):
         profile = load_profile("deepseek-flash")
         self.assertEqual(profile.request_slope, (0.96e-5, 0.31e-5, 1.18e-5))
         compactions = load_compactions(ROOT / profile.compactions_path)
-        sessions = [Session([Request(20_000 + 3_000 * i, 18_000 + 3_000 * i, 100, 2.0 + 3e-6 * (20_000 + 3_000 * i)) for i in range(40)])]
+        sessions = [Session([Request(20_000 + 3_000 * i, 18_000 + 3_000 * i, 100 + 7 * (i % 5), 2.0 + 3e-6 * (20_000 + 3_000 * i)) for i in range(40)])]
         result = build_result(
             sessions, {}, compactions, profile,
             BootstrapConfig(replicates=4, block_requests=4, seed=3, workers=1),

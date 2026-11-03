@@ -118,13 +118,25 @@ def load_compactions(path: Path) -> list[CompactionSample]:
     ]
 
 
+class FitError(ValueError):
+    """The data cannot support a fit (too few points, or degenerate features)."""
+
+
+SINGULAR_TOLERANCE = 1e-12
+
+
 def _solve_linear(matrix: list[list[float]], vector: list[float]) -> list[float]:
     size = len(vector)
+    scale = max((abs(value) for row in matrix for value in row), default=0.0)
     rows = [matrix[index][:] + [vector[index]] for index in range(size)]
     for column in range(size):
         pivot = max(range(column, size), key=lambda row: abs(rows[row][column]))
         rows[column], rows[pivot] = rows[pivot], rows[column]
         divisor = rows[column][column]
+        if abs(divisor) <= SINGULAR_TOLERANCE * scale or scale == 0.0:
+            raise FitError(
+                "The fit is degenerate: a feature is constant or all zero in the data"
+            )
         rows[column] = [value / divisor for value in rows[column]]
         for row in range(size):
             if row == column:
@@ -138,6 +150,8 @@ def _solve_linear(matrix: list[list[float]], vector: list[float]) -> list[float]
 
 
 def _fit_no_intercept(xs: list[list[float]], ys: list[float]) -> list[float]:
+    if not xs:
+        raise FitError("The fit has no data points")
     size = len(xs[0])
     matrix = [
         [sum(row[left] * row[right] for row in xs) for right in range(size)]
@@ -213,10 +227,12 @@ def fit_model(compactions: list[CompactionSample], profile: Profile) -> FittedMo
             for row in features
         ]
         mean = statistics.fmean(time_values)
-        return 1 - sum(
+        total = sum((actual - mean) ** 2 for actual in time_values)
+        residual = sum(
             (actual - predicted) ** 2
             for actual, predicted in zip(time_values, predictions)
-        ) / sum((actual - mean) ** 2 for actual in time_values)
+        )
+        return 1 - residual / total if total else 0.0
 
     # The cache parameter is the reusable cached prefix (fixed_prefix) or the
     # uncached tail of the compaction input (context_minus_tail). low_ is the
@@ -352,20 +368,24 @@ def fit_request_time(sessions: list[Session]) -> RequestTimeFit:
         for session in sessions
         for request in session.requests
     ]
+    if not rows:
+        raise FitError("No requests to fit the request time on")
     intercept, per_input, per_output = _fit_no_intercept(
         [[1.0, x, y] for x, y, _ in rows], [t for _, _, t in rows]
     )
     mean = statistics.fmean(t for _, _, t in rows)
     residual = sum((t - intercept - per_input * x - per_output * y) ** 2 for x, y, t in rows)
     total = sum((t - mean) ** 2 for _, _, t in rows)
-    return RequestTimeFit(intercept, per_input / 1e5, per_output / 1e3, 1 - residual / total)
+    r2 = 1 - residual / total if total else 0.0
+    return RequestTimeFit(intercept, per_input / 1e5, per_output / 1e3, r2)
 
 
 def fill_unknown_seconds(sessions: list[Session]) -> int:
     """Give requests without a usable duration (<= 0) the median of the others."""
-    median = statistics.median(
-        r.seconds for s in sessions for r in s.requests if r.seconds > 0
-    )
+    known = [r.seconds for s in sessions for r in s.requests if r.seconds > 0]
+    if not known:
+        raise FitError("No request has a usable duration")
+    median = statistics.median(known)
     unknown = 0
     for session in sessions:
         for index, request in enumerate(session.requests):
@@ -739,10 +759,12 @@ def bootstrap_curves(
     return _average_curves([curves for curves, _ in replicates], profile, slopes), slopes
 
 
-def _minimum_valid(rows: list[dict]) -> dict:
+def _minimum_valid(rows: list[dict]) -> dict | None:
+    """The cheapest row within the time limit, or None when none is feasible."""
     return min(
         (row for row in rows if row["feasible_time"]),
         key=lambda row: row["cost_usd_off_peak"],
+        default=None,
     )
 
 
@@ -765,6 +787,20 @@ def _compact_curve(rows: list[dict]) -> list[dict]:
     return [{field: row[field] for field in fields} for row in rows]
 
 
+def check_threshold_floor(profile: Profile) -> None:
+    """The grid must start above the post-compaction context.
+
+    A trigger at or below it compacts again on every request, so those points
+    describe a setting nobody can use and distort the cost axis.
+    """
+    if profile.post_context is not None and profile.min_threshold <= profile.post_context:
+        raise FitError(
+            f"{profile.name}: the threshold grid starts at {profile.min_threshold}, "
+            f"not above the post-compaction context {profile.post_context}; "
+            "raise threshold.min in config/models.json"
+        )
+
+
 def build_result(
     sessions: list[Session],
     excluded_count: dict[str, int],
@@ -774,6 +810,7 @@ def build_result(
     billing_mix: dict[str, int],
     extra_snapshot: dict | None = None,
 ) -> dict:
+    check_threshold_floor(profile)
     model = fit_model(compactions, profile)
     request_fit = fit_request_time(sessions)
     central_slope = request_fit.seconds_per_input
@@ -816,7 +853,9 @@ def build_result(
             "cached": item.cached_tokens,
             "output": item.output_tokens,
             "seconds": item.seconds,
-            "cache_fraction": item.cached_tokens / item.input_tokens,
+            "cache_fraction": (
+                item.cached_tokens / item.input_tokens if item.input_tokens else 0.0
+            ),
             "cost_usd_off_peak": (
                 (item.input_tokens - item.cached_tokens)
                 * profile.write_multiplier
@@ -853,7 +892,7 @@ def build_result(
                 for session in sessions
                 for request in session.requests
             ),
-            "mean_increment": statistics.fmean(increments),
+            "mean_increment": statistics.fmean(increments) if increments else 0.0,
             "excluded": excluded_count,
             "analysis_mode": "block-bootstrap-from-real-session-transitions",
         },

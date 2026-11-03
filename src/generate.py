@@ -11,6 +11,7 @@ from pathlib import Path
 from analysis import (
     LOGGED_SOURCES,
     BootstrapConfig,
+    FitError,
     borrow_compactions,
     build_result,
     load_compactions,
@@ -18,6 +19,7 @@ from analysis import (
 )
 from harness import collect
 from model_profile import (
+    COMPACTIONS_NAME,
     DEFAULT_PROFILE,
     ROOT,
     Profile,
@@ -114,17 +116,23 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
         snapshot_at=args.snapshot_at,
     )
     profile = collected.profile
-    compactions_path = args.compactions or ROOT / profile.compactions_path
+    committed_path = ROOT / profile.compactions_path
+    # A run sent to another directory keeps its samples there too, so the
+    # committed file is never rewritten by it.
+    redirected = output_dir.resolve() != (ROOT / profile.data_dir).resolve()
+    compactions_path = args.compactions or (
+        output_dir / COMPACTIONS_NAME if redirected else committed_path
+    )
     if not args.compactions:
         # Samples found in the logs are stored (the hand-measured ones already
-        # in the file stay); the fit reads the stored file.
+        # in the committed file stay); the fit reads the stored file.
         hand = (
             [
                 s
-                for s in load_compactions(compactions_path)
+                for s in load_compactions(committed_path)
                 if not s.source.startswith(LOGGED_SOURCES)
             ]
-            if compactions_path.exists()
+            if committed_path.exists()
             else []
         )
         # A compaction that was also timed by hand keeps its hand timing.
@@ -134,6 +142,7 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
             for c in collected.compactions
             if (c.input_tokens, c.cached_tokens, c.output_tokens) not in timed
         ]
+        output_dir.mkdir(parents=True, exist_ok=True)
         save_compactions(compactions_path, hand + found)
     compactions = load_compactions(compactions_path)
     stats = dict(collected.stats)
@@ -197,7 +206,10 @@ def main() -> None:
     analyzed = load_profile(args.profile, args.harness)
     analyzed_dir = args.output_dir or ROOT / analyzed.data_dir
     if not args.render_only:
-        analyze(args, analyzed, analyzed_dir)
+        try:
+            analyze(args, analyzed, analyzed_dir)
+        except FitError as error:
+            raise SystemExit(str(error)) from error
     profiles: dict[str, Profile] = {}
     results: dict[str, dict] = {}
     for name in profile_names():

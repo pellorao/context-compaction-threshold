@@ -88,28 +88,57 @@ class CwdMarkerTest(unittest.TestCase):
 
 
 class OutputDirTest(unittest.TestCase):
-    def test_a_redirected_run_leaves_the_committed_samples_alone(self) -> None:
-        profile = load_profile("deepseek-flash")
-        committed = ROOT / profile.compactions_path
-        before = committed.read_bytes()
-        logged = CompactionSample("log-1", 100_000, 90_000, 1_000, 30.0, "log-auto")
-        collected = SimpleNamespace(
-            profile=profile, compactions=[logged], stats={}, sessions=[],
+    def setUp(self) -> None:
+        self.profile = load_profile("deepseek-flash")
+        self.committed = ROOT / self.profile.compactions_path
+        self.logged = CompactionSample("log-1", 100_000, 90_000, 1_000, 30.0, "log-auto")
+        self.collected = SimpleNamespace(
+            profile=self.profile, compactions=[self.logged], stats={}, sessions=[],
             excluded={}, billing_mix={},
         )
-        args = Namespace(
+        self.args = Namespace(
             compactions=None, replicates=1, block_size=1, seed=1, workers=1,
             session_root=None, active_thread=None, exclude_thread=[], snapshot_at=None,
         )
+
+    def test_a_failed_fit_writes_no_samples(self) -> None:
         with tempfile.TemporaryDirectory() as directory, \
-                mock.patch.object(generate, "collect", return_value=collected), \
+                mock.patch.object(generate, "collect", return_value=self.collected), \
                 mock.patch.object(generate, "build_result", side_effect=RuntimeError("stop")):
+            before = self.committed.read_bytes()
             with self.assertRaises(RuntimeError):
-                generate.analyze(args, profile, Path(directory))
+                generate.analyze(self.args, self.profile, Path(directory))
+            self.assertEqual(list(Path(directory).iterdir()), [])
+            self.assertEqual(self.committed.read_bytes(), before)
+
+    def test_a_redirected_run_leaves_the_committed_samples_alone(self) -> None:
+        before = self.committed.read_bytes()
+        result = {"snapshot": {"requests": 1, "request_seconds": 1.0,
+                               "included_sessions": 0, "included_active_tail": False}}
+        with tempfile.TemporaryDirectory() as directory, \
+                mock.patch.object(generate, "collect", return_value=self.collected), \
+                mock.patch.object(generate, "build_result", return_value=result):
+            generate.analyze(self.args, self.profile, Path(directory))
             stored = load_compactions(Path(directory) / "compactions.json")
-        self.assertEqual(committed.read_bytes(), before)
+            self.assertTrue((Path(directory) / "result.json").exists())
+        self.assertEqual(self.committed.read_bytes(), before)
         self.assertIn("log-1", [s.name for s in stored])
         self.assertTrue(any(not s.source.startswith(generate.LOGGED_SOURCES) for s in stored))
+
+
+class RenderOnlyTest(unittest.TestCase):
+    def test_a_missing_result_is_an_error_not_a_missing_model(self) -> None:
+        with tempfile.TemporaryDirectory() as root, \
+                mock.patch.object(generate, "ROOT", Path(root)), \
+                mock.patch.object(generate, "parse_args", return_value=Namespace(
+                    profile=generate.DEFAULT_PROFILE, harness=None, render_only=True,
+                    output_dir=None, site_dir=Path(root) / "site")), \
+                mock.patch.object(generate, "load_profile", return_value=SimpleNamespace(
+                    data_dir="data/x")), \
+                mock.patch.object(generate, "profile_names", return_value=["only"]):
+            with self.assertRaises(SystemExit) as caught:
+                generate.main()
+        self.assertIn("result.json", str(caught.exception))
 
 
 if __name__ == "__main__":

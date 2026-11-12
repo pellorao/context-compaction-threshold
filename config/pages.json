@@ -20,7 +20,6 @@
       "chart_p": "Everything is measured against the largest trigger, {max_trigger}, which sits at 0%. The top chart is cost. The bottom chart is time: the orange line is the share of model request time spent compacting. Its axis stops at 20%, so a curve that climbs higher runs off the top. Hover or tap either chart to read any trigger. The shaded bands show the likely range.",
       "speed_h": "Summary writing speed",
       "speed_p": "Compaction time is mostly the model writing its summary. If your server is faster or slower than the measured {output_speed} tokens per second, move the slider. It changes the orange line and its shaded range in the bottom chart and the pick cards above. The cost chart stays the same.",
-      "speed_unit": "tokens per second",
       "read_h": "How to read it",
       "read_1": "<strong>Left side: compact often.</strong> Every compaction rereads the whole context and writes a summary, so cost and waiting both shoot up.",
       "read_2": "<strong>Right side: compact rarely.</strong> Compactions get scarce, but every request carries a big context, so cost creeps up again and each request runs a little slower.",
@@ -64,7 +63,6 @@
       "cav_4": "<strong>Your work may differ.</strong> The curves come from these sessions only. Resampling reuses the patterns that were seen and cannot invent new ones. Run the analysis again if your way of working changes.",
       "foot": "© 2026 Tranzvision",
       "js": {
-        "title_suffix": "Context Compaction Threshold",
         "pick_limit": "Up to %limit%",
         "pick_cost": "Cost change",
         "pick_time": "Compaction share",
@@ -110,7 +108,6 @@
       "chart_p": "所有数值都和最大触发点 {max_trigger} 相比，那里就是 0%。上面一张图是费用，下面一张图是时间：橙线是压缩占模型请求时间的比例。时间轴最高到 20%，更高的部分会冲出图的上沿。把鼠标移到任意一张图上或点一下，就能读出对应触发点的数值。浅色带是可能的范围。",
       "speed_h": "摘要生成速度",
       "speed_p": "压缩耗时主要花在模型写摘要上。如果你的服务比实测的每秒 {output_speed} 个 token 更快或更慢，就拖动滑块。滑块会改变下面那张时间图里的橙线和它周围的浅色区域，以及上面的卡片。费用图不会变。",
-      "speed_unit": "token 每秒",
       "read_h": "怎么看这张图",
       "read_1": "<strong>左边：压缩得勤。</strong>每次压缩都要把整段上下文重读一遍，再写一份摘要，所以费用和等待都会飙升。",
       "read_2": "<strong>右边：压缩得少。</strong>压缩次数变少了，但每次请求都背着很大的上下文，费用又慢慢涨回去，每次请求也会慢一点。",
@@ -154,7 +151,6 @@
       "cav_4": "<strong>你的工作可能不一样。</strong>曲线只来自这些会话。重采样只能重复已经见过的变化模式，不能凭空创造新的。工作方式变了，就应该重新分析。",
       "foot": "© 2026 Tranzvision",
       "js": {
-        "title_suffix": "上下文压缩阈值",
         "pick_limit": "不超过 %limit%",
         "pick_cost": "费用变化",
         "pick_time": "压缩占比",

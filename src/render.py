@@ -22,7 +22,8 @@ LANGS = ("en", "zh")
 GITHUB_URL = "https://github.com/pellorao/context-compaction-threshold"
 LANDING_NAME = "index.html"
 # Decimals of the compactions-per-1M-tokens figure. The smallest value on any
-# profile's grid is about 0.0003, so 5 decimals keep two significant digits.
+# profile's grid is about 0.001 (see docs/methodology.md), so 5 decimals keep
+# at least two significant digits.
 COUNT_DECIMALS = 5
 
 HEAD = r"""<!doctype html>
@@ -379,7 +380,7 @@ function ticksIn(min,max,extendTop=true){
 // Cost axis: fits the data with a 5% margin.
 function axisFit(lo,hi){const m=(hi-lo)*.05;return ticksIn(lo-m,hi+m);}
 const windowFor=t=>Math.round((t+D.buffer)/1000)*1000;
-const perM=n=>D.billedM?n/D.billedM:n;
+const perM=n=>n/D.billedM;
 let speed=D.referenceSpeed,pinned=null; // exact measured speed until the slider moves, so picks match result.json
 
 function pickRows(){
@@ -567,21 +568,15 @@ def load_pages(path: Path = PAGES_PATH) -> dict:
     return json.loads(path.read_text())
 
 
-def per_million(data: dict) -> bool:
-    """True when the result's costs are normalised to 1M billed tokens."""
-    return "billed_tokens" in data["snapshot"]
+COST_FIELD = "cost_per_million_tokens"
 
 
-def cost_field(data: dict) -> str:
-    return "cost_per_million_tokens" if per_million(data) else "cost_usd_off_peak"
-
-
-def layered_texts(pages: dict, profile: Profile, lang: str, normalised: bool) -> dict:
+def layered_texts(pages: dict, profile: Profile, lang: str) -> dict:
     """Shared, then cost-unit, harness and profile text for one language."""
     texts: dict = {"js": {}}
     for layer in (
         pages["shared"],
-        pages["cost_per_million"] if normalised else {},
+        pages["cost_per_million"],
         pages["harnesses"][profile.harness],
         pages["profiles"].get(profile.name, {}),
     ):
@@ -603,7 +598,7 @@ def window_for(trigger_tokens: int, buffer: int) -> int:
 
 
 def cheapest(data: dict) -> dict:
-    return min(data["curves"]["central"], key=lambda row: row[cost_field(data)])
+    return min(data["curves"]["central"], key=lambda row: row[COST_FIELD])
 
 
 def page_vars(data: dict, profile: Profile, labels: dict[str, str], texts: dict) -> dict:
@@ -639,17 +634,16 @@ def page_vars(data: dict, profile: Profile, labels: dict[str, str], texts: dict)
         "mean_request": f"{snap['request_seconds'] / snap['requests']:.1f}",
         "active_tail_note": texts["active_tail"] if snap["included_active_tail"] else "",
     }
-    if per_million(data):
-        mix = snap["billing_mix"]
-        for name, key in (
-            ("mix_input", "uncached_input"),
-            ("mix_write5", "cache_write_5m"),
-            ("mix_write1", "cache_write_1h"),
-            ("mix_read", "cache_read"),
-            ("mix_output", "output"),
-        ):
-            values[name] = f"{mix[key] / snap['billed_tokens'] * 100:.1f}%"
-        values["billed_m"] = f"{snap['billed_tokens'] / 1e6:,.0f}"
+    mix = snap["billing_mix"]
+    for name, key in (
+        ("mix_input", "uncached_input"),
+        ("mix_write5", "cache_write_5m"),
+        ("mix_write1", "cache_write_1h"),
+        ("mix_read", "cache_read"),
+        ("mix_output", "output"),
+    ):
+        values[name] = f"{mix[key] / snap['billed_tokens'] * 100:.1f}%"
+    values["billed_m"] = f"{snap['billed_tokens'] / 1e6:,.0f}"
     trigger = profile.trigger
     if trigger:
         median = snap["observed_auto_compaction_median"]
@@ -695,7 +689,7 @@ def expanded_texts(
     """Per language: every text with its `{name}` variables filled in."""
     per_lang = {}
     for lang in LANGS:
-        texts = layered_texts(pages, profile, lang, per_million(data))
+        texts = layered_texts(pages, profile, lang)
         strings = {k: v for k, v in texts.items() if isinstance(v, str)}
         values = {**strings, **page_vars(data, profile, labels, texts)}
         per_lang[lang] = {
@@ -783,15 +777,15 @@ def render_model(
     fit, trigger = data["fitted_model"], profile.trigger
     payload = {
         "rows": {
-            "c": slim(data["curves"]["central"], cost_field(data)),
-            "lo": slim(data["curves"]["cost_low"], cost_field(data)),
-            "hi": slim(data["curves"]["cost_high"], cost_field(data)),
+            "c": slim(data["curves"]["central"], COST_FIELD),
+            "lo": slim(data["curves"]["cost_low"], COST_FIELD),
+            "hi": slim(data["curves"]["cost_high"], COST_FIELD),
         },
         "referenceSpeed": fit["output_speed_tokens_per_second"],
         "timeAxisMax": profile.time_axis_max,
         "limits": list(profile.quick_limits),
         "buffer": trigger["buffer"] if trigger else None,
-        "billedM": data["snapshot"]["billed_tokens"] / 1e6 if per_million(data) else None,
+        "billedM": data["snapshot"]["billed_tokens"] / 1e6,
         "countDecimals": COUNT_DECIMALS,
     }
     body = fill_template(MODEL_BODY, per_lang)

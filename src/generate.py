@@ -123,9 +123,13 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
     compactions_path = args.compactions or (
         output_dir / COMPACTIONS_NAME if redirected else committed_path
     )
-    if not args.compactions:
+    if args.compactions:
+        compactions = load_compactions(compactions_path)
+        write_samples = False
+    else:
         # Samples found in the logs are stored (the hand-measured ones already
-        # in the committed file stay); the fit reads the stored file.
+        # in the committed file stay); the fit reads the same list. The file is
+        # written only after the fit succeeds, so a failed run leaves it alone.
         hand = (
             [
                 s
@@ -142,9 +146,9 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
             for c in collected.compactions
             if (c.input_tokens, c.cached_tokens, c.output_tokens) not in timed
         ]
-        output_dir.mkdir(parents=True, exist_ok=True)
-        save_compactions(compactions_path, hand + found)
-    compactions = load_compactions(compactions_path)
+        compactions = hand + found
+        write_samples = True
+    stored = list(compactions)
     stats = dict(collected.stats)
     needed = profile.harness_cfg.get("min_fit_compactions", 0)
     if len(compactions) < needed:
@@ -176,6 +180,8 @@ def analyze(args: argparse.Namespace, profile: Profile, output_dir: Path) -> Non
     )
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    if write_samples:
+        save_compactions(compactions_path, stored)
     (output_dir / "result.json").write_text(
         json.dumps(result, indent=2, ensure_ascii=False) + "\n"
     )
@@ -218,6 +224,9 @@ def main() -> None:
         if result_path.exists():
             profiles[name] = profile
             results[name] = json.loads(result_path.read_text())
+        elif args.render_only:
+            # A published site must not silently lose a model.
+            raise SystemExit(f"--render-only needs {result_path} for profile {name}")
     write_site(args.site_dir, results, profiles)
 
 

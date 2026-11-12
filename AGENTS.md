@@ -49,4 +49,4 @@ Page text lives only in `config/pages.json`, in English and Simplified Chinese, 
 
 - Pushing `main` makes Cloudflare Pages run `python3 src/generate.py --render-only` and publish `artifacts/`. No Cloudflare tooling is needed for updates.
 - Changing Pages settings needs the user's Pages-only API token in `~/.config/cloudflare/`; never print or copy it.
-- Commit or push only when the user asks. If `git push` disconnects, retry with `git -c http.version=HTTP/1.1 push`.
+- Commit only when the user asks; push `main` right after every commit (user 2026-11-12), so every commit publishes the site. If `git push` disconnects, retry with `git -c http.version=HTTP/1.1 push`.

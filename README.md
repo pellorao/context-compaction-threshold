@@ -50,7 +50,7 @@ data/<harness>/<profile>/result.json        Analysis result (the only input of t
 
 From the resulting `result.json` files, the renderer writes the static site into `artifacts/`: `artifacts/index.html` (the landing page) and `artifacts/<profile>.html` (one chart page per model; because each profile has one default harness, `<profile>.html` is unambiguous). The `artifacts/` directory holds only generated pages, is git-ignored and is never committed.
 
-No generated page is committed, so deployment builds from the data instead: Cloudflare Pages builds the site on every push to `main` by running `python3 src/generate.py --render-only` and publishing `artifacts/`. Because rendering reads only the committed `result.json` files, the build needs only Python 3 (Python 3.8 or newer is enough)—no sessions, network or packages. Local Wrangler is not required; use the Cloudflare API for Pages configuration changes.
+Because no generated page is committed, deployment builds the site from the data instead: on every push to `main`, Cloudflare Pages runs `python3 src/generate.py --render-only` and publishes `artifacts/`. Because rendering reads only the committed `result.json` files, the build needs only Python 3 (Python 3.8 or newer is enough)—no sessions, network or packages. Local Wrangler is not required; use the Cloudflare API for Pages configuration changes.
 
 ## Repository layout
 
@@ -67,4 +67,4 @@ artifacts/    Generated pages only (git-ignored, built at deploy time)
 
 ## Privacy
 
-Because session logs contain full conversations, raw data and published outputs are strictly separated. Raw session logs (`~/.codex/sessions`, `~/.claude/projects`) and any frozen local snapshots under the git-ignored `.tmp/` (see Quick start) are private. Committed and generated files hold only aggregate counts, fitted coefficients, curves and sanitized compaction samples: no session IDs, paths, prompts or message content. Always review generated files before publishing results from another machine.
+Because session logs contain full conversations, raw data and published outputs are strictly separated. Raw session logs (`~/.codex/sessions`, `~/.claude/projects`) stay private, as do any frozen local snapshots under the git-ignored `.tmp/` (see Quick start). Committed and generated files hold only aggregate counts, fitted coefficients, curves and sanitized compaction samples: no session IDs, paths, prompts or message content. Always review generated files before publishing results from another machine.

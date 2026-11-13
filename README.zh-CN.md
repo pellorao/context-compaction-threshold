@@ -50,7 +50,7 @@ data/<harness>/<profile>/result.json        分析结果（页面的唯一输入
 
 渲染器随后只读取 `result.json`，将静态页面输出到 `artifacts/` 目录：`artifacts/index.html`（首页）和 `artifacts/<profile>.html`（每个模型一张图表页；由于每个 profile 只有一个默认 harness，`<profile>.html` 不会产生歧义）。`artifacts/` 只存放生成的页面，被 git 忽略，从不提交。
 
-生成的页面不入库，所以部署时由数据重新构建：每次推送到 `main` 分支时，Cloudflare Pages 都会执行 `python3 src/generate.py --render-only` 构建站点并发布 `artifacts/`。由于渲染只需读取已提交的 `result.json`，构建环境只需要 Python 3（Python 3.8 及以上即可），不需要会话日志、网络连接或第三方包。本地也不需要安装 Wrangler；如需修改 Pages 配置，请直接调用 Cloudflare API。
+生成的页面不入库，所以部署时会直接由数据构建站点：每次推送到 `main` 分支，Cloudflare Pages 都会执行 `python3 src/generate.py --render-only` 并发布 `artifacts/`。由于渲染只需读取已提交的 `result.json`，构建环境只需要 Python 3（Python 3.8 及以上即可），不需要会话日志、网络连接或第三方包。本地也不需要安装 Wrangler；如需修改 Pages 配置，请直接调用 Cloudflare API。
 
 ## 目录结构
 
@@ -67,4 +67,4 @@ artifacts/    只放生成的页面（被 git 忽略，部署时生成）
 
 ## 隐私
 
-由于原始会话日志包含完整对话内容，项目对私有日志与公开产物做了严格隔离。原始会话日志（`~/.codex/sessions`、`~/.claude/projects`）以及存放在被 git 忽略的 `.tmp/` 下的冻结本地快照（见快速开始）都属于私有数据。提交入库和生成的页面文件只包含聚合计数、拟合系数、曲线以及脱敏后的压缩样本，不含任何会话 ID、路径、提示词或消息正文。发布其他机器上跑出的结果前，请先检查生成的文件。
+由于原始会话日志包含完整对话内容，项目对私有日志与公开产物做了严格隔离。原始会话日志（`~/.codex/sessions`、`~/.claude/projects`）属于私有数据，存放在被 git 忽略的 `.tmp/` 下的冻结本地快照也是如此（见快速开始）。提交入库和生成的页面文件只包含聚合计数、拟合系数、曲线以及脱敏后的压缩样本，不含任何会话 ID、路径、提示词或消息正文。发布其他机器上跑出的结果前，请先检查生成的文件。

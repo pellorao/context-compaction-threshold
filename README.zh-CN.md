@@ -46,7 +46,7 @@ data/<harness>/<profile>/compactions.json   脱敏后的压缩样本（校准输
 data/<harness>/<profile>/result.json        分析结果（页面的唯一输入）
 ```
 
-`compactions.json` 每行记录一次实测压缩，包含 `name`、`source`、`input_tokens`、`cached_tokens`、`output_tokens` 和 `seconds`，全部为纯数字。分析运行时如何更新该文件取决于所使用的 harness：Codex 每次运行都会刷新从日志中读取的压缩记录（`log-auto`），同时 DeepSeek 会保留原有的 9 个手工计时样本；Claude Code 每次运行都会从对话记录重新写出样本（`transcript-auto` 或 `transcript-manual`），拟合时再读回这些样本。Claude Sonnet 5.5 自身的压缩样本过少，拟合时会借用 Opus 的样本，但借用的行不会写入它自己的文件。如需改用其他样本文件进行拟合，可传入 `--compactions FILE`。
+`compactions.json` 每行记录一次实测压缩，包含 `name`、`source`、`input_tokens`、`cached_tokens`、`output_tokens` 和 `seconds`，全部为纯数字。分析运行时如何更新该文件取决于所使用的 harness：Codex 每次运行都会刷新从日志中读取的压缩记录（`log-auto`），同时 DeepSeek 会保留原有的 9 个手工计时样本；Claude Code 每次运行都会从对话记录重新生成样本（`transcript-auto` 或 `transcript-manual`），直接用内存中的样本拟合，拟合成功后才写入该文件。Claude Sonnet 5.5 自身的压缩样本过少，拟合时会借用 Opus 的样本，但借用的行不会写入它自己的文件。如需改用其他样本文件进行拟合，可传入 `--compactions FILE`。
 
 渲染器随后只读取 `result.json`，将静态页面输出到 `artifacts/` 目录：`artifacts/index.html`（首页）和 `artifacts/<profile>.html`（每个模型一张图表页；由于每个 profile 只有一个默认 harness，`<profile>.html` 不会产生歧义）。`artifacts/` 只存放生成的页面，被 git 忽略，从不提交。
 
